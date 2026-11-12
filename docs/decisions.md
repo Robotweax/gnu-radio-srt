@@ -469,7 +469,9 @@ partial I/O, EOF and discontinuities.
 | 30 start/stop cycles of a connected pair | no thread or descriptor left | `qa_lifecycle` |
 | Bindings, Companion blocks, generated flowgraphs, headless examples, C++ consumer | pass | `tools/dev/check-install.sh` |
 
-39 flowgraph tests in five suites, all on loopback without loss.
+39 flowgraph tests in five suites, all on loopback without loss. The full gate
+also passes on the hosted x86-64 runner (run 43236052294 on commit
+`e389066`, 18 minutes).
 
 Not covered in M2:
 
