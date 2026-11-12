@@ -29,11 +29,10 @@
   "platform": {
     "os": "Ubuntu 24.04 LTS",
     "arch_qualified": [
-      "aarch64"
-    ],
-    "arch_not_yet_qualified": [
+      "aarch64",
       "x86_64"
-    ]
+    ],
+    "arch_note": "aarch64: local gate, soak and network measurements. x86_64: gate and network-harness check on a GitHub-hosted runner; no soak and no full network matrix there."
   },
   "gnuradio": {
     "version": "3.10.9.2",

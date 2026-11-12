@@ -93,6 +93,7 @@ class qa_config(gr_unittest.TestCase):
             self.assertEqual(st["config"]["sample_rate_num"], 200000)
             self.assertEqual(st["srt_runtime_leases"], 0)
             self.assertEqual(st["versions"]["robotweax_srt"], "0.3.2")
+            self.assertRegex(st["versions"]["module"], r"^0\.1\.\d+(-rc\d+)?$")
             self.assertTrue(st["versions"]["gnuradio"].startswith("3.10"))
             no_secret(self, st, block.status_json())
             self.assertEqual(st, __import__("json").loads(block.status_json()))

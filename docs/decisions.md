@@ -8,8 +8,8 @@ Numbers are measurements from one host inside a container. They show that a
 mechanism works and roughly how it behaves. They are not performance claims.
 Evidence: `tools/dev/run.sh tools/dev/gate.sh`, summaries in
 [evidence/m0/](evidence/m0/), [evidence/m1/](evidence/m1/),
-[evidence/m2/](evidence/m2/), [evidence/m3/](evidence/m3/) and
-[evidence/m4/](evidence/m4/).
+[evidence/m2/](evidence/m2/), [evidence/m3/](evidence/m3/),
+[evidence/m4/](evidence/m4/) and [evidence/m5/](evidence/m5/).
 
 ## Status of the M0 blocking checks
 
@@ -902,3 +902,124 @@ workflow's validation step, which now runs inside the image. Second attempt
 7. The strict Sink's sender-drop path (D33) was not triggered by any
    profile either.
 8. No first user: academic project for now (owner, 2026-11-12).
+
+# Milestone M5: developer release candidate
+
+Status against the plan's M5 row ("Documentation, packaging, clean install,
+hardware/acquisition adapter trial; v0.1 release candidate and
+external-user reproduction"):
+
+| Item | State |
+|---|---|
+| Documentation | done: install guide, limitations, compatibility statement, changelog, release checklist; block reference extended |
+| Packaging | done: source package from one commit, reproducible, with checksum (D46) |
+| Clean install | done: the install guide is executed in a fresh container, locally and in CI (D47) |
+| v0.1 release candidate | prepared as commit and package `0.1.0-rc1`. **Not tagged, not published**: owner decision |
+| External-user reproduction | **not done**: no person outside the project. An AI agent stood in (D48) |
+| Hardware or acquisition adapter trial | **not done**: no hardware |
+
+M5 is therefore complete as far as it can be without hardware and without
+an outside user. The state of every item of the plan's definition of done is
+in [release-checklist.md](release-checklist.md).
+
+## D46. Version and source package
+
+- The release name is set once, `RWSRT_RELEASE_VERSION` in the top-level
+  `CMakeLists.txt` (`0.1.0-rc1`). The blocks report it as
+  `versions.module`; the package is named after it.
+- The package is `git archive` of one commit, gzip without timestamp: the
+  same commit gives the same bytes. `tools/release/make-source-package.sh`
+  refuses a dirty tree unless told to package the working tree for a test,
+  and then marks the result as not a release.
+- No binary package. The plan allows them only for qualified platform
+  combinations; one source build path is enough for a first candidate and
+  avoids the distribution obligations of D12.
+- A release candidate is a commit and a package. No tag was created. No
+  workflow in this repository reacts to tags.
+
+## D47. The install guide is the test
+
+`tools/release/check-clean-install.sh` extracts every `sh` block from
+`docs/install.md` inside the package and runs them in order in a fresh
+container of the pinned base image, as an unprivileged user. It then checks
+that the first transfer printed exactly the guide's "Expected output" and
+that the installed library links exactly one SRT implementation. The guide
+cannot drift from what works without the check failing. Robotweax SRT is
+cloned from its public repository at tag `v0.3.2`, and the guide verifies
+the pinned commit.
+
+Installed below `~/rwsrt`; environment through one sourced file. An
+install into `/usr/local` was not tried.
+
+## D48. Newcomer trial by an AI agent
+
+Plan section 15 asks for one independent developer who reproduces the
+examples from the documentation. There is none. As the nearest available
+thing, a second AI agent with no knowledge of the project got only the
+package and tasks (install, run the examples, write its own f32 sender and
+receiver from the documentation, provoke two mistakes). It succeeded on
+each and found 18 documentation problems, all addressed
+([results-m5.md](results-m5.md)). This does not close the item: same kind
+of reader as the author, same machine, no human judgement.
+
+Findings about the software, not the documents, from that trial:
+
+- A Listener cannot see a Caller with a wrong passphrase. SRT rejects it
+  before the listen callback, `rejected_peers` stays 0, and the Listener
+  ends with `startup_timeout`. Documented; not changed.
+- A Sink is not told why the Source refused its stream (rate or format
+  mismatch). Strict: `connection_lost`. Segmented: it retries and ends with
+  `completed` false and `failure` none. Documented; a rejection reason
+  carried back to the Sink would be the fix and is not in this release.
+
+## D49. The blocks under netem, with encryption
+
+Closes open items 6 of M4 as a functional check
+([results-m5.md](results-m5.md)): `srt_sink` and `srt_source`, AES-CTR,
+segmented, N0 to N2, three runs of 120 s each. Final series 9 of 9: every
+sample delivered or reported. Not a timing measurement.
+
+Two behaviours were quantified for the first time:
+
+- Late join on a delayed path (41 ms of signal on N1, 123 to 164 ms on N2,
+  once 1.19 s): a segmented Sink does not wait for the handshake.
+- Lost END (1 of 6 runs of 120 s on N2): the Source ends only after its
+  60 s reconnect budget, with `termination_unknown`. END is one packet with
+  nothing after it, so SRT's NAK-based recovery cannot notice its loss.
+  Protocol version 1 says END is neither acknowledged nor repeated (D34)
+  and is frozen. Options for a later version, not decided: send END more
+  than once; let the Source end sooner when the peer closed in an orderly
+  way after the last expected sample index.
+
+The first series had one failed run, caused by the check's own time limit;
+it is kept.
+
+## D50. Housekeeping
+
+- A fuzz input from M1 had been committed in the repository root by
+  mistake. It is now a regression input that the native checks run before
+  fuzzing (`tests/fuzz/regressions/`).
+- `dependencies.lock.json` lists x86-64 as qualified, with what that
+  qualification consists of.
+- `THIRD_PARTY_NOTICES.md` was re-checked against the libraries an
+  installed module loads; the release check records that list.
+- CI has two more jobs: `release-check` and `blocks-netem`.
+
+## Open items after M5
+
+1. Two-host experiment with independent clocks, and a clock-offset
+   procedure for it.
+2. Acquisition hardware and an adapter that supplies capture times and
+   overrun reports.
+3. A dedicated host, and the full matrix on x86-64.
+4. An independent person reproducing the examples from the documentation.
+5. Bound on end-to-end age under queueing congestion (D44).
+6. END can be lost and then costs the Source its reconnect budget (D49).
+7. A Sink is not told why its stream was refused; a Listener does not see
+   a wrong passphrase (D48).
+8. Repetitions for the secondary cells of M4 (1 MS/s, burst loss).
+9. The strict Sink's sender-drop path (D33) was never triggered.
+10. Tag and publication of 0.1.0-rc1, and whether 0.1.0 is released with
+    the items above open: owner decisions.
+11. No first user: academic project for now (owner, 2026-11-12).
+

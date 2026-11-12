@@ -5,28 +5,35 @@ impaired IP network using the [Robotweax SRT](https://github.com/Robotweax/srt)
 public C API, with bounded buffering, reported discontinuities and predictable
 shutdown.
 
-**Status: milestones M0 to M3 are complete; M4 is complete as far as one
-emulated machine allows.** The module has two blocks,
+**Status: release candidate 0.1.0-rc1.** The module has two blocks,
 `srt_sink` and `srt_source`, that carry f32 or cf32 sample streams between
 two GNU Radio flowgraphs, with record, discontinuity and capture-time tags,
 strict and segmented continuity modes, AES-CTR, status reporting, Companion
-definitions and examples. Outages, reconnects, lost records and a vanished peer are tested with a
-scripted fault-injecting relay. The transport was measured against UDP and TCP on emulated paths (netem) on
-one virtualised machine; see [docs/results-m4.md](docs/results-m4.md) for
-what that showed and for the supported operating envelope. **It has not been
-run on a real network, between two hosts, or with acquisition hardware. Field
-readiness is not claimed.** No performance or
-benchmark result is claimed.
+definitions and examples.
 
+What stands behind it: outages, reconnects, lost records and a vanished peer
+are tested with a scripted fault-injecting relay. The transport was measured
+against UDP and TCP on emulated paths (netem) on one virtualised machine;
+[docs/results-m4.md](docs/results-m4.md) says what that showed and gives the
+supported operating envelope. **It has not been run on a real network,
+between two hosts, or with acquisition hardware, and nobody outside the
+project has used it. Field readiness is not claimed.** Read
+[docs/limitations.md](docs/limitations.md) first.
+
+- **Install: [docs/install.md](docs/install.md)**
+- Known limitations: [docs/limitations.md](docs/limitations.md)
+- Compatibility: [docs/compatibility.md](docs/compatibility.md)
+- Changes: [CHANGELOG.md](CHANGELOG.md)
 - Specification: [docs/project-plan.md](docs/project-plan.md)
 - Using the blocks: [docs/block-reference.md](docs/block-reference.md)
 - Tags, gaps and time: [docs/continuity-and-time.md](docs/continuity-and-time.md)
 - Examples: [examples/](examples/)
 - Wire protocol: [docs/protocol-v1.md](docs/protocol-v1.md)
-- Measurement protocol and results: [docs/benchmarking.md](docs/benchmarking.md), [docs/results-m4.md](docs/results-m4.md)
+- Measurement protocol and results: [docs/benchmarking.md](docs/benchmarking.md), [docs/results-m4.md](docs/results-m4.md), [docs/results-m5.md](docs/results-m5.md)
+- Release status and how to release: [docs/release-checklist.md](docs/release-checklist.md)
 - Findings and decisions, and where they change the plan: [docs/decisions.md](docs/decisions.md)
 - Pinned dependencies: [dependencies.lock.json](dependencies.lock.json)
-- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/), [docs/evidence/m2/](docs/evidence/m2/), [docs/evidence/m3/](docs/evidence/m3/), [docs/evidence/m4/](docs/evidence/m4/)
+- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/), [docs/evidence/m2/](docs/evidence/m2/), [docs/evidence/m3/](docs/evidence/m3/), [docs/evidence/m4/](docs/evidence/m4/), [docs/evidence/m5/](docs/evidence/m5/)
 
 ## Qualified platform
 
@@ -35,11 +42,14 @@ benchmark result is claimed.
 | OS | Ubuntu 24.04 LTS in Docker: aarch64 locally, x86-64 on a hosted CI runner |
 | GNU Radio | 3.10.9.2 (Ubuntu package) |
 | Robotweax SRT | 0.3.2, commit `e45d0edd`, shared library, OpenSSL backend |
-| Toolchain | GCC 13.3, CMake 3.28, Ninja 1.11, Python 3.12, pybind11 2.11 |
+| Toolchain | GCC 13.3, CMake 3.28, Ninja 1.11, Python 3.12, pybind11 2.11, NumPy 1.26 |
 
 Nothing else is implied to work.
 
-## Build and test
+## Build and test (development)
+
+To use the module, follow [docs/install.md](docs/install.md). This section is
+for working on it.
 
 Everything runs in a development image built from the pins in the lockfile.
 The image build needs Docker and a git checkout of Robotweax SRT that contains
@@ -58,10 +68,14 @@ consumer, the reference-peer end-to-end suite, sanitizer runs and two fuzz
 targets. It writes `artifacts/gate/` and exits nonzero if any gate fails. It
 takes about twenty-five minutes.
 
-The 30-minute soak is separate:
+Separate from the gate, because they take longer or start containers
+themselves:
 
 ```sh
-tools/dev/run.sh tools/dev/soak.sh 1800
+tools/dev/run.sh tools/dev/soak.sh 1800              # 30-minute soak
+tools/dev/netem.sh primary artifacts/qual/primary    # transport against UDP and TCP under netem
+tools/dev/blocks-netem.sh artifacts/blocks-netem     # the blocks, encrypted, under netem
+tools/release/check.sh                               # source package, then docs/install.md in a fresh container
 ```
 
 Individual steps:
@@ -106,6 +120,7 @@ passphrase for local tests; there is no automatic fallback to it.
 | `tests/netem/`, `tools/run_matrix.py`, `tools/validate_results.py` | Network qualification: namespaces with netem, run matrix, evidence validator |
 | `tests/install_consumer/` | C++ consumer of the installed package |
 | `tools/dev/` | Image, build, test and gate scripts |
+| `tools/release/` | Source package and clean-install check |
 | `docker/` | Development image definition |
 
 ## License

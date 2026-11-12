@@ -211,7 +211,9 @@ and 500 ms latency; burst loss; asymmetric loss; recovery 0.37 s after a
 **Known not to hold:** timeliness when a bottleneck queues for seconds
 instead of dropping.
 
-**Not examined at all:** a real network, two hosts with separate clocks,
+**Not examined at all** (as of M4; the blocks, encrypted, were later run
+across N0 to N2 for completeness of accounting only, see
+[results-m5.md](results-m5.md))**:** a real network, two hosts with separate clocks,
 acquisition hardware, a dedicated host, x86-64 for the full matrix, rates
 above 1 MS/s, f32 under impairment, encryption under impairment, the GNU
 Radio blocks under netem, congestion with competing traffic.

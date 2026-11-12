@@ -1,7 +1,9 @@
 #!/bin/sh
 # Inside the development image: run every qualification check of the
-# milestones reached so far (M0 to M3). The 30-minute soak is separate:
-# tools/dev/soak.sh and write an evidence directory.
+# milestones M0 to M3 and write an evidence directory. Separate, because
+# they need more time, privileges or Docker itself: the 30-minute soak
+# (tools/dev/soak.sh), the network runs (tools/dev/netem.sh,
+# tools/dev/blocks-netem.sh) and the release check (tools/release/check.sh).
 # Usage (from the host):
 #   tools/dev/run.sh tools/dev/gate.sh [output-dir]
 # Exits nonzero if any gate fails. A missing prerequisite is a failure, never
@@ -55,6 +57,7 @@ def dpkg(p):
 lock = json.load(open("dependencies.lock.json"))
 manifest = {
     "milestones": ["M0", "M1", "M2", "M3"],
+    "module_release": sh("sed -n 's/^set(RWSRT_RELEASE_VERSION \"\\(.*\\)\")$/\\1/p' CMakeLists.txt"),
     "machine": {"arch": platform.machine(), "kernel": platform.release(),
                 "cpu_count": sh("nproc"), "cpu_model": sh("lscpu | sed -n 's/^Model name: *//p' | head -1"),
                 "virtualization": "Docker container; see docs/decisions.md D2"},

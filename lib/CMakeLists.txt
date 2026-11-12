@@ -37,6 +37,9 @@ target_include_directories(
     PUBLIC $<INSTALL_INTERFACE:include>)
 set_target_properties(gnuradio-robotweax_srt PROPERTIES DEFINE_SYMBOL "gnuradio_robotweax_srt_EXPORTS")
 
+target_compile_definitions(
+    gnuradio-robotweax_srt PRIVATE "RWSRT_MODULE_VERSION=\"${RWSRT_RELEASE_VERSION}\"")
+
 if(APPLE)
     set_target_properties(gnuradio-robotweax_srt PROPERTIES INSTALL_NAME_DIR
                                                     "${CMAKE_INSTALL_PREFIX}/lib")

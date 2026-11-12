@@ -475,6 +475,7 @@ rwsrt::status_doc srt_sink_impl::status_doc() const
     d.set_child("tx_queue", rwsrt::describe(queue));
     d.set_child("session", rwsrt::describe(session));
     d.child("versions")
+        .set_str("module", RWSRT_MODULE_VERSION)
         .set_str("gnuradio", gr::version())
         .set_str("robotweax_srt", rwsrt::srt_library_version());
     // Leases this module holds on the process-wide SRT runtime: 0 when no

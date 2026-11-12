@@ -112,3 +112,71 @@ jobs:
             artifacts/qual-smoke-summary/
           if-no-files-found: error
           retention-days: 90
+
+  release-check:
+    # Builds the source package of this commit and follows docs/install.md
+    # from it in a fresh Ubuntu 24.04 container: no development image, no
+    # checkout. The package is uploaded so that a release candidate can be
+    # taken from a run that passed.
+    name: source package and clean install (ubuntu-24.04 x86-64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package and install from the guide
+        run: tools/release/check.sh artifacts/release
+
+      - name: Upload the package and the evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-check-x86_64
+          path: artifacts/release/
+          if-no-files-found: error
+          retention-days: 90
+
+  blocks-netem:
+    # The two GNU Radio blocks, encrypted, across netem paths: every sample
+    # must be delivered or reported. A functional check, not timing data.
+    name: blocks across netem (ubuntu-24.04 x86-64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read the Robotweax SRT pin
+        id: pin
+        run: |
+          echo "commit=$(python3 -I -c 'import json; print(json.load(open("dependencies.lock.json"))["robotweax_srt"]["commit"])')" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch Robotweax SRT at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: Robotweax/srt
+          ref: ${{ steps.pin.outputs.commit }}
+          path: _deps/srt
+          persist-credentials: false
+
+      - name: Load netem
+        run: |
+          sudo modprobe sch_netem || {
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq "linux-modules-extra-$(uname -r)"
+            sudo modprobe sch_netem
+          }
+
+      - name: Build the development image
+        run: tools/dev/build-image.sh "$PWD/_deps/srt"
+
+      - name: Run the blocks across N0, N1 and N2
+        run: tools/dev/blocks-netem.sh artifacts/blocks-netem --seconds 60
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blocks-netem-evidence-x86_64
+          path: artifacts/blocks-netem/
+          if-no-files-found: error
+          retention-days: 90

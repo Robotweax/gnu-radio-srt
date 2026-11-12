@@ -50,6 +50,11 @@ set(VERSION_ABI   0)
 set(VERSION_PATCH 0)
 # cmake-format: on
 
+# The release this source tree is or leads to. Reported in the blocks' status
+# and used as the name of the source package (tools/release/). Keep the
+# numeric part equal to VERSION_MAJOR.VERSION_API.VERSION_ABI.
+set(RWSRT_RELEASE_VERSION "0.1.0-rc1")
+
 cmake_policy(SET CMP0011 NEW)
 
 # Enable generation of compile_commands.json for code completion engines

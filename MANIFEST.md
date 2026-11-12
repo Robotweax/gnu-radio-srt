@@ -16,4 +16,7 @@ Out-of-tree module that carries continuous numeric sample streams over an
 impaired IP network using the Robotweax SRT public C API, with bounded
 buffering and explicit discontinuity reporting.
 
-Status: tested on loopback only; not yet qualified under network impairment.
+Status: release candidate 0.1.0-rc1. Qualified on Ubuntu 24.04 with GNU Radio
+3.10.9.2 and Robotweax SRT 0.3.2. Network behaviour was measured in emulation on
+one machine only; not run on a real network, between two hosts or with
+acquisition hardware.

@@ -7,7 +7,10 @@ this module; an ordinary SRT media player does not understand the payload
 [continuity-and-time.md](continuity-and-time.md).
 
 Status of this document: it describes what is implemented and tested on
-loopback. Nothing here has been measured under network impairment.
+loopback, including with a fault-injecting relay. What was measured on
+emulated network paths is in [results-m4.md](results-m4.md) and
+[results-m5.md](results-m5.md); what was never tried is in
+[limitations.md](limitations.md).
 
 ## Construction
 
@@ -19,6 +22,30 @@ transport = robotweax_srt.make_transport_config(
 stream = robotweax_srt.make_stream_config(format="cf32", sample_rate_num=100000)
 sink = robotweax_srt.srt_sink(transport, stream)
 ```
+
+A complete receiving flowgraph for real-valued samples:
+
+```python
+from gnuradio import blocks, gr, robotweax_srt
+
+transport = robotweax_srt.make_transport_config(
+    role="listener", bind_address="127.0.0.1", port=9000,
+    passphrase_env="RWSRT_PASSPHRASE")
+stream = robotweax_srt.make_stream_config(
+    format="f32", sample_rate_num=48000, continuity="segmented_live")
+tb = gr.top_block()
+source = robotweax_srt.srt_source(transport, stream)
+tb.connect(source, blocks.file_sink(gr.sizeof_float, "received.f32"))
+tb.run()                          # returns when the Source finishes
+print(source.status()["session"]["end"], source.status()["session"]["failure"])
+```
+
+- `format` decides the item type of the port: connect `f32` to `float`
+  ports and `cf32` to `complex` ports. GNU Radio refuses to connect a
+  mismatch.
+- A Caller needs `host`; a Listener needs none and uses `bind_address`.
+- `format`, the sample rate, `stream_id` and the passphrase must be equal
+  on both ends. `continuity` is chosen for each end separately.
 
 `make_transport_config` and `make_stream_config` reject unknown names and
 unknown enumeration values. Every value is validated when the block is
@@ -110,6 +137,12 @@ protection.
 | Upstream finished | Flushes, sends END, waits up to `stop_timeout_ms` for SRT to take it. `session.completed` true | Emits all queued samples, then finishes. `session.end` is `complete` or `incomplete` |
 | Flowgraph stopped by the user | No END. `completed` false, `failure` none | Strict: fails with `connection_lost`, `termination_unknown` true. Segmented: waits for a new connection within the reconnect budget |
 | Terminal failure | Finishes at once. `session.failure` says why | Finishes at once. `session.failure` says why |
+| Upstream finished while a segmented Sink had no connection | Waits up to `stop_timeout_ms`, then finishes with `completed` false, `failure` none, `state` `connecting`. Almost everything it consumed has expired; see `tx_queue.dropped_expired_samples` | Nothing arrives |
+| The two ends disagree on sample rate or format | The Source closes the connection. A strict Sink fails with `connection_lost`; a segmented Sink keeps retrying and ends as in the row above. **The Sink is not told the reason** | Fails at once with `configuration`; `failure_detail` names the difference |
+
+When a run fails, read `session.failure_detail` on **both** ends. Some
+causes are visible on one end only: a rate or format mismatch on the Source,
+a wrong passphrase on the Caller.
 
 **A finished flowgraph is not a successful run.** GNU Radio has no failure
 channel for a block, so both blocks finish (`WORK_DONE`) on failure as well
@@ -132,7 +165,7 @@ Tested with a fault-injecting relay on loopback, not on a real network.
 | Outage shorter than `peer_idle_timeout_ms` | The connection survives. Samples that became too late are missing; the Source tags the gap with its exact size | The Source fails with `continuity` at the first gap, the Sink with `connection_lost` when the Source closes |
 | Outage longer than `peer_idle_timeout_ms` | Both ends reconnect. Run and coordinates continue; the Source tags the boundary `reconnect` with the exact gap | Both ends fail |
 | Peer vanishes without closing | Loss is noticed after the idle timeout. The block retries within `reconnect_total_timeout_ms`, then fails with `reconnect_timeout` | Fails after the idle timeout |
-| END lost | The Source reports `termination_unknown` and fails with `reconnect_timeout` | The Source fails with `connection_lost`, `termination_unknown` true |
+| END lost | The Source waits for the sender to return until `reconnect_total_timeout_ms` (60 s by default) has passed, then reports `termination_unknown` and fails with `reconnect_timeout`. Seen in 1 of 6 runs of 120 s at 1 % loss | The Source fails with `connection_lost`, `termination_unknown` true |
 | Final record lost, END arrives | `end` is `incomplete`; the missing tail is counted and published as a status event | The Source fails with `continuity` |
 
 Things to know:
@@ -170,9 +203,38 @@ an `event` message for a break that has no sample after it. The snapshot
 published while a flowgraph shuts down may not reach subscribers inside
 that flowgraph; `status()` after the run is the reliable final state.
 
-Top-level fields: `block`, `direction`, `running`, `run_id`, `segment_id`,
-`next_sample_index`, block counters, `config`, `tx_queue` or `rx_queue`,
-`session`, `versions`, `srt_runtime_leases`.
+Top-level fields of both blocks: `block`, `block_id`, `direction`,
+`running`, `run_id`, `segment_id`, `next_sample_index` (the coordinate of
+the next sample), `capture_time_tags`, `last_stop_ms` (how long the last
+stop took), `config`, `tx_queue` or `rx_queue`, `session`, `versions`
+(`module`, `gnuradio`, `robotweax_srt`) and `srt_runtime_leases` (running
+blocks of this module in the process).
+
+Sink only:
+
+| Field | Meaning |
+|---|---|
+| `input_samples_consumed` | Samples taken from the input port |
+| `records_assembled`, `partial_record_pending` | Records built from them; whether samples wait for a record to fill |
+| `upstream_known_gaps`, `upstream_known_gap_samples`, `upstream_unknown_gaps` | Gaps announced by input tags |
+| `untransported_tags`, `malformed_tags` | Input tags that are not carried; `rwsrt.*` input tags that could not be read |
+| `natural_end`, `end_enqueued` | Upstream finished; the END record was queued |
+
+Source only:
+
+| Field | Meaning |
+|---|---|
+| `output_samples_emitted`, `records_emitted` | Samples and records written to the output port |
+| `discontinuity_tags` | `rwsrt.discontinuity` tags written. Can be lower than `session.continuity.discontinuities` while breaks are still queued |
+| `untagged_discontinuities` | Breaks with no sample after them, published as `event` messages instead |
+| `reported_missing_samples` | Sum of the known gap sizes in those tags and events |
+| `unknown_breaks` | Breaks whose size is not known, including an `initial_join` |
+| `receiver_queue_drop_breaks` | Breaks caused by this block's own full queue |
+| `end_emitted` | The END record was reached |
+
+`tx_queue` and `rx_queue` hold the current and highest fill and what was
+dropped: `dropped_overflow_*` because the queue was full, `dropped_expired_*`
+because a record was older than `queue_max_age_ms`.
 
 `session` holds `state`, `failure`, `failure_detail`, `completed`, `end`,
 `termination_unknown`, `connection_generation`, and four groups:
@@ -184,6 +246,15 @@ Top-level fields: `block`, `direction`, `running`, `run_id`, `segment_id`,
 | `effective` | Option values read back from SRT: latencies, payload size, buffers, bandwidth settings, key state |
 | `link` | SRT statistics: RTT, packets, loss, retransmissions, drops |
 
+`session.end` belongs to the Source; on a Sink it is always `none`, and a
+successful Sink shows `completed` true. `error_code` is the last SRT error
+number, 0 if none. Values in `effective` and `link` are -1 or zero until a
+connection exists. `rejected_peers` counts peers the Listener refused for
+their `stream_id` or because it was busy; **a Caller with a wrong
+passphrase is rejected inside SRT and is not counted, so the Listener
+shows no sign of it** and ends with `startup_timeout` if no valid peer
+comes.
+
 Counters are named by layer. `samples_send_accepted` means accepted into
 SRT's local buffer, not received. SRT packet loss in `link` and missing
 samples in `continuity` are different measurements.
@@ -194,9 +265,12 @@ Failure values: `startup_timeout`, `reconnect_timeout`, `connection_lost`,
 
 ## Stop time
 
-Stopping either block takes at most a few wait slices of 20 ms. Measured
-with no peer, both roles and both policies: at most 52 ms, against a bound
-of 1000 ms. This covers these two blocks only. A flowgraph's stop time also
+Stopping a block from outside (`tb.stop()`) takes at most a few wait slices
+of 20 ms. Measured with no peer, both roles and both policies: at most
+52 ms, against a bound of 1000 ms. This is not the time a Sink takes to
+finish after its upstream ends: it then waits up to `stop_timeout_ms`
+(default 1000) for END to be taken, and the whole of it when there is no
+connection. This covers these two blocks only. A flowgraph's stop time also
 depends on its other blocks; for example `blocks.throttle` at a very low
 rate sleeps uninterruptibly.
 

@@ -46,6 +46,8 @@ mkdir -p /tmp/corpus-decode /tmp/corpus-stream
 for f in tests/fixtures/rwsr_v1/*.bin; do
     { printf '\000'; cat "$f"; } > "/tmp/corpus-decode/$(basename "$f")"
 done
+# Inputs that once stopped a target run first, once each.
+step fuzz_regressions sh -c '/tmp/rwsrt-fuzz/rwsrt_fuzz_record_stream tests/fuzz/regressions/record_stream/*'
 step fuzz_decode /tmp/rwsrt-fuzz/rwsrt_fuzz_decode -max_total_time="$fuzz_seconds" \
     -max_len=1400 -print_final_stats=1 /tmp/corpus-decode
 step fuzz_record_stream /tmp/rwsrt-fuzz/rwsrt_fuzz_record_stream \

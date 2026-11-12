@@ -1,0 +1,91 @@
+# Known limitations of 0.1.0-rc1
+
+Read this before relying on the module for a measurement.
+
+## What has not been tried
+
+- **A real network.** All network results come from Linux netem in network
+  namespaces on one machine. netem reorders packets more than a real path
+  with the same jitter figure.
+- **Two hosts.** Sender and receiver always shared one machine and one
+  clock. There is no procedure yet for relating two clocks.
+- **Acquisition hardware.** The Sink was fed by synthetic, throttled
+  sources. No SDR front end, no hardware timestamps, no overrun reports.
+- **A dedicated machine.** Timing figures come from a shared, virtualised
+  host.
+- **Rates above 1 MS/s**, and `f32` under impairment.
+- **An independent user.** Nobody outside the project has installed or used
+  it. The install guide is executed in a fresh container by a script, which
+  checks the commands and not whether a person understands them.
+
+Field readiness is not claimed.
+
+## Behaviour to know about
+
+- **Age is not bounded when the network queues instead of dropping.** If a
+  bottleneck carries less than the stream for seconds in front of a deep
+  queue, nothing is lost, so nothing is retransmitted or dropped, and
+  samples arrive seconds old (6.3 s in one emulated case). `latency_ms`
+  bounds delay only while the path keeps up.
+- **SRT adds its latency to every sample.** With the default of 250 ms the
+  measured age was 254 to 304 ms. On a path with little loss TCP delivered
+  with a tenth of that. The benefit over TCP and UDP was shown at 1 % loss
+  and was not shown at 0.1 % loss.
+- **A segmented Sink does not wait for its peer.** Samples it consumes
+  before the connection is up, or during an outage, are discarded after
+  `queue_max_age_ms`. The Source then joins the run later and marks its
+  first sample with an `initial_join` tag, counts no missing samples for
+  the part it never saw, and reports `end` as `incomplete` at the end. On
+  loopback with the receiver started first nothing is lost; on a path with
+  40 ms delay the first 0.1 s typically is. Use `strict_stop` on the Sink
+  if the stream must start at its first sample.
+- **Some causes of failure are visible on one end only.** A Listener does
+  not notice a Caller with a wrong passphrase. A Sink is not told that the
+  Source refused its sample rate or format. Read the status of both ends.
+- **A strict Sink cannot see network loss.** Only the Source can. Run the
+  Source in strict mode too if any loss must end the run.
+- **The end of a stream is a single packet and can be lost.** The Source
+  then cannot tell that the run is over: it waits its reconnect budget
+  (60 s by default) and ends with `termination_unknown`. All samples may
+  have arrived all the same. Seen in 1 of 6 emulated runs at 1 % loss.
+  Lower `reconnect_total_timeout_ms` on the Source if a late end hurts.
+- **An abrupt end can lose the last latency window** without the Source
+  being able to tell how much. It reports `termination_unknown`.
+- **Downstream blocks must honour the tags.** In segmented mode samples
+  before and after a `rwsrt.discontinuity` tag are not contiguous. A block
+  that ignores tags will process across the gap. `examples/gap_aware_spectrum.py`
+  shows the handling.
+- **Capture times are only as good as their anchor.** The module carries
+  capture-time tags and their uncertainty. It does not synchronise clocks,
+  measure offsets or correct drift.
+- **Synthetic sources must be throttled** to the declared sample rate.
+
+## Security boundary
+
+- AES-CTR protects confidentiality. **It authenticates neither the payload
+  nor the peer.** Anyone who knows the passphrase can connect; anyone on the
+  path can alter ciphertext without detection by the cipher. Header
+  validation is not integrity protection.
+- The passphrase comes from an environment variable. That is a development
+  convenience, not secret management: other processes of the same user can
+  usually read it.
+- The default bind address is loopback. Binding to another address exposes
+  a UDP port; a Listener accepts the first peer that presents the right
+  `stream_id` and passphrase.
+- Authenticated encryption (AES-GCM) is not offered.
+
+## Not implemented
+
+Vector ports, more than one stream per block, sample formats other than
+`f32` and `cf32`, DNS names, IPv6, rendezvous, SRT file mode, FEC, bonding,
+automatic resampling or clock recovery, interpretation of UHD-style
+`rx_time` tags, binary packages.
+
+## Where the evidence is
+
+| Topic | Document |
+|---|---|
+| Network measurements and operating envelope | [results-m4.md](results-m4.md) |
+| How they were measured | [benchmarking.md](benchmarking.md) |
+| The blocks, encrypted, across emulated paths | [results-m5.md](results-m5.md) |
+| Every finding and decision | [decisions.md](decisions.md) |
