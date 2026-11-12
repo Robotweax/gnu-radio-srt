@@ -1,7 +1,5 @@
 /*
- * Copyright 2026 Free Software Foundation, Inc.
- *
- * This file is part of GNU Radio
+ * Copyright 2026 Robotweax.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
@@ -14,14 +12,8 @@
   and will be overwritten during the build process
  */
 
+ static const char *__doc_gr_robotweax_srt_srt_source = R"doc()doc";
 
+ static const char *__doc_gr_robotweax_srt_srt_source_srt_source = R"doc()doc";
 
- static const char *__doc_gr_robotweax_srt_m0_probe_source = R"doc()doc";
-
-
- static const char *__doc_gr_robotweax_srt_m0_probe_source_m0_probe_source = R"doc()doc";
-
-
- static const char *__doc_gr_robotweax_srt_m0_probe_source_make = R"doc()doc";
-
-  
+ static const char *__doc_gr_robotweax_srt_srt_source_make = R"doc()doc";

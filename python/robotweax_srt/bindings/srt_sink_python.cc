@@ -11,8 +11,8 @@
 /* If manual edits are made, the following tags should be modified accordingly.    */
 /* BINDTOOL_GEN_AUTOMATIC(0)                                                       */
 /* BINDTOOL_USE_PYGCCXML(0)                                                        */
-/* BINDTOOL_HEADER_FILE(m0_probe_sink.h)                                        */
-/* BINDTOOL_HEADER_FILE_HASH(f5f38fce84bcbf3a3a5d7ebfac5f127b)                     */
+/* BINDTOOL_HEADER_FILE(srt_sink.h)                                        */
+/* BINDTOOL_HEADER_FILE_HASH(8d453c5dbdc8e81671801ba29cb71c66)                     */
 /***********************************************************************************/
 
 #include <pybind11/complex.h>
@@ -21,39 +21,21 @@
 
 namespace py = pybind11;
 
-#include <gnuradio/robotweax_srt/m0_probe_sink.h>
+#include <gnuradio/robotweax_srt/srt_sink.h>
 // pydoc.h is automatically generated in the build directory
-#include <m0_probe_sink_pydoc.h>
+#include <srt_sink_pydoc.h>
 
-void bind_m0_probe_sink(py::module& m)
+void bind_srt_sink(py::module& m)
 {
+    using srt_sink = gr::robotweax_srt::srt_sink;
 
-    using m0_probe_sink    = gr::robotweax_srt::m0_probe_sink;
-
-
-    py::class_<m0_probe_sink, gr::block, gr::basic_block,
-        std::shared_ptr<m0_probe_sink>>(m, "m0_probe_sink", D(m0_probe_sink))
-
-        .def(py::init(&m0_probe_sink::make),
-           D(m0_probe_sink,make)
-        )
-        
-
-
-
-        
-        .def("report", &m0_probe_sink::report)
-;
-
-
-
-
+    py::class_<srt_sink, gr::block, gr::basic_block, std::shared_ptr<srt_sink>>(
+        m, "srt_sink", D(srt_sink))
+        .def(py::init(&srt_sink::make), py::arg("transport"), py::arg("stream"), D(srt_sink, make))
+        .def("status_json", &srt_sink::status_json)
+        .def("status_pmt", &srt_sink::status_pmt)
+        // Dictionary form of the status snapshot.
+        .def("status", [](const srt_sink& self) {
+            return py::module::import("json").attr("loads")(self.status_json());
+        });
 }
-
-
-
-
-
-
-
-

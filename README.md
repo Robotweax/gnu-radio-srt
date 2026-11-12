@@ -5,19 +5,23 @@ impaired IP network using the [Robotweax SRT](https://github.com/Robotweax/srt)
 public C API, with bounded buffering, reported discontinuities and predictable
 shutdown.
 
-**Status: milestones M0 (integration spike) and M1 (protocol and core) are
-complete. The GNU Radio blocks that carry samples are milestone M2 and do not
-exist yet.** What exists: the RWSR v1 wire codec with golden vectors, bounded
-queues, continuity accounting, the session worker over SRT, and headless
-reference peers that transfer a verified test signal end to end on loopback.
-Nothing has been tested under network impairment. No performance or benchmark
-result is claimed.
+**Status: milestones M0 to M2 are complete.** The module has two blocks,
+`srt_sink` and `srt_source`, that carry f32 or cf32 sample streams between
+two GNU Radio flowgraphs, with record, discontinuity and capture-time tags,
+strict and segmented continuity modes, AES-CTR, status reporting, Companion
+definitions and examples. **Everything so far is tested on loopback only.
+Nothing has been tested under network loss, delay or outage (milestones M3
+and M4), so do not rely on it over a real network yet.** No performance or
+benchmark result is claimed.
 
 - Specification: [docs/project-plan.md](docs/project-plan.md)
+- Using the blocks: [docs/block-reference.md](docs/block-reference.md)
+- Tags, gaps and time: [docs/continuity-and-time.md](docs/continuity-and-time.md)
+- Examples: [examples/](examples/)
 - Wire protocol: [docs/protocol-v1.md](docs/protocol-v1.md)
 - Findings and decisions, and where they change the plan: [docs/decisions.md](docs/decisions.md)
 - Pinned dependencies: [dependencies.lock.json](dependencies.lock.json)
-- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/)
+- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/), [docs/evidence/m2/](docs/evidence/m2/)
 
 ## Qualified platform
 
@@ -41,17 +45,18 @@ tools/dev/build-image.sh [path-to-srt-checkout]
 tools/dev/run.sh tools/dev/gate.sh
 ```
 
-The gate covers both milestones. M0: SRT API spike, module build, lifecycle
-tests, clean-prefix install, Python import, GNU Radio Companion discovery and
-a C++ consumer. M1: native unit tests, golden vectors, the end-to-end suite of
-the reference peers, all of it again under ASan/UBSan and TSan, and two fuzz
-targets. It writes `artifacts/gate/` and exits nonzero if any gate fails. It
-takes about ten minutes.
+The gate covers all three milestones: SRT API spike, module build, native
+unit tests and golden vectors, 39 flowgraph tests of the two blocks
+(repeated), clean-prefix install with Companion and the examples run end to
+end, a C++ consumer, the reference-peer end-to-end suite, sanitizer runs and
+two fuzz targets. It writes `artifacts/gate/` and exits nonzero if any gate
+fails. It takes about fifteen minutes.
 
 Individual steps:
 
 ```sh
 tools/dev/run.sh tools/dev/build-and-test.sh
+tools/dev/run.sh tools/dev/qa.sh qa_tags
 tools/dev/run.sh tools/dev/native-checks.sh 60
 python3 tools/gen_golden_vectors.py --check
 ```
@@ -77,8 +82,9 @@ passphrase for local tests; there is no automatic fallback to it.
 | Path | Content |
 |---|---|
 | `include/gnuradio/robotweax_srt/` | Public block headers (no SRT types) |
-| `lib/` | Wire codec, queues, continuity, session worker, SRT adapter, probe blocks |
-| `python/robotweax_srt/` | pybind11 bindings and QA tests |
+| `lib/` | Blocks, wire codec, queues, continuity, session worker, SRT adapter |
+| `python/robotweax_srt/` | pybind11 bindings, configuration helpers, flowgraph QA suites |
+| `examples/` | Companion flowgraphs and headless sender/receiver |
 | `grc/` | Companion block definitions |
 | `spikes/m0_srt_api/` | Standalone SRT public-API spike, no GNU Radio |
 | `tests/unit/`, `tests/fuzz/`, `tests/integration/` | Native tests; `tests/` is also a standalone CMake project |
@@ -87,9 +93,6 @@ passphrase for local tests; there is no automatic fallback to it.
 | `tests/install_consumer/` | C++ consumer of the installed package |
 | `tools/dev/` | Image, build, test and gate scripts |
 | `docker/` | Development image definition |
-
-The `m0_probe_sink` and `m0_probe_source` blocks are scaffolding. They are
-replaced by `srt_sink` and `srt_source` in milestone M2.
 
 ## License
 

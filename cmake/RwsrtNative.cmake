@@ -17,7 +17,8 @@ add_library(rwsrt_core STATIC
     "${RWSRT_LIB_DIR}/bounded_record_queue.cc"
     "${RWSRT_LIB_DIR}/record_assembler.cc"
     "${RWSRT_LIB_DIR}/session_state.cc"
-    "${RWSRT_LIB_DIR}/session_config.cc")
+    "${RWSRT_LIB_DIR}/session_config.cc"
+    "${RWSRT_LIB_DIR}/status_doc.cc")
 target_include_directories(rwsrt_core PUBLIC "${RWSRT_LIB_DIR}")
 target_compile_features(rwsrt_core PUBLIC cxx_std_20)
 target_compile_options(rwsrt_core PRIVATE ${RWSRT_WARNINGS})

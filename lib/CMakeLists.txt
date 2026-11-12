@@ -12,8 +12,9 @@
 include(GrPlatform) #define LIB_SUFFIX
 
 list(APPEND robotweax_srt_sources
-    m0_probe_sink_impl.cc
-    m0_probe_source_impl.cc)
+    block_common.cc
+    srt_sink_impl.cc
+    srt_source_impl.cc)
 
 set(robotweax_srt_sources
     "${robotweax_srt_sources}"

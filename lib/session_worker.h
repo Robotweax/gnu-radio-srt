@@ -18,6 +18,7 @@
 #include "session_config.h"
 #include "session_state.h"
 #include "srt_adapter.h"
+#include "status_doc.h"
 
 #include <atomic>
 #include <chrono>
@@ -72,8 +73,13 @@ struct session_snapshot {
     srt_link_stats link;
 };
 
-//! One JSON object, for JSON Lines output. No secrets.
+//! Structured description of a snapshot. No secrets.
+status_doc describe(const session_snapshot& s);
+status_doc describe(const queue_stats& q);
+//! One JSON object, for JSON Lines output.
 std::string to_json(const session_snapshot& s);
+//! Robotweax SRT release this module was built against, e.g. "0.3.2".
+std::string srt_library_version();
 
 class session_worker
 {

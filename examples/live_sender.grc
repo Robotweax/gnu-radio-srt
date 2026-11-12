@@ -1,0 +1,81 @@
+options:
+  parameters:
+    id: live_sender
+    title: Robotweax SRT live sender
+    generate_options: no_gui
+    run_options: run
+    output_language: python
+  states:
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    value: '100000'
+  states:
+    coordinate: [200, 8]
+    rotation: 0
+    state: enabled
+- name: tone
+  id: analog_sig_source_x
+  parameters:
+    type: complex
+    samp_rate: samp_rate
+    waveform: analog.GR_COS_WAVE
+    freq: '5000'
+    amp: '0.5'
+    offset: '0'
+    phase: '0'
+  states:
+    coordinate: [8, 120]
+    rotation: 0
+    state: enabled
+- name: pace
+  id: blocks_throttle2
+  parameters:
+    type: complex
+    samples_per_second: samp_rate
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    vlen: '1'
+  states:
+    coordinate: [260, 140]
+    rotation: 0
+    state: enabled
+- name: limit
+  id: blocks_head
+  parameters:
+    type: complex
+    num_items: int(samp_rate * 3)
+    vlen: '1'
+  states:
+    coordinate: [460, 140]
+    rotation: 0
+    state: enabled
+- name: sink
+  id: robotweax_srt_srt_sink
+  parameters:
+    sample_format: cf32
+    sample_rate_num: samp_rate
+    role: caller
+    host: 127.0.0.1
+    port: '9000'
+    continuity: strict_stop
+    security: ctr
+    passphrase_env: RWSRT_PASSPHRASE
+  states:
+    coordinate: [660, 100]
+    rotation: 0
+    state: enabled
+
+connections:
+- [tone, '0', pace, '0']
+- [pace, '0', limit, '0']
+- [limit, '0', sink, '0']
+
+metadata:
+  file_format: 1

@@ -19,7 +19,7 @@ add_subdirectory(bindings)
 ########################################################################
 # Install python sources
 ########################################################################
-gr_python_install(FILES __init__.py DESTINATION ${GR_PYTHON_DIR}/gnuradio/robotweax_srt)
+gr_python_install(FILES __init__.py helpers.py DESTINATION ${GR_PYTHON_DIR}/gnuradio/robotweax_srt)
 
 ########################################################################
 # Handle the unit tests
@@ -34,5 +34,7 @@ add_custom_target(
     copy_module_for_tests ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}
             ${PROJECT_BINARY_DIR}/test_modules/gnuradio/robotweax_srt/)
-GR_ADD_TEST(qa_m0_probe_sink ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_m0_probe_sink.py)
-GR_ADD_TEST(qa_m0_probe_source ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_m0_probe_source.py)
+foreach(qa qa_config qa_transfer qa_tags qa_lifecycle qa_scheduler_assumptions)
+    GR_ADD_TEST(${qa} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${qa}.py)
+    set_tests_properties(${qa} PROPERTIES TIMEOUT 180)
+endforeach()

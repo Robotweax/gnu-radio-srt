@@ -1,0 +1,189 @@
+id: robotweax_srt_srt_sink
+label: Robotweax SRT Sink
+category: '[Robotweax SRT]'
+flags: [python]
+
+templates:
+  imports: from gnuradio import robotweax_srt
+  make: |-
+    robotweax_srt.srt_sink(
+        robotweax_srt.make_transport_config(
+            role='${role}', host=${host}, bind_address=${bind_address}, port=${port},
+            stream_id=${stream_id}, latency_ms=${latency_ms},
+            connect_timeout_ms=${connect_timeout_ms}, startup_timeout_ms=${startup_timeout_ms},
+            reconnect=${reconnect}, reconnect_initial_ms=${reconnect_initial_ms},
+            reconnect_max_ms=${reconnect_max_ms},
+            reconnect_total_timeout_ms=${reconnect_total_timeout_ms},
+            stop_timeout_ms=${stop_timeout_ms}, security='${security}',
+            passphrase_env=${ passphrase_env if security == 'ctr' else "''" },
+            status_interval_ms=${status_interval_ms}),
+        robotweax_srt.make_stream_config(
+            format='${sample_format}', sample_rate_num=${sample_rate_num},
+            sample_rate_den=${sample_rate_den}, record_limit_bytes=${record_limit_bytes},
+            flush_interval_ms=${flush_interval_ms}, queue_max_bytes=${queue_max_bytes},
+            queue_max_records=${queue_max_records}, queue_max_age_ms=${queue_max_age_ms},
+            continuity='${continuity}'))
+
+documentation: |-
+  Sends a sample stream to a Robotweax SRT Source as RWSR version 1 records.
+
+  The passphrase is read from the named environment variable when the
+  flowgraph starts. It is never stored in the flowgraph.
+
+  Strict mode consumes nothing until a peer is connected and ends with a
+  terminal failure on any loss of continuity. Segmented live mode discards
+  old records instead and keeps every gap visible.
+
+  Input tags: rwsrt.capture_time {time_ns, uncertainty_ns} and
+  rwsrt.input_discontinuity {missing_samples} or {unknown: true}.
+
+  The result of a run (completed or failed, and why) is on the status
+  message port and in status(), not in the fact that the flowgraph ended.
+
+parameters:
+- id: sample_format
+  label: Sample format
+  dtype: enum
+  options: [cf32, f32]
+  option_labels: [Complex float32, Float32]
+  option_attributes:
+    type: [complex, float]
+  default: cf32
+- id: sample_rate_num
+  label: Sample rate (numerator)
+  dtype: int
+  default: samp_rate
+- id: sample_rate_den
+  label: Sample rate (denominator)
+  dtype: int
+  default: '1'
+  hide: part
+- id: role
+  label: Connection role
+  dtype: enum
+  options: [caller, listener]
+  default: caller
+- id: host
+  label: Peer host (numeric IPv4)
+  dtype: string
+  default: 127.0.0.1
+  hide: ${ 'none' if role == 'caller' else 'all' }
+- id: bind_address
+  label: Bind address (numeric IPv4)
+  dtype: string
+  default: 127.0.0.1
+  hide: ${ 'none' if role == 'listener' else 'all' }
+- id: port
+  label: Port
+  dtype: int
+  default: '9000'
+- id: stream_id
+  label: Stream ID
+  dtype: string
+  default: rwsrt/v1/default
+  hide: part
+- id: latency_ms
+  label: SRT latency (ms)
+  dtype: int
+  default: '250'
+- id: continuity
+  label: Continuity policy
+  dtype: enum
+  options: [strict_stop, segmented_live]
+  option_labels: [Strict (fail on any loss), Segmented live (tagged gaps)]
+  default: strict_stop
+- id: security
+  label: Security
+  dtype: enum
+  options: [ctr, none]
+  option_labels: [AES-CTR with passphrase, None (plaintext)]
+  default: ctr
+- id: passphrase_env
+  label: Passphrase environment variable
+  dtype: string
+  default: RWSRT_PASSPHRASE
+  hide: ${ 'none' if security == 'ctr' else 'all' }
+- id: record_limit_bytes
+  label: Record limit (bytes)
+  dtype: int
+  default: '1200'
+  hide: part
+- id: flush_interval_ms
+  label: Flush interval (ms)
+  dtype: int
+  default: '2'
+  hide: part
+- id: queue_max_bytes
+  label: Queue limit (bytes)
+  dtype: int
+  default: '4194304'
+  hide: part
+- id: queue_max_records
+  label: Queue limit (records)
+  dtype: int
+  default: '8192'
+  hide: part
+- id: queue_max_age_ms
+  label: Queue age limit (ms)
+  dtype: int
+  default: '100'
+  hide: part
+- id: connect_timeout_ms
+  label: Connect timeout (ms)
+  dtype: int
+  default: '3000'
+  hide: part
+- id: startup_timeout_ms
+  label: Startup timeout (ms)
+  dtype: int
+  default: '30000'
+  hide: part
+- id: reconnect
+  label: Reconnect (segmented only)
+  dtype: bool
+  default: 'True'
+  hide: part
+- id: reconnect_initial_ms
+  label: Reconnect initial delay (ms)
+  dtype: int
+  default: '250'
+  hide: part
+- id: reconnect_max_ms
+  label: Reconnect maximum delay (ms)
+  dtype: int
+  default: '4000'
+  hide: part
+- id: reconnect_total_timeout_ms
+  label: Reconnect budget (ms)
+  dtype: int
+  default: '60000'
+  hide: part
+- id: stop_timeout_ms
+  label: Stop timeout (ms)
+  dtype: int
+  default: '1000'
+  hide: part
+- id: status_interval_ms
+  label: Status interval (ms)
+  dtype: int
+  default: '1000'
+  hide: part
+
+inputs:
+- label: in
+  domain: stream
+  dtype: ${ sample_format.type }
+
+outputs:
+- label: status
+  domain: message
+  id: status
+  optional: true
+
+asserts:
+- ${ 1 <= port <= 65535 }
+- ${ sample_rate_num > 0 and sample_rate_den > 0 }
+- ${ 104 <= record_limit_bytes <= 1456 }
+- ${ latency_ms >= 20 }
+
+file_format: 1

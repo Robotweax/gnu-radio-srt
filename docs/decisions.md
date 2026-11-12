@@ -7,7 +7,8 @@ plan file is kept as received; this file wins where the two differ.
 Numbers are measurements from one host inside a container. They show that a
 mechanism works and roughly how it behaves. They are not performance claims.
 Evidence: `tools/dev/run.sh tools/dev/gate.sh`, summaries in
-[evidence/m0/](evidence/m0/) and [evidence/m1/](evidence/m1/).
+[evidence/m0/](evidence/m0/), [evidence/m1/](evidence/m1/) and
+[evidence/m2/](evidence/m2/).
 
 ## Status of the M0 blocking checks
 
@@ -448,3 +449,143 @@ measures it.
 7. Longer fuzz runs with a persistent corpus.
 8. `rx_time`-style adapters and unknown-tag accounting belong to M2 with
    the Sink's tag handling.
+
+# Milestone M2: GNU Radio blocks
+
+M2 exit gate (plan section 13): both data types and topologies; correct
+partial I/O, EOF and discontinuities.
+
+| Item | Result | Evidence |
+|---|---|---|
+| f32 and cf32, Sink Caller and Sink Listener | pass | `qa_transfer`, exact values, counts and record tags |
+| Float bit patterns including NaN payloads | pass | `qa_transfer` |
+| Partial output (37 items per scheduler call) | pass | each tag once, at its exact offset |
+| Natural EOF, empty run, flush interval | pass | `qa_transfer` |
+| Input tags: capture time, known gap, unknown gap | pass | `qa_tags` |
+| Discontinuity tags: `sample_gap`, `upstream_unknown_gap`, `initial_join`, `new_run` with `reconnect`, `receiver_queue_drop` | pass | `qa_tags`, `qa_lifecycle` |
+| Strict mode fails on the first violation, both blocks | pass | `qa_tags`, `qa_lifecycle` |
+| Cancellation is not completion | pass | `qa_lifecycle` |
+| Stop with no peer, 8 block/role/policy combinations | at most 52 ms over 4 runs | `qa_lifecycle` |
+| 30 start/stop cycles of a connected pair | no thread or descriptor left | `qa_lifecycle` |
+| Bindings, Companion blocks, generated flowgraphs, headless examples, C++ consumer | pass | `tools/dev/check-install.sh` |
+
+39 flowgraph tests in five suites, all on loopback without loss.
+
+Not covered in M2:
+
+- `reconnect` as the only reason (same run across an outage). It needs a
+  network outage, which is M3 and M4. The ledger logic is unit-tested.
+- Sanitizer runs of the block code inside GNU Radio. The native code under
+  the blocks is covered (D21); the block adapters themselves are not.
+- The gap-aware spectrum demonstration (`DEMO-01`). The headless receiver
+  example has a minimal gap-aware consumer instead.
+- Adapters for UHD-style `rx_time` tags.
+
+## D23. Public API as built
+
+- `srt_sink::make(transport_config, stream_config)` and the same for
+  `srt_source`, as in the plan. The two configuration structs are public in
+  `config.h` and bound to Python.
+- Status: `status_json()` and `status_pmt()` in C++; `status()` returns a
+  dictionary in Python. One description (`rwsrt::status_doc`) produces both
+  forms, so they cannot drift apart. This replaces the plan's
+  `status_snapshot status() const`.
+- `make_transport_config(**kw)` and `make_stream_config(**kw)` reject
+  unknown names and enumeration values. Companion uses them, so Companion
+  and scripts share one validation path.
+
+## D24. `start()` must not throw
+
+GNU Radio 3.10 calls a block's `start()` on that block's scheduler thread.
+An exception there kills the thread and the flowgraph hangs; it does not
+reach the caller of `top_block.start()`. Found with a missing passphrase
+variable.
+
+- Every configuration value is checked at construction, where an exception
+  does reach the caller.
+- The passphrase is read at start, as the plan requires. If the variable is
+  missing or its content invalid, the block records a terminal
+  `configuration` failure naming the variable (never its content), logs it,
+  and finishes at once. Measured: the flowgraph ends within 0.1 s.
+
+## D25. How failure reaches the user
+
+A block has no failure channel to the scheduler. Both blocks return
+`WORK_DONE` on terminal failure. Measured: a Sink returning `WORK_DONE` ends
+the whole flowgraph, including upstream blocks. So a failed run and a
+completed run both end the flowgraph, and only `status()` tells them apart
+(`session.completed`, `session.failure`, `session.end`). No END is sent and
+no completion is reported on failure. This is stated prominently in the
+block reference and in the Companion documentation of both blocks.
+
+A failure reported from the scheduler thread is visible in the next
+`status()` call, without waiting for the worker thread to act on it.
+
+## D26. An abrupt end loses the last latency window
+
+When a Sink fails or is stopped, its connection closes at once and SRT
+discards what it holds (linger is off). At the receiver, packets still
+waiting for their playout time are lost with the connection. Measured in
+the strict upstream-gap test: 3000 samples consumed and accepted by SRT,
+0 delivered. In another run a user stop delivered everything. Both are
+valid outcomes.
+
+Decision: no drain on failure or cancellation. A prompt, bounded stop wins,
+and the plan makes no delivery promise for a cancelled run. Only a natural
+end drains (D18). Documented in the block reference.
+
+## D27. Status messages at shutdown
+
+`stop()` publishes a final snapshot, and the Source publishes one before it
+returns `WORK_DONE`. Subscribers inside the same flowgraph may already be
+shutting down and may not receive either. The message port is for
+monitoring a running block; `status()` after the run is the final state.
+
+## D28. Tag contract as built
+
+Formats and rules are in `continuity-and-time.md`. Points decided here:
+
+- Tag values are PMT dictionaries with unsigned integer fields.
+- An unreadable capture time sets nothing. An unreadable discontinuity is
+  treated as an unknown gap: ignoring it would hide a real break.
+- In strict mode an upstream discontinuity tag fails the Sink with
+  `continuity`, like a network gap fails the Source.
+- An `rx_rate` tag that differs from the configured rate fails the Sink
+  with `configuration`. An equal one is counted as untransported.
+- An unknown missing count is expressed by the absence of
+  `missing_samples`, never by zero.
+
+## D29. Threads and locks in the blocks
+
+- Sink: scheduler thread, session worker, and a housekeeping thread that
+  seals an expired partial record (so the flush interval holds when
+  upstream pauses) and publishes status. The plan gave the flush to the
+  network worker; a separate thread keeps the worker free of block state.
+  Neither extra thread touches stream items or tags.
+- Source: scheduler thread, session worker, status thread.
+- Lock order in the Sink is assembly, then transmit queue. The assembly
+  lock and the block's state lock are never held together. No lock is held
+  during a socket call or a message publication.
+- The Source waits inside `work()` in 20 ms slices (D7) and takes only
+  already-queued records once it has produced something in a call.
+
+## D30. Probe blocks removed
+
+`m0_probe_sink` and `m0_probe_source` are gone. What they pinned is kept:
+
+- The EOF predicate of D5 is now exercised by the real Sink in every
+  finite-run test, and cancellation by the user-stop tests.
+- The scheduler behaviour of D7 is pinned by
+  `qa_scheduler_assumptions.py` with a small Python source (4.0 calls per
+  second measured).
+
+## Open items carried into M3
+
+1. Outage and reconnect within one run, peer crash, repeated reconnect.
+2. Stream ID rejection inside the handshake (D19).
+3. Receiver idle timeout against a 5 s outage (still the 5000 ms default).
+4. UDP receive buffer request (D10 update).
+5. Sanitizer runs of the block adapters inside GNU Radio.
+6. 30-minute soak and memory growth.
+7. Gap-aware spectrum demonstration.
+8. No first user: academic project for now (owner, 2026-11-12).

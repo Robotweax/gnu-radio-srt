@@ -20,87 +20,93 @@ constexpr int wait_slice_ms = 20;          // plan section 9; see decisions D6
 constexpr auto stats_interval = std::chrono::milliseconds(200);
 constexpr int receive_batch = 64;          // messages per slice before re-checking cancel
 
-std::string json_escape(const std::string& in)
-{
-    std::string out;
-    for (const char c : in) {
-        if (c == '"' || c == '\\') {
-            out += '\\';
-            out += c;
-        } else if (static_cast<unsigned char>(c) < 0x20) {
-            out += ' ';
-        } else {
-            out += c;
-        }
-    }
-    return out;
-}
-
 } // namespace
 
-std::string to_json(const session_snapshot& s)
+status_doc describe(const queue_stats& q)
+{
+    status_doc d;
+    d.set_uint("records", q.records)
+        .set_uint("bytes", q.bytes)
+        .set_uint("high_water_records", q.high_water_records)
+        .set_uint("high_water_bytes", q.high_water_bytes)
+        .set_uint("dropped_overflow_records", q.dropped_overflow.records)
+        .set_uint("dropped_overflow_samples", q.dropped_overflow.samples)
+        .set_uint("dropped_expired_records", q.dropped_expired.records)
+        .set_uint("dropped_expired_samples", q.dropped_expired.samples)
+        .set_uint("pushed", q.pushed)
+        .set_uint("popped", q.popped);
+    return d;
+}
+
+status_doc describe(const session_snapshot& s)
 {
     const session_counters& c = s.counters;
-    std::ostringstream os;
-    os << "{\"state\":\"" << to_string(s.state) << "\",\"failure\":\"" << to_string(s.failure)
-       << "\",\"failure_detail\":\"" << json_escape(s.failure_detail)
-       << "\",\"error_code\":" << s.error_code
-       << ",\"connection_generation\":" << s.connection_generation
-       << ",\"end\":\""
-       << (s.end == end_observation::complete
-               ? "complete"
-               : s.end == end_observation::incomplete ? "incomplete" : "none")
-       << "\",\"termination_unknown\":" << (s.termination_unknown ? "true" : "false")
-       << ",\"completed\":" << (s.completed ? "true" : "false")
-       << ",\"counters\":{\"connect_attempts\":" << c.connect_attempts
-       << ",\"connections\":" << c.connections
-       << ",\"connection_losses\":" << c.connection_losses
-       << ",\"rejected_peers\":" << c.rejected_peers
-       << ",\"records_send_accepted\":" << c.records_send_accepted
-       << ",\"samples_send_accepted\":" << c.samples_send_accepted
-       << ",\"bytes_send_accepted\":" << c.bytes_send_accepted
-       << ",\"send_would_block\":" << c.send_would_block
-       << ",\"stale_records_dropped\":" << c.stale_records_dropped
-       << ",\"stale_samples_dropped\":" << c.stale_samples_dropped
-       << ",\"records_received\":" << c.records_received
-       << ",\"bytes_received\":" << c.bytes_received
-       << ",\"malformed_records\":" << c.malformed_records
-       << ",\"end_sent\":" << c.end_sent
-       << ",\"max_wait_slice_ms\":" << static_cast<double>(c.max_wait_slice_us) / 1000.0
-       << "},\"continuity\":{\"records_accepted\":" << s.continuity.records_accepted
-       << ",\"samples_accepted\":" << s.continuity.samples_accepted
-       << ",\"known_missing_samples\":" << s.continuity.known_missing_samples
-       << ",\"unknown_gaps\":" << s.continuity.unknown_gaps
-       << ",\"sequence_gaps\":" << s.continuity.sequence_gaps
-       << ",\"discontinuities\":" << s.continuity.discontinuities
-       << ",\"runs\":" << s.continuity.runs
-       << "},\"effective\":{\"rcv_latency_ms\":" << s.effective.rcv_latency_ms
-       << ",\"peer_latency_ms\":" << s.effective.peer_latency_ms
-       << ",\"payload_size\":" << s.effective.payload_size
-       << ",\"mss\":" << s.effective.mss
-       << ",\"snd_buf_bytes\":" << s.effective.snd_buf_bytes
-       << ",\"rcv_buf_bytes\":" << s.effective.rcv_buf_bytes
-       << ",\"flow_window_packets\":" << s.effective.flow_window_packets
-       << ",\"udp_snd_buf_bytes\":" << s.effective.udp_snd_buf_bytes
-       << ",\"udp_rcv_buf_bytes\":" << s.effective.udp_rcv_buf_bytes
-       << ",\"max_bw\":" << s.effective.max_bw
-       << ",\"input_bw\":" << s.effective.input_bw
-       << ",\"overhead_bw_percent\":" << s.effective.overhead_bw_percent
-       << ",\"key_length\":" << s.effective.key_length
-       << ",\"km_state\":" << s.effective.km_state
-       << ",\"peer_stream_id\":\"" << json_escape(s.effective.peer_stream_id)
-       << "\"},\"link\":{\"valid\":" << (s.link.valid ? "true" : "false")
-       << ",\"rtt_ms\":" << s.link.rtt_ms
-       << ",\"packets_sent\":" << s.link.packets_sent
-       << ",\"packets_received\":" << s.link.packets_received
-       << ",\"send_loss\":" << s.link.send_loss
-       << ",\"receive_loss\":" << s.link.receive_loss
-       << ",\"retransmitted\":" << s.link.retransmitted
-       << ",\"send_dropped\":" << s.link.send_dropped
-       << ",\"receive_dropped\":" << s.link.receive_dropped
-       << ",\"undecrypted\":" << s.link.undecrypted << "}}";
-    return os.str();
+    status_doc d;
+    d.set_str("state", to_string(s.state))
+        .set_str("failure", to_string(s.failure))
+        .set_str("failure_detail", s.failure_detail)
+        .set_int("error_code", s.error_code)
+        .set_uint("connection_generation", s.connection_generation)
+        .set_str("end", s.end == end_observation::complete
+                            ? "complete"
+                            : s.end == end_observation::incomplete ? "incomplete" : "none")
+        .set_bool("termination_unknown", s.termination_unknown)
+        .set_bool("completed", s.completed);
+    d.child("counters")
+        .set_uint("connect_attempts", c.connect_attempts)
+        .set_uint("connections", c.connections)
+        .set_uint("connection_losses", c.connection_losses)
+        .set_uint("rejected_peers", c.rejected_peers)
+        .set_uint("records_send_accepted", c.records_send_accepted)
+        .set_uint("samples_send_accepted", c.samples_send_accepted)
+        .set_uint("bytes_send_accepted", c.bytes_send_accepted)
+        .set_uint("send_would_block", c.send_would_block)
+        .set_uint("stale_records_dropped", c.stale_records_dropped)
+        .set_uint("stale_samples_dropped", c.stale_samples_dropped)
+        .set_uint("records_received", c.records_received)
+        .set_uint("bytes_received", c.bytes_received)
+        .set_uint("malformed_records", c.malformed_records)
+        .set_uint("end_sent", c.end_sent)
+        .set_num("max_wait_slice_ms", static_cast<double>(c.max_wait_slice_us) / 1000.0);
+    d.child("continuity")
+        .set_uint("records_accepted", s.continuity.records_accepted)
+        .set_uint("samples_accepted", s.continuity.samples_accepted)
+        .set_uint("known_missing_samples", s.continuity.known_missing_samples)
+        .set_uint("unknown_gaps", s.continuity.unknown_gaps)
+        .set_uint("sequence_gaps", s.continuity.sequence_gaps)
+        .set_uint("discontinuities", s.continuity.discontinuities)
+        .set_uint("runs", s.continuity.runs);
+    d.child("effective")
+        .set_int("rcv_latency_ms", s.effective.rcv_latency_ms)
+        .set_int("peer_latency_ms", s.effective.peer_latency_ms)
+        .set_int("payload_size", s.effective.payload_size)
+        .set_int("mss", s.effective.mss)
+        .set_int("snd_buf_bytes", s.effective.snd_buf_bytes)
+        .set_int("rcv_buf_bytes", s.effective.rcv_buf_bytes)
+        .set_int("flow_window_packets", s.effective.flow_window_packets)
+        .set_int("udp_snd_buf_bytes", s.effective.udp_snd_buf_bytes)
+        .set_int("udp_rcv_buf_bytes", s.effective.udp_rcv_buf_bytes)
+        .set_int("max_bw", s.effective.max_bw)
+        .set_int("input_bw", s.effective.input_bw)
+        .set_int("overhead_bw_percent", s.effective.overhead_bw_percent)
+        .set_int("key_length", s.effective.key_length)
+        .set_int("km_state", s.effective.km_state)
+        .set_str("peer_stream_id", s.effective.peer_stream_id);
+    d.child("link")
+        .set_bool("valid", s.link.valid)
+        .set_num("rtt_ms", s.link.rtt_ms)
+        .set_int("packets_sent", s.link.packets_sent)
+        .set_int("packets_received", s.link.packets_received)
+        .set_int("send_loss", s.link.send_loss)
+        .set_int("receive_loss", s.link.receive_loss)
+        .set_int("retransmitted", s.link.retransmitted)
+        .set_int("send_dropped", s.link.send_dropped)
+        .set_int("receive_dropped", s.link.receive_dropped)
+        .set_int("undecrypted", s.link.undecrypted);
+    return d;
 }
+
+std::string to_json(const session_snapshot& s) { return describe(s).to_json(); }
 
 session_worker::session_worker(stream_direction direction,
                                const transport_config& transport,
@@ -170,7 +176,17 @@ void session_worker::consumer_drained() { d_consumer_drained.store(true); }
 session_snapshot session_worker::snapshot() const
 {
     std::lock_guard<std::mutex> guard(d_mutex);
-    return d_status;
+    session_snapshot out = d_status;
+    // A failure reported through fail() is visible at once, even before the
+    // worker thread has acted on it: a caller that stops right after
+    // reporting it must not read back "no failure".
+    if (d_external_failure != session_failure::none && out.failure == session_failure::none &&
+        d_fsm.active() && d_fsm.state() != session_state::stopping) {
+        out.state = session_state::failed;
+        out.failure = d_external_failure;
+        out.failure_detail = d_external_detail;
+    }
+    return out;
 }
 
 bool session_worker::wait_connected(std::chrono::milliseconds timeout) const

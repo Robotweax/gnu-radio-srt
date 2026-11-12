@@ -7,5 +7,5 @@
 #
 
 install(FILES
-    robotweax_srt_m0_probe_sink.block.yml
-    robotweax_srt_m0_probe_source.block.yml DESTINATION share/gnuradio/grc/blocks)
+    robotweax_srt_srt_sink.block.yml
+    robotweax_srt_srt_source.block.yml DESTINATION share/gnuradio/grc/blocks)

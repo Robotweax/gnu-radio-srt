@@ -6,8 +6,10 @@
  */
 
 #include "srt_adapter.h"
+#include "session_worker.h"
 
 #include <srt/srt.h>
+#include <srt/version.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -438,5 +440,7 @@ srt_link_stats srt_endpoint::stats()
     out.receive_buffer_packets = st.pktRcvBuf;
     return out;
 }
+
+std::string srt_library_version() { return ROBOTWEAX_SRT_VERSION_STRING; }
 
 } // namespace rwsrt

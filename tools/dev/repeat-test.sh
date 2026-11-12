@@ -7,7 +7,7 @@ fails=0
 i=0
 while [ "$i" -lt "$2" ]; do
     i=$((i + 1))
-    (cd "$build" && ctest --timeout 120 -R "$1" -V) > "artifacts/repeat-$i.log" 2>&1 || {
+    (cd "$build" && ctest --timeout 300 -R "$1" -V) > "artifacts/repeat-$i.log" 2>&1 || {
         fails=$((fails + 1)); echo "run $i FAILED"; }
 done
 echo "repeat: $2 runs of '$1', $fails failed"

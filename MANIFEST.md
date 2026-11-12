@@ -16,5 +16,4 @@ Out-of-tree module that carries continuous numeric sample streams over an
 impaired IP network using the Robotweax SRT public C API, with bounded
 buffering and explicit discontinuity reporting.
 
-Status: milestone M0 (integration spike). The module currently contains
-lifecycle probe blocks only; it does not transport samples yet.
+Status: tested on loopback only; not yet qualified under network impairment.

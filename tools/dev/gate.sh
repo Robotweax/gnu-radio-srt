@@ -1,6 +1,6 @@
 #!/bin/sh
 # Inside the development image: run every qualification check of the
-# milestones reached so far (M0, M1) and write an evidence directory.
+# milestones reached so far (M0, M1, M2) and write an evidence directory.
 # Usage (from the host):
 #   tools/dev/run.sh tools/dev/gate.sh [output-dir]
 # Exits nonzero if any gate fails. A missing prerequisite is a failure, never
@@ -23,9 +23,9 @@ run_spike() { /tmp/rwsrt-spike/rwsrt_m0_srt_api; }
 
 gate srt_package_discovery_and_header_compile build_spike
 gate srt_public_api run_spike
-gate module_build_and_lifecycle_tests tools/dev/build-and-test.sh
-gate lifecycle_repeat_sink tools/dev/repeat-test.sh qa_m0_probe_sink 5
-gate lifecycle_repeat_source tools/dev/repeat-test.sh qa_m0_probe_source 5
+gate module_build_and_all_tests tools/dev/build-and-test.sh
+gate block_qa_repeat_lifecycle tools/dev/repeat-test.sh qa_lifecycle 3
+gate block_qa_repeat_transfer_tags tools/dev/repeat-test.sh "qa_transfer|qa_tags" 3
 gate clean_prefix_install_python_companion_cxx tools/dev/check-install.sh
 # M1: native core and transport, without GNU Radio.
 gate native_unit_e2e_sanitizers_fuzz tools/dev/native-checks.sh "${RWSRT_FUZZ_SECONDS:-60}"
@@ -35,8 +35,8 @@ grep '^{' "$out/srt_public_api.log" > "$out/srt_api.jsonl" 2>/dev/null
 cp artifacts/native/e2e.jsonl "$out/e2e.jsonl" 2>/dev/null
 grep -hE "^(fuzz_|[a-z_0-9]+ (pass|FAIL))" "$out/native_unit_e2e_sanitizers_fuzz.log" \
     > "$out/native_checks.txt" 2>/dev/null
-grep -h 'M0-EVIDENCE' artifacts/ctest.log 2>/dev/null | grep -E '^[0-9]+: ' |
-    sed -E 's/^[0-9]+: [.F]*M0-EVIDENCE //' > "$out/lifecycle.jsonl"
+grep -h 'M2-EVIDENCE' artifacts/ctest.log 2>/dev/null | grep -E '^[0-9]+: ' |
+    sed -E 's/^[0-9]+: [.F]*M2-EVIDENCE //' > "$out/blocks.jsonl"
 
 python3 -I - "$out" <<'PY'
 import json, platform, subprocess, sys, pathlib
@@ -50,7 +50,7 @@ def dpkg(p):
     return sh("dpkg-query -W -f '${Version}' %s" % p)
 lock = json.load(open("dependencies.lock.json"))
 manifest = {
-    "milestones": ["M0", "M1"],
+    "milestones": ["M0", "M1", "M2"],
     "machine": {"arch": platform.machine(), "kernel": platform.release(),
                 "cpu_count": sh("nproc"), "cpu_model": sh("lscpu | sed -n 's/^Model name: *//p' | head -1"),
                 "virtualization": "Docker container; see docs/decisions.md D2"},

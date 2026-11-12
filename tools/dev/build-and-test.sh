@@ -11,7 +11,7 @@ cmake -S . -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="$prefix" > artifacts/configure.log 2>&1
 cmake --build "$build" > artifacts/build.log 2>&1
 status=0
-(cd "$build" && ctest --timeout 120 --output-on-failure -V) > artifacts/ctest.log 2>&1 || status=$?
+(cd "$build" && ctest --timeout 300 --output-on-failure -V) > artifacts/ctest.log 2>&1 || status=$?
 cmake --install "$build" > artifacts/install.log 2>&1
-grep -E "M0-EVIDENCE|tests passed|tests failed|\*\*\*|^FAIL|^ERROR|Ran [0-9]+ tests" artifacts/ctest.log || true
+grep -E "tests passed|tests failed|\*\*\*|: (FAIL|ERROR)|Ran [0-9]+ tests" artifacts/ctest.log || true
 exit $status

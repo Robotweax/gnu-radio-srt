@@ -1,0 +1,14 @@
+{
+  "gates": {
+    "srt_package_discovery_and_header_compile": "pass",
+    "srt_public_api": "pass",
+    "module_build_and_all_tests": "pass",
+    "block_qa_repeat_lifecycle": "pass",
+    "block_qa_repeat_transfer_tags": "pass",
+    "clean_prefix_install_python_companion_cxx": "pass",
+    "native_unit_e2e_sanitizers_fuzz": "pass",
+    "e2e_with_tsan_instrumented_srt": "pass",
+    "srt_commit_matches_lock": "pass"
+  },
+  "overall": "pass"
+}

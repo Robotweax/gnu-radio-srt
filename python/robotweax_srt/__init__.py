@@ -7,8 +7,12 @@
 # The presence of this file turns this directory into a Python package
 
 '''
-This is the GNU Radio ROBOTWEAX_SRT module. Place your Python package
-description here (python/__init__.py).
+GNU Radio blocks that carry sample streams over Robotweax SRT.
+
+  srt_sink, srt_source          the stream blocks
+  transport_config, stream_config   their configuration
+  make_transport_config(**kw), make_stream_config(**kw)
+                                keyword constructors that reject unknown names
 '''
 import os
 
@@ -17,4 +21,5 @@ import os
 from .robotweax_srt_python import *
 
 # import any pure python here
-#
+from .helpers import make_transport_config, make_stream_config
+

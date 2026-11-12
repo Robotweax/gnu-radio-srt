@@ -1,0 +1,62 @@
+options:
+  parameters:
+    id: live_receiver
+    title: Robotweax SRT live receiver
+    generate_options: no_gui
+    run_options: run
+    output_language: python
+  states:
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    value: '100000'
+  states:
+    coordinate: [200, 8]
+    rotation: 0
+    state: enabled
+- name: source
+  id: robotweax_srt_srt_source
+  parameters:
+    sample_format: cf32
+    sample_rate_num: samp_rate
+    role: listener
+    bind_address: 127.0.0.1
+    port: '9000'
+    continuity: strict_stop
+    security: ctr
+    passphrase_env: RWSRT_PASSPHRASE
+  states:
+    coordinate: [8, 100]
+    rotation: 0
+    state: enabled
+- name: status_print
+  id: blocks_message_debug
+  parameters:
+    en_uvec: 'True'
+  states:
+    coordinate: [360, 220]
+    rotation: 0
+    state: disabled
+- name: out
+  id: blocks_null_sink
+  parameters:
+    type: complex
+    vlen: '1'
+    num_inputs: '1'
+    bus_structure_sink: '[[0,],]'
+  states:
+    coordinate: [360, 120]
+    rotation: 0
+    state: enabled
+
+connections:
+- [source, '0', out, '0']
+- [source, status, status_print, print]
+
+metadata:
+  file_format: 1

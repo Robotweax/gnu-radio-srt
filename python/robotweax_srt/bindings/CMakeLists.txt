@@ -25,8 +25,9 @@ include(GrPybind)
 ########################################################################
 
 list(APPEND robotweax_srt_python_files
-    m0_probe_sink_python.cc
-    m0_probe_source_python.cc python_bindings.cc)
+    config_python.cc
+    srt_sink_python.cc
+    srt_source_python.cc python_bindings.cc)
 
 gr_pybind_make_oot(robotweax_srt ../../.. gr::robotweax_srt "${robotweax_srt_python_files}")
 

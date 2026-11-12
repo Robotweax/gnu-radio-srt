@@ -10,5 +10,6 @@
 # Install public header files
 ########################################################################
 install(FILES api.h
-    m0_probe_sink.h
-    m0_probe_source.h DESTINATION include/gnuradio/robotweax_srt)
+    config.h
+    srt_sink.h
+    srt_source.h DESTINATION include/gnuradio/robotweax_srt)

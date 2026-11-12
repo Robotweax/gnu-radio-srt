@@ -21,8 +21,9 @@ namespace py = pybind11;
 // Please do not delete
 /**************************************/
 // BINDING_FUNCTION_PROTOTYPES(
-    void bind_m0_probe_sink(py::module& m);
-    void bind_m0_probe_source(py::module& m);
+    void bind_config(py::module& m);
+    void bind_srt_sink(py::module& m);
+    void bind_srt_source(py::module& m);
 // ) END BINDING_FUNCTION_PROTOTYPES
 
 
@@ -51,7 +52,8 @@ PYBIND11_MODULE(robotweax_srt_python, m)
     // Please do not delete
     /**************************************/
     // BINDING_FUNCTION_CALLS(
-    bind_m0_probe_sink(m);
-    bind_m0_probe_source(m);
+    bind_config(m);
+    bind_srt_sink(m);
+    bind_srt_source(m);
     // ) END BINDING_FUNCTION_CALLS
 }
