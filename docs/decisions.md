@@ -295,7 +295,7 @@ transfer, bounded allocations.
 | Record-stream and state-machine fuzzing | no finding | about 9 million executions per 60 s run |
 | Headless end-to-end transfer | 22 cases pass | plain, ASan+UBSan, TSan with instrumented SRT |
 | Bounded queues | pass | no peer at 1 MS/s: queue never above its 512-record limit |
-| x86-64 | see the CI run of the M1 commit | `.github/workflows/gate.yml` |
+| x86-64 | all 9 gates pass | hosted runner, run 43225318124 on commit `2acf640`, 18 minutes |
 
 Not part of M1 and not done: network impairment (M4), UDP and TCP baseline
 peers (M4), memory growth over a long run (M3 soak), the GNU Radio blocks
