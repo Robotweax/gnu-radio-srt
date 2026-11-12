@@ -1,0 +1,12 @@
+{
+  "gates": {
+    "srt_package_discovery_and_header_compile": "pass",
+    "srt_public_api": "pass",
+    "module_build_and_lifecycle_tests": "pass",
+    "lifecycle_repeat_sink": "pass",
+    "lifecycle_repeat_source": "pass",
+    "clean_prefix_install_python_companion_cxx": "pass",
+    "srt_commit_matches_lock": "pass"
+  },
+  "overall": "pass"
+}

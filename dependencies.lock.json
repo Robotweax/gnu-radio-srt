@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "base_image": {
+    "reference": "ubuntu@sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3",
+    "name": "ubuntu:24.04"
+  },
+  "dev_image": {
+    "tag": "gr-robotweax-srt-dev:m0"
+  },
+  "robotweax_srt": {
+    "repository": "https://github.com/Robotweax/srt.git",
+    "tag": "v0.3.2",
+    "commit": "e45d0edd346e5c427d85e4c3b1ac605c81a23397",
+    "release": "0.3.2",
+    "abi_line": "0.3",
+    "compatible_srt_api": "1.5.7",
+    "tag_object": "235cbdb6c0b0d1950b3e74d623ffc21108bf3ef1",
+    "build": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "BUILD_SHARED_LIBS": "ON",
+      "ROBOTWEAX_SRT_INSTALL_LAYOUT": "namespaced (default)",
+      "ROBOTWEAX_SRT_CRYPTO_BACKEND": "openssl (default)",
+      "ENABLE_AEAD_API_PREVIEW": "OFF (default)",
+      "ROBOTWEAX_SRT_BUILD_TESTS": "OFF",
+      "ROBOTWEAX_SRT_BUILD_BENCHMARKS": "OFF",
+      "ROBOTWEAX_SRT_BUILD_TOOLS": "OFF"
+    }
+  },
+  "platform": {
+    "os": "Ubuntu 24.04 LTS",
+    "arch_qualified": [
+      "aarch64"
+    ],
+    "arch_not_yet_qualified": [
+      "x86_64"
+    ]
+  },
+  "gnuradio": {
+    "version": "3.10.9.2",
+    "source": "Ubuntu 24.04 archive package",
+    "package": "3.10.9.2-1.1ubuntu2"
+  },
+  "toolchain": {
+    "gxx": "13.3.0",
+    "cmake": "3.28.3",
+    "ninja": "1.11.1",
+    "python": "3.12.3",
+    "pybind11": "2.11.1",
+    "numpy": "1.26.4",
+    "openssl": "3.0.13"
+  },
+  "note": "Ubuntu packages are pinned through the base image digest plus the archive state at image build time; the exact installed versions of each qualification run are recorded in that run's manifest.json."
+}

@@ -1,0 +1,28 @@
+id: robotweax_srt_m0_probe_source
+label: Robotweax SRT M0 Probe Source
+category: '[Robotweax SRT]'
+
+templates:
+  imports: from gnuradio import robotweax_srt
+  make: robotweax_srt.m0_probe_source(${finish_after_ms}, ${wait_inside_work})
+
+documentation: |-
+  M0 scaffolding. A source whose queue is always empty: produces no samples.
+  Replaced by the SRT Source in M2.
+
+parameters:
+- id: finish_after_ms
+  label: Finish after (ms, 0 = never)
+  dtype: int
+  default: '0'
+- id: wait_inside_work
+  label: Wait inside work()
+  dtype: bool
+  default: 'True'
+
+outputs:
+- label: out
+  domain: stream
+  dtype: complex
+
+file_format: 1
