@@ -1,0 +1,105 @@
+{
+  "protocol": "RWSR",
+  "version": 1,
+  "vectors": [
+    {
+      "name": "f32_data",
+      "kind": "DATA",
+      "format": "f32",
+      "run_id": "000102030405060708090a0b0c0d0e0f",
+      "segment_id": 0,
+      "first_sample_index": 0,
+      "sample_count": 4,
+      "rate_num": 48000,
+      "rate_den": 1,
+      "record_sequence": 0,
+      "sample_bits": [
+        "00000000",
+        "80000000",
+        "3fc00000",
+        "7fc01234"
+      ],
+      "file": "f32_data.bin",
+      "length": 112,
+      "sha256": "6412d156ae33a59c72f371593d862a221c99a95f51f4f1c1da06851374046e57"
+    },
+    {
+      "name": "cf32_data",
+      "kind": "DATA",
+      "format": "cf32",
+      "run_id": "a0a1a2a3a4a5a6a7a8a9aaabacadaeaf",
+      "segment_id": 2,
+      "first_sample_index": 1000,
+      "sample_count": 3,
+      "rate_num": 100000,
+      "rate_den": 1,
+      "record_sequence": 57,
+      "sample_bits": [
+        "3f800000",
+        "bf800000",
+        "80000000",
+        "7fa00001",
+        "7f800000",
+        "00000001"
+      ],
+      "file": "cf32_data.bin",
+      "length": 120,
+      "sha256": "4947bb8a956f7de714e1196dbf495b4a4b4ca95ec38eda38c41df964c3ee50a5"
+    },
+    {
+      "name": "timed_data",
+      "kind": "DATA",
+      "format": "cf32",
+      "run_id": "ffeeddccbbaa99887766554433221100",
+      "segment_id": 1,
+      "first_sample_index": 1099511627781,
+      "sample_count": 2,
+      "rate_num": 1000000,
+      "rate_den": 3,
+      "record_sequence": 8589934599,
+      "capture_time_ns": 1794484426201407000,
+      "capture_uncertainty_ns": 250,
+      "sample_bits": [
+        "3e800000",
+        "be800000",
+        "40490fdb",
+        "c0490fdb"
+      ],
+      "file": "timed_data.bin",
+      "length": 112,
+      "sha256": "c2a74ff6527c4ee9dba933be807314902f0862a484d1bbe0b54853d19dae1b31"
+    },
+    {
+      "name": "end",
+      "kind": "END",
+      "format": "cf32",
+      "run_id": "a0a1a2a3a4a5a6a7a8a9aaabacadaeaf",
+      "segment_id": 2,
+      "first_sample_index": 1003,
+      "sample_count": 0,
+      "rate_num": 100000,
+      "rate_den": 1,
+      "record_sequence": 58,
+      "sample_bits": [],
+      "file": "end.bin",
+      "length": 96,
+      "sha256": "57aab36113d54ac5c3bb8e76a2b1af06954ae58e4d7f0a29800d69e0160d5e82"
+    },
+    {
+      "name": "empty_run_end",
+      "kind": "END",
+      "format": "f32",
+      "run_id": "000102030405060708090a0b0c0d0e0f",
+      "segment_id": 0,
+      "first_sample_index": 0,
+      "sample_count": 0,
+      "rate_num": 48000,
+      "rate_den": 1,
+      "record_sequence": 0,
+      "sample_bits": [],
+      "file": "empty_run_end.bin",
+      "length": 96,
+      "sha256": "3dc503f476beceb67ea7206dba728480dba3f78eb241cd5c489bd974780795b0"
+    }
+  ]
+}

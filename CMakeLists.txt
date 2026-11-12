@@ -133,7 +133,9 @@ add_custom_target(uninstall ${CMAKE_COMMAND} -P
 # Add subdirectories
 ########################################################################
 add_subdirectory(include/gnuradio/robotweax_srt)
+include(${PROJECT_SOURCE_DIR}/cmake/RwsrtNative.cmake)
 add_subdirectory(lib)
+add_subdirectory(tests)
 add_subdirectory(apps)
 add_subdirectory(docs)
 # NOTE: manually update below to use GRC to generate C++ flowgraphs w/o python

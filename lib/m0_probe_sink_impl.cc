@@ -78,7 +78,7 @@ bool m0_probe_sink_impl::start()
     std::lock_guard<std::mutex> guard(d_mutex);
     ++d_start_calls;
     if (!d_running) {
-        d_runtime = runtime_owner::acquire();
+        d_runtime = rwsrt::runtime_owner::acquire();
         d_cancel.store(false);
         d_worker_state.store(1);
         d_worker = std::thread([this] { worker_main(); });
@@ -226,7 +226,7 @@ std::string m0_probe_sink_impl::report() const
        << ",\"attempts\":" << d_attempts.load() << ",\"connections\":" << d_connections.load()
        << ",\"setup_errors\":" << d_setup_errors.load() << ",\"max_wait_slice_ms\":"
        << d_max_wait_slice_us.load() / 1000.0 << ",\"runtime_leases\":"
-       << runtime_owner::active_leases() << "}";
+       << rwsrt::runtime_owner::active_leases() << "}";
     return os.str();
 }
 

@@ -2,7 +2,7 @@ name: gate
 
 # Runs the qualification gate on a hosted x86-64 runner, the plan's primary
 # platform. The same scripts run locally: tools/dev/build-image.sh, then
-# tools/dev/run.sh tools/dev/m0-gate.sh.
+# tools/dev/run.sh tools/dev/gate.sh.
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
   gate:
     name: gate (ubuntu-24.04 x86-64)
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
 
@@ -48,7 +48,7 @@ jobs:
         run: tools/dev/build-image.sh "$PWD/_deps/srt"
 
       - name: Run the gate
-        run: tools/dev/run.sh tools/dev/m0-gate.sh
+        run: tools/dev/run.sh tools/dev/gate.sh
 
       - name: Upload evidence
         if: always()

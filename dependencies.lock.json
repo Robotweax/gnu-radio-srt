@@ -5,7 +5,7 @@
     "name": "ubuntu:24.04"
   },
   "dev_image": {
-    "tag": "gr-robotweax-srt-dev:m0"
+    "tag": "gr-robotweax-srt-dev:m1"
   },
   "robotweax_srt": {
     "repository": "https://github.com/Robotweax/srt.git",

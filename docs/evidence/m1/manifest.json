@@ -1,0 +1,49 @@
+{
+  "milestones": [
+    "M0",
+    "M1"
+  ],
+  "machine": {
+    "arch": "aarch64",
+    "kernel": "7.0.14-linuxkit",
+    "cpu_count": "16",
+    "cpu_model": "-",
+    "virtualization": "Docker container; see docs/decisions.md D2"
+  },
+  "os": "Ubuntu 24.04.5 LTS",
+  "base_image": "ubuntu@sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3",
+  "gnuradio": {
+    "version": "3.10.9.2",
+    "package": "3.10.9.2-1.1ubuntu2",
+    "dev_package": "3.10.9.2-1.1ubuntu2"
+  },
+  "toolchain": {
+    "gxx": "13.3.0",
+    "cmake": "cmake version 3.28.3",
+    "ninja": "1.11.1",
+    "build_type": "Release"
+  },
+  "python": {
+    "version": "3.12.3",
+    "pybind11": "2.11.1-2",
+    "numpy": "1:1.26.4+ds-6ubuntu1"
+  },
+  "robotweax_srt": {
+    "commit": "e45d0edd346e5c427d85e4c3b1ac605c81a23397",
+    "pinned_commit": "e45d0edd346e5c427d85e4c3b1ac605c81a23397",
+    "package_version": "0.3.2",
+    "library": "librobotweax-srt.so.0.3.2",
+    "crypto_backend": "openssl 3.0.13-0ubuntu3.16",
+    "build": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "BUILD_SHARED_LIBS": "ON",
+      "ROBOTWEAX_SRT_INSTALL_LAYOUT": "namespaced (default)",
+      "ROBOTWEAX_SRT_CRYPTO_BACKEND": "openssl (default)",
+      "ENABLE_AEAD_API_PREVIEW": "OFF (default)",
+      "ROBOTWEAX_SRT_BUILD_TESTS": "OFF",
+      "ROBOTWEAX_SRT_BUILD_BENCHMARKS": "OFF",
+      "ROBOTWEAX_SRT_BUILD_TOOLS": "OFF"
+    }
+  },
+  "secrets": "none recorded; the spike passphrase is a fixed test literal"
+}

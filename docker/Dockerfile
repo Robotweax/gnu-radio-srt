@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3 python3-dev python3-numpy python3-pybind11 pybind11-dev \
         python3-packaging python3-pytest \
         libssl-dev libspdlog-dev libfmt-dev libgmp-dev libboost-all-dev \
-        clang llvm iproute2 procps \
+        clang llvm libclang-rt-18-dev iproute2 procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Robotweax SRT, installed into its own prefix with the default namespaced

@@ -5,27 +5,29 @@ impaired IP network using the [Robotweax SRT](https://github.com/Robotweax/srt)
 public C API, with bounded buffering, reported discontinuities and predictable
 shutdown.
 
-**Status: milestone M0 (integration spike) is complete on one platform. The
-module does not transport samples yet.** It contains the build and packaging
-skeleton, the shared SRT runtime owner, and two lifecycle probe blocks that
-qualify scheduler and transport behaviour for the real blocks. No performance
-or benchmark result is claimed.
+**Status: milestones M0 (integration spike) and M1 (protocol and core) are
+complete. The GNU Radio blocks that carry samples are milestone M2 and do not
+exist yet.** What exists: the RWSR v1 wire codec with golden vectors, bounded
+queues, continuity accounting, the session worker over SRT, and headless
+reference peers that transfer a verified test signal end to end on loopback.
+Nothing has been tested under network impairment. No performance or benchmark
+result is claimed.
 
 - Specification: [docs/project-plan.md](docs/project-plan.md)
-- What M0 established, and where it changes the plan: [docs/decisions.md](docs/decisions.md)
+- Wire protocol: [docs/protocol-v1.md](docs/protocol-v1.md)
+- Findings and decisions, and where they change the plan: [docs/decisions.md](docs/decisions.md)
 - Pinned dependencies: [dependencies.lock.json](dependencies.lock.json)
-- M0 evidence summary: [docs/evidence/m0/](docs/evidence/m0/)
+- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/)
 
 ## Qualified platform
 
 | Component | Version |
 |---|---|
-| OS | Ubuntu 24.04 LTS, Linux aarch64 (Docker) |
+| OS | Ubuntu 24.04 LTS in Docker: aarch64 locally, x86-64 on a hosted CI runner |
 | GNU Radio | 3.10.9.2 (Ubuntu package) |
 | Robotweax SRT | 0.3.2, commit `e45d0edd`, shared library, OpenSSL backend |
 | Toolchain | GCC 13.3, CMake 3.28, Ninja 1.11, Python 3.12, pybind11 2.11 |
 
-x86-64, which the plan names as the first target, has not been run yet.
 Nothing else is implied to work.
 
 ## Build and test
@@ -36,32 +38,52 @@ the pinned commit (default: `../srt`).
 
 ```sh
 tools/dev/build-image.sh [path-to-srt-checkout]
-tools/dev/run.sh tools/dev/m0-gate.sh
+tools/dev/run.sh tools/dev/gate.sh
 ```
 
-The gate builds the SRT API spike and the module, runs the lifecycle tests
-(repeated), installs into a clean prefix, imports the module from outside the
-source tree, checks GNU Radio Companion discovery, generates and runs a
-Companion flowgraph, and builds a C++ consumer against the installed package.
-It writes `artifacts/m0/` (`manifest.json`, `srt_api.jsonl`,
-`lifecycle.jsonl`, `verdict.json`, logs) and exits nonzero if any gate fails.
+The gate covers both milestones. M0: SRT API spike, module build, lifecycle
+tests, clean-prefix install, Python import, GNU Radio Companion discovery and
+a C++ consumer. M1: native unit tests, golden vectors, the end-to-end suite of
+the reference peers, all of it again under ASan/UBSan and TSan, and two fuzz
+targets. It writes `artifacts/gate/` and exits nonzero if any gate fails. It
+takes about ten minutes.
 
 Individual steps:
 
 ```sh
 tools/dev/run.sh tools/dev/build-and-test.sh
-tools/dev/run.sh sh -c 'tools/dev/build-and-test.sh && tools/dev/check-install.sh'
+tools/dev/run.sh tools/dev/native-checks.sh 60
+python3 tools/gen_golden_vectors.py --check
 ```
+
+## Reference peers
+
+Two headless programs use the same codec, queue and worker as the blocks
+will, without GNU Radio. The sender produces a test signal whose every sample
+value follows from its coordinate; the receiver verifies each sample. Inside
+the image, after `tools/dev/native-checks.sh`:
+
+```sh
+export RWSRT_KEY='a passphrase of 10 to 79 bytes'
+/tmp/rwsrt-native/rwsrt_ref_receiver --role=listener --port=9000 --passphrase-env=RWSRT_KEY &
+/tmp/rwsrt-native/rwsrt_ref_sender --role=caller --port=9000 --passphrase-env=RWSRT_KEY --samples=100000
+```
+
+Each prints one JSON object when it ends. `--plaintext` replaces the
+passphrase for local tests; there is no automatic fallback to it.
 
 ## Layout
 
 | Path | Content |
 |---|---|
 | `include/gnuradio/robotweax_srt/` | Public block headers (no SRT types) |
-| `lib/` | Block implementations and `runtime_owner` |
+| `lib/` | Wire codec, queues, continuity, session worker, SRT adapter, probe blocks |
 | `python/robotweax_srt/` | pybind11 bindings and QA tests |
 | `grc/` | Companion block definitions |
 | `spikes/m0_srt_api/` | Standalone SRT public-API spike, no GNU Radio |
+| `tests/unit/`, `tests/fuzz/`, `tests/integration/` | Native tests; `tests/` is also a standalone CMake project |
+| `tests/fixtures/rwsr_v1/` | Golden byte vectors |
+| `tools/reference_peer/` | Headless sender and receiver |
 | `tests/install_consumer/` | C++ consumer of the installed package |
 | `tools/dev/` | Image, build, test and gate scripts |
 | `docker/` | Development image definition |

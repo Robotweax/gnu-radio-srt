@@ -6,8 +6,8 @@ plan file is kept as received; this file wins where the two differ.
 
 Numbers are measurements from one host inside a container. They show that a
 mechanism works and roughly how it behaves. They are not performance claims.
-Evidence: `tools/dev/run.sh tools/dev/m0-gate.sh`, summary in
-[evidence/m0/](evidence/m0/).
+Evidence: `tools/dev/run.sh tools/dev/gate.sh`, summaries in
+[evidence/m0/](evidence/m0/) and [evidence/m1/](evidence/m1/).
 
 ## Status of the M0 blocking checks
 
@@ -24,7 +24,8 @@ Evidence: `tools/dev/run.sh tools/dev/m0-gate.sh`, summary in
 | EOF mechanism (plan section 6) | pass | D5 |
 | Shared SRT runtime (plan section 8) | pass | D8 |
 
-M0 exit gate: met on Linux aarch64. Not met on x86-64 (not run, D2).
+M0 exit gate: met on Linux aarch64 (local) and on x86-64 (hosted CI runner,
+D2).
 
 ## D1. Robotweax SRT pin
 
@@ -49,11 +50,18 @@ M0 exit gate: met on Linux aarch64. Not met on x86-64 (not run, D2).
 - Plan: Ubuntu 24.04 x86-64 first, arm64 second.
 - Done: Ubuntu 24.04 **aarch64** in Docker on an Apple Silicon host
   (kernel 7.0.14-linuxkit, 16 CPUs). This is the hardware available.
-- x86-64 has not been built or run. Emulated x86-64 on this host could show
-  that it compiles but would not give trustworthy timing. It needs a real
-  x86-64 Linux host or CI runner. **Open.**
-- All timing figures below come from this container and say nothing about a
-  bare-metal reference host.
+- x86-64, the plan's primary platform, is qualified on a GitHub-hosted
+  `ubuntu-24.04` runner by owner decision of 2026-11-12
+  (`.github/workflows/gate.yml`, every push). First run: all M0 gates passed
+  (run 43218140005; Intel Xeon Platinum 8573C, 2 vCPUs, kernel
+  7.0.0-1017-azure). Its figures agree with aarch64: stop with no peer at most
+  11 ms over 100 cycles, source delivery 209 ms when returning zero items
+  against 0.07 ms when waiting inside `work()`.
+- A hosted runner is shared and virtualised. It shows that the gates hold
+  there; it is not a reference host for timing claims. That needs dedicated
+  hardware (M4).
+- All timing figures in this file come from containers and say nothing about
+  a bare-metal host.
 
 ## D3. GNU Radio and toolchain
 
@@ -252,23 +260,191 @@ binary packages are reviewed when the first binary package is produced.
 Source build and clean-prefix install work with the template's CMake install
 rules. The `.conda` recipe from the template was removed as unqualified.
 
-## Open items carried into M1
+## Open items after M0 (status updated in M1)
 
-1. x86-64 qualification on a real host (D2).
+1. A dedicated x86-64 host for timing-sensitive qualification in M4 (D2).
+   Functional x86-64 qualification runs in CI.
 2. First user: none. The owner stated on 2026-11-12 that this is an academic
    project for now. The plan's "validate the user story with a
    measurement/SDR user" and "one independent developer reproduces the
    examples" gates therefore stay open and are not blocking; the synthetic
    deterministic signal is the workload until a user exists.
-3. Bounded SRT buffer and flow-control values, and the UDP receive buffer
-   (D10).
-4. SRT log handler (D10).
+3. UDP receive buffer: still the library default request; see D10 update.
+4. Done in M1: SRT log handler (D10 update).
 5. Binary-package obligations, when a binary package is first built (D12).
 6. Receiver idle/disconnect policy against the outage profile N5: the 5 s
    outage equals the default `SRTO_PEERIDLETIMEO` of 5000 ms, so the
    connection may or may not survive it. To be set deliberately.
 7. The thread-count watch item (D6).
-8. Sanitizer and fuzz builds (plan section 12) start with the M1 codec.
+8. Done in M1: sanitizer and fuzz builds (D21).
 9. CI: `.github/workflows/gate.yml` runs the gate on a hosted
    `ubuntu-24.04` x86-64 runner on every push (owner decision 2026-11-12).
    The repository is `https://github.com/Robotweax/gnu-radio-srt` (private).
+
+# Milestone M1: protocol and core
+
+M1 exit gate (plan section 13): unit and fuzz suite, headless end-to-end
+transfer, bounded allocations.
+
+| Item | Result | Evidence |
+|---|---|---|
+| Wire codec with independent golden vectors | done | 5 fixtures from `tools/gen_golden_vectors.py`, byte-exact both ways |
+| Unit suite | 60 cases pass | plain, ASan+UBSan, TSan |
+| Mutation check of the unit suite | 16 of 16 seeded bugs detected | one-off, not part of the gate |
+| Decoder fuzzing | no finding | about 54 million executions per 60 s run |
+| Record-stream and state-machine fuzzing | no finding | about 9 million executions per 60 s run |
+| Headless end-to-end transfer | 22 cases pass | plain, ASan+UBSan, TSan with instrumented SRT |
+| Bounded queues | pass | no peer at 1 MS/s: queue never above its 512-record limit |
+| x86-64 | see the CI run of the M1 commit | `.github/workflows/gate.yml` |
+
+Not part of M1 and not done: network impairment (M4), UDP and TCP baseline
+peers (M4), memory growth over a long run (M3 soak), the GNU Radio blocks
+themselves (M2). All end-to-end results are loopback without loss.
+
+## D13. Protocol points fixed in `protocol-v1.md`
+
+The plan left these open; version 1 now fixes them:
+
+- A non-normalized rate is rejected, not normalized by the receiver.
+- A capture time before the Unix epoch is impossible. So is an uncertainty,
+  or a time plus uncertainty, beyond the signed 64-bit range.
+- The capture-time flag and the clock domain must agree in both directions.
+- `record_sequence` 2^64 - 1 is never used, so the sequence cannot wrap.
+- The message bound is checked before any field is read.
+- Encoder and decoder share one rule set (`validate()`); the fuzzer checks
+  that anything the decoder accepts re-encodes to the same header bytes.
+
+## D14. Code layout
+
+- `lib/` holds the plan's files plus `sample_time`, `continuity`,
+  `record_assembler`, `session_state` and `session_config`.
+- Two static libraries defined in `cmake/RwsrtNative.cmake`: `rwsrt_core`
+  (no GNU Radio, no SRT) and `rwsrt_transport` (the only code that includes
+  `<srt/srt.h>`). Namespace `rwsrt`. The GNU Radio module links both.
+- `tests/` is also a standalone CMake project, so core, transport and peers
+  build without GNU Radio for sanitizers and fuzzing.
+- Unit tests use header-only Boost.Test, which the GNU Radio template
+  already depends on.
+
+## D15. State machine as implemented
+
+- Before the first connection, failed attempts are retried in both
+  continuity modes until `startup_timeout_ms`. The plan's diagram shows
+  retry only after a connection; without startup retries a Caller started
+  before its Listener would fail on the first attempt.
+- After a connection, a loss is retried only in segmented mode with
+  reconnect enabled, within `reconnect_total_timeout_ms`.
+- STARTING is not observable: resources exist before the first attempt.
+- COMPLETED and FAILED are kept until `stop()`. The first failure is
+  retained; later errors, including errors during teardown, never replace it.
+- A credential or configuration rejection is terminal and not retried
+  (measured: failure reported within 2 s, no second attempt).
+
+## D16. Strict mode before the first connection (input to M2)
+
+A strict sender must not accept samples before a peer is connected: its
+queue would overflow or age out within `queue_max_age_ms` and the run would
+fail at once. The reference sender therefore waits for the connection before
+producing. **For the M2 Sink:** in strict mode `general_work()` consumes
+nothing until the worker is connected, which pushes back on upstream. In
+segmented mode samples are accepted from the start, old records are
+discarded, and a receiver that connects later reports `initial_join`.
+
+## D17. Queue behaviour
+
+- Limits apply to DATA: bytes, records, age. A record exactly at the age
+  limit is still live.
+- END has reserved capacity: always admitted, never evicted, never expired,
+  never overtakes DATA. Nothing is accepted after END.
+- Strict: a full queue or an expired record is a terminal error and nothing
+  is displaced.
+- Segmented: oldest DATA is discarded. On the receive side the next record
+  that leaves the queue carries `receiver_queue_drop` with the exact number
+  of discarded samples, merged with any break the discarded records carried
+  themselves (unknown wins over known). Measured in the stall test: 100050
+  samples discarded, 100050 reported, received plus reported equals sent.
+
+## D18. END delivery and connection loss on the sender
+
+- Linger is off, so closing discards what SRT still holds. After END is
+  accepted by SRT the worker waits until `SRTO_SNDDATA` reaches zero, at
+  most latency plus `stop_timeout_ms`, before closing. This gives END its
+  chance; it is still not an acknowledgement.
+- END that was taken from the queue but not yet accepted by SRT is kept
+  across a reconnect.
+- A DATA record in the same position is counted as a stale drop and not
+  resent: after an outage it is no longer current.
+- A sender whose receiver went away keeps trying until the reconnect budget
+  ends, then fails with `reconnect_timeout`. It never reports completion.
+
+## D19. Listener admission
+
+- One active peer. Further peers are accepted and closed at once, counted
+  as `rejected_peers`.
+- A peer with a different stream ID is closed right after accept. The
+  rejection therefore happens after the SRT handshake, not inside it: the
+  caller briefly sees a connection. **To do in M3:** reject in the handshake
+  with a listen callback.
+
+## D20. Bandwidth setting
+
+The sender sets `SRTO_MAXBW = 0` and `SRTO_INPUTBW` to an upper bound of
+its byte rate, framing included: payload, plus one header per full record
+and per flush interval. Example: cf32 at 200 kS/s gives 1787296 bytes/s
+(1.6 MB/s payload). The overhead reserve is the library default,
+`SRTO_OHEADBW` 25 %, and is read back into the status snapshot. Whether 25 %
+is enough for retransmission under loss is an M4 question; nothing here
+measures it.
+
+## D10 update. Buffers and library log
+
+- `SRTO_SNDBUF` and `SRTO_RCVBUF` are set explicitly from
+  `srt_buffer_bytes` (default 8 MiB; read back as 8387456 after rounding to
+  packet slots). Flow window stays at the default 25600 packets.
+- While the module holds the SRT runtime, library log output goes to a
+  handler in `runtime_owner` (message count and last message, in the status
+  output) instead of stderr. `RWSRT_SRT_LOG=1` prints it.
+- Still open: the UDP receive buffer. The library requests 12288000 bytes
+  and the option reads back that request, not the 4194304 the kernel
+  granted in this container. The effective value is only visible in the
+  library's log line.
+
+## D21. Sanitizers and fuzzing
+
+- Unit tests: ASan+UBSan and TSan, GCC.
+- End-to-end suite: ASan+UBSan against the normal SRT build.
+- End-to-end suite under TSan needs a TSan-built SRT. Against the normal
+  library TSan reported data races inside SRT's listener and channel
+  teardown; against a TSan-instrumented build of the same commit the whole
+  suite ran with zero reports. Those reports were artefacts of the
+  uninstrumented library. `tools/dev/tsan-e2e.sh` builds the instrumented
+  library and is part of the gate.
+- Fuzz targets (clang, libFuzzer, ASan+UBSan): `fuzz_decode` and
+  `fuzz_record_stream`. The gate runs each for 60 s. Longer runs and a kept
+  corpus are not set up.
+- Found on the way, both in test code: a Boost.Test assertion used from a
+  second thread (a real race in the test), and a fuzz invariant that was
+  stricter than the specification.
+
+## D22. Observations, not results
+
+- Under TSan the sender could not sustain 20000 one-sample records per
+  second; strict mode reported `queue_overflow` rather than dropping. The
+  case now runs at 2000 records per second because it tests framing, not
+  rate. Records per second, not samples per second, is the cost driver of
+  the worker loop. To be measured properly in M4.
+- Worker wait slices in the end-to-end suite: at most 28 ms. Stop: at most
+  26 ms. Both inside the budgets of D6.
+
+## Open items carried into M2
+
+1. Dedicated x86-64 host for M4 timing work (D2).
+2. No first user: academic project for now (owner, 2026-11-12).
+3. UDP receive buffer request and its effective value (D10 update).
+4. Stream ID rejection inside the handshake (D19), M3.
+5. Receiver idle timeout against outage profile N5: still the 5000 ms
+   default, equal to the outage length.
+6. The thread-count watch item of D6: not seen again in any run.
+7. Longer fuzz runs with a persistent corpus.
+8. `rx_time`-style adapters and unknown-tag accounting belong to M2 with
+   the Sink's tag handling.

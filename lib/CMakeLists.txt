@@ -12,7 +12,6 @@
 include(GrPlatform) #define LIB_SUFFIX
 
 list(APPEND robotweax_srt_sources
-    runtime_owner.cc
     m0_probe_sink_impl.cc
     m0_probe_source_impl.cc)
 
@@ -28,7 +27,8 @@ add_library(gnuradio-robotweax_srt SHARED ${robotweax_srt_sources})
 target_link_libraries(gnuradio-robotweax_srt PUBLIC gnuradio::gnuradio-runtime)
 # The SRT dependency is an implementation detail: public C API only, never
 # exposed through this module's installed headers.
-target_link_libraries(gnuradio-robotweax_srt PRIVATE RobotweaxSRT::srt Threads::Threads)
+target_link_libraries(gnuradio-robotweax_srt PRIVATE rwsrt_transport rwsrt_core
+                      RobotweaxSRT::srt Threads::Threads)
 target_compile_features(gnuradio-robotweax_srt PRIVATE cxx_std_20)
 target_include_directories(
     gnuradio-robotweax_srt

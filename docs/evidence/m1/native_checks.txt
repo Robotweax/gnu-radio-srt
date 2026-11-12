@@ -1,0 +1,18 @@
+build_plain pass
+unit_plain pass
+golden_vectors pass
+e2e_plain pass
+build_asan_ubsan pass
+unit_asan_ubsan pass
+e2e_asan_ubsan pass
+build_tsan pass
+unit_tsan pass
+build_fuzz pass
+fuzz_decode pass
+fuzz_record_stream pass
+fuzz_decode stat::number_of_executed_units: 53618141
+fuzz_decode stat::new_units_added:          111
+fuzz_decode cov: 70
+fuzz_record_stream stat::number_of_executed_units: 9244869
+fuzz_record_stream stat::new_units_added:          5093
+fuzz_record_stream cov: 299

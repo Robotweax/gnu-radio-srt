@@ -28,7 +28,7 @@ private:
     const std::string d_host;
     const int d_port;
 
-    std::shared_ptr<runtime_owner::lease> d_runtime;
+    std::shared_ptr<rwsrt::runtime_owner::lease> d_runtime;
     std::thread d_worker;
     std::atomic<bool> d_cancel{ false };
 
