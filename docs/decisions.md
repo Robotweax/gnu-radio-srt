@@ -886,7 +886,8 @@ profiles, three transports, 30 s each, validated like the real runs. It
 checks the harness. Its figures are not qualification data: the runner has
 two shared CPUs. First attempt (run 43271080084): netem loaded and all
 nine runs validated; the job then failed on a file-permission error in the
-workflow's validation step, which now runs inside the image.
+workflow's validation step, which now runs inside the image. Second attempt
+(run 43276175175 on commit `c76b5cd`): both jobs pass.
 
 ## Open items carried into M5
 
