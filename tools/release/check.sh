@@ -28,7 +28,8 @@ def read(name):
 log = read("clean-install.log") or ""
 doc = {
     "package": sys.argv[3],
-    "sha256": (read("SHA256SUMS") or "").split(" ")[0],
+    "sha256_tar_gz": ((read("SHA256SUMS") or "\n").splitlines()[0]).split(" ")[0],
+    "sha256_tar_content": ((read("SHA256SUMS") or "\n\n").splitlines()[1:2] or [""])[0].split(" ")[0],
     "source_commit": (read("SOURCE_COMMIT") or "").splitlines(),
     "platform": read("clean-install-platform.txt"),
     "install_guide_blocks_executed": log.count("== install guide block"),

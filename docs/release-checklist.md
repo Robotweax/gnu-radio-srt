@@ -41,8 +41,10 @@ below; none of them happens automatically.
 1. Choose the commit. Its CI run must pass all jobs: `gate`, `netem-smoke`,
    `release-check`, `blocks-netem`.
 2. Take the package from that run's `release-check-x86_64` artifact, or
-   build it: `tools/release/check.sh`. The same commit gives the same bytes;
-   compare `SHA256SUMS`.
+   build it: `tools/release/check.sh`. The same commit gives the same
+   content: compare the `.tar` line of `SHA256SUMS`. The `.tar.gz` line can
+   differ between machines with different gzip programs, so publish one
+   file, the one from CI, with its own checksum.
 3. To publish the candidate: tag the commit `v0.1.0-rc1` and attach the
    package and `SHA256SUMS`. No workflow in this repository reacts to tags.
 4. Give the package and [install.md](install.md) to someone who has not

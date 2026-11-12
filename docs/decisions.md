@@ -927,8 +927,12 @@ in [release-checklist.md](release-checklist.md).
 - The release name is set once, `RWSRT_RELEASE_VERSION` in the top-level
   `CMakeLists.txt` (`0.1.0-rc1`). The blocks report it as
   `versions.module`; the package is named after it.
-- The package is `git archive` of one commit, gzip without timestamp: the
-  same commit gives the same bytes. `tools/release/make-source-package.sh`
+- The package is `git archive` of one commit, gzip without timestamp. The
+  tar content of one commit is identical everywhere: commit `8972505` gave
+  the same hash on the macOS host and on the hosted Ubuntu runner. The
+  compressed files differed, because the two gzip programs differ.
+  `SHA256SUMS` therefore lists both hashes; the content hash is the one to
+  compare between machines. `tools/release/make-source-package.sh`
   refuses a dirty tree unless told to package the working tree for a test,
   and then marks the result as not a release.
 - No binary package. The plan allows them only for qualified platform
@@ -1003,7 +1007,11 @@ it is kept.
   qualification consists of.
 - `THIRD_PARTY_NOTICES.md` was re-checked against the libraries an
   installed module loads; the release check records that list.
-- CI has two more jobs: `release-check` and `blocks-netem`.
+- CI has two more jobs: `release-check` and `blocks-netem`. All four jobs
+  pass on the hosted x86-64 runner for the M5 commit (run 43310567407 on
+  `8972505`): gate 11 of 11, netem harness check, the install guide from
+  the package in a fresh container with 10 of 10 module tests, and the
+  blocks across N0 to N2 (60 s each, 3 of 3).
 
 ## Open items after M5
 

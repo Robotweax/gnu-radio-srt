@@ -1,0 +1,18 @@
+{
+  "package": "gr-robotweax-srt-0.1.0-rc1.tar.gz",
+  "sha256": "d41225ae315513f4a06fecad542ba591f35a1c88a46138d3ae12f4b1e0e3d86a",
+  "source_commit": [
+    "8972505a82c93d043165dc5e237277daad3952f4"
+  ],
+  "platform": "Ubuntu 24.04.5 LTS aarch64\ngnuradio 3.10.9.2-1.1ubuntu2",
+  "install_guide_blocks_executed": 8,
+  "module_tests": [
+    "100% tests passed, 0 tests failed out of 10"
+  ],
+  "reported_versions": {
+    "module": "0.1.0-rc1",
+    "gnuradio": "3.10.9.2",
+    "robotweax_srt": "0.3.2"
+  },
+  "clean_install": "pass"
+}

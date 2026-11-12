@@ -1,0 +1,19 @@
+librobotweax-srt.so.0.3	(not from a package)	/home/dev/rwsrt/lib/librobotweax-srt.so.0.3.2
+libboost_program_options.so.1.83.0	libboost-program-options1.83.0	1.83.0-2.1ubuntu3.2
+libboost_thread.so.1.83.0	libboost-thread1.83.0	1.83.0-2.1ubuntu3.2
+libc.so.6	libc6	2.39-0ubuntu8.12
+libcrypto.so.3	libssl3t64	3.0.13-0ubuntu3.16
+libfmt.so.9	libfmt9	9.1.0+ds1-2
+libgcc_s.so.1	libgcc-s1	14.2.0-4ubuntu2~24.04.1
+libgmp.so.10	libgmp10	2:6.3.0+dfsg-2ubuntu6.1
+libgnuradio-pmt.so.3.10.9	libgnuradio-pmt3.10.9t64	3.10.9.2-1.1ubuntu2
+libgnuradio-runtime.so.3.10.9	libgnuradio-runtime3.10.9t64	3.10.9.2-1.1ubuntu2
+liblzma.so.5	liblzma5	5.6.1+really5.4.5-1ubuntu0.4
+libm.so.6	libc6	2.39-0ubuntu8.12
+liborc-0.4.so.0	liborc-0.4-0t64	1:0.4.38-1ubuntu0.1
+libspdlog.so.1.12	libspdlog1.12	1:1.12.0+ds-2build1
+libssl.so.3	libssl3t64	3.0.13-0ubuntu3.16
+libstdc++.so.6	libstdc++6	14.2.0-4ubuntu2~24.04.1
+libthrift-0.19.0.so	libthrift-0.19.0t64	0.19.0-2.1build5
+libunwind.so.8	libunwind8	1.6.2-3build1.1
+libvolk.so.3.1	libvolk3.1t64	3.1.2-1.1build1

@@ -4,8 +4,11 @@
 #
 #   tools/release/make-source-package.sh [--worktree] [output-dir]
 #
-# The package is `git archive` of one commit: the same commit always gives
-# the same bytes. By default that commit is HEAD and the working tree must be
+# The package is `git archive` of one commit. Its content, the tar stream,
+# is the same wherever it is built; SHA256SUMS records that hash as
+# NAME.tar. The compressed file can differ between gzip implementations
+# (seen: macOS against Ubuntu), so compare the .tar line across machines
+# and the .tar.gz line only for one given file. By default that commit is HEAD and the working tree must be
 # clean. --worktree packages the tracked and staged state of the working tree
 # instead, for testing before a commit; such a package is not a release.
 set -eu
@@ -32,8 +35,10 @@ git -C "$here" show "$ref:docs/install.md" | grep -q "$name.tar.gz" || {
     echo "docs/install.md does not name $name.tar.gz" >&2; exit 1; }
 
 mkdir -p "$out"
-git -C "$here" archive --format=tar --prefix="$name/" "$ref" | gzip -n -9 > "$out/$name.tar.gz"
-(cd "$out" && { sha256sum "$name.tar.gz" 2>/dev/null || shasum -a 256 "$name.tar.gz"; } > SHA256SUMS)
+sha() { if command -v sha256sum > /dev/null; then sha256sum "$@"; else shasum -a 256 "$@"; fi; }
+git -C "$here" archive --format=tar --prefix="$name/" "$ref" > "$out/$name.tar"
+gzip -n -9 -c "$out/$name.tar" > "$out/$name.tar.gz"
+(cd "$out" && sha "$name.tar.gz" "$name.tar" > SHA256SUMS && rm "$name.tar")
 printf '%s\n' "$commit" > "$out/SOURCE_COMMIT"
 [ "$worktree" = 1 ] && echo "worktree state, not a release" >> "$out/SOURCE_COMMIT"
 echo "$out/$name.tar.gz"
