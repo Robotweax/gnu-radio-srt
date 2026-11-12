@@ -98,7 +98,9 @@ jobs:
         run: tools/dev/netem.sh smoke artifacts/qual-smoke --seconds 30 --warmup 5 --parallel 2
 
       - name: Validate the evidence
-        run: python3 -I tools/validate_results.py artifacts/qual-smoke --summary-dir artifacts/qual-smoke-summary
+        # Inside the image: the evidence directory was written by the
+        # container and is not writable by the runner's user.
+        run: tools/dev/run.sh python3 -I tools/validate_results.py artifacts/qual-smoke --summary-dir artifacts/qual-smoke-summary
 
       - name: Upload evidence
         if: always()

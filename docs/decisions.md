@@ -884,7 +884,9 @@ was not the limiting factor in any profile here.
 runner with this milestone's CI job (`netem-smoke` in `gate.yml`): three
 profiles, three transports, 30 s each, validated like the real runs. It
 checks the harness. Its figures are not qualification data: the runner has
-two shared CPUs.
+two shared CPUs. First attempt (run 43271080084): netem loaded and all
+nine runs validated; the job then failed on a file-permission error in the
+workflow's validation step, which now runs inside the image.
 
 ## Open items carried into M5
 
