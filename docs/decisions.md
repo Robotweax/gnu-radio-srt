@@ -245,10 +245,9 @@ the receiver 251 to 253 ms after submission on loopback, as TSBPD intends.
 
 ## D12. Licensing and packaging
 
-The module is GPL-3.0-or-later as proposed, with Robotweax SRT's MIT notice
-in `THIRD_PARTY_NOTICES.md`. This follows the plan's proposal; it is **not**
-a completed license review. Binary packaging and its obligations are
-unreviewed. **Owner decision pending.**
+The module is GPL-3.0-or-later. **Confirmed by the owner on 2026-11-12.**
+Robotweax SRT's MIT notice is in `THIRD_PARTY_NOTICES.md`. Obligations of
+binary packages are reviewed when the first binary package is produced.
 
 Source build and clean-prefix install work with the template's CMake install
 rules. The `.conda` recipe from the template was removed as unqualified.
@@ -256,16 +255,20 @@ rules. The `.conda` recipe from the template was removed as unqualified.
 ## Open items carried into M1
 
 1. x86-64 qualification on a real host (D2).
-2. A real first-user workload from a measurement or SDR user (plan
-   section 14). Nothing in M0 validates demand.
+2. First user: none. The owner stated on 2026-11-12 that this is an academic
+   project for now. The plan's "validate the user story with a
+   measurement/SDR user" and "one independent developer reproduces the
+   examples" gates therefore stay open and are not blocking; the synthetic
+   deterministic signal is the workload until a user exists.
 3. Bounded SRT buffer and flow-control values, and the UDP receive buffer
    (D10).
 4. SRT log handler (D10).
-5. License and distribution review (D12).
+5. Binary-package obligations, when a binary package is first built (D12).
 6. Receiver idle/disconnect policy against the outage profile N5: the 5 s
    outage equals the default `SRTO_PEERIDLETIMEO` of 5000 ms, so the
    connection may or may not survive it. To be set deliberately.
 7. The thread-count watch item (D6).
 8. Sanitizer and fuzz builds (plan section 12) start with the M1 codec.
-9. No CI yet. The repository is hosted at
-   `https://github.com/Robotweax/gnu-radio-srt` (private).
+9. CI: `.github/workflows/gate.yml` runs the gate on a hosted
+   `ubuntu-24.04` x86-64 runner on every push (owner decision 2026-11-12).
+   The repository is `https://github.com/Robotweax/gnu-radio-srt` (private).
