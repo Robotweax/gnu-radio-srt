@@ -137,6 +137,11 @@ Tested with a fault-injecting relay on loopback, not on a real network.
 
 Things to know:
 
+- **Age is not bounded when the network queues instead of dropping.** If a
+  bottleneck in front of a deep queue carries less than the stream for
+  seconds, nothing is lost, so nothing is dropped, and samples arrive
+  seconds old (measured in emulation: up to 6.3 s). `latency_ms` bounds
+  delay only while the path keeps up. See [results-m4.md](results-m4.md).
 - During an outage a segmented Sink keeps consuming and discards records
   older than `queue_max_age_ms`. It does not build a backlog and does not
   replay old samples after the path returns.

@@ -53,6 +53,7 @@ packets deep so that the profile, not the queue, decides what is lost.
 | N2 impaired WAN | 40 ms | 10 ms | 1 % each way | x3 |
 | N3 burst loss | 40 ms | 10 ms | Gilbert-Elliott, each way: 1 % to enter the bad state, 10 % to leave, 70 % loss while bad, 0.1 % while good (mean burst about 10 packets, mean loss about 6.5 %) | x3 |
 | N4 constrained | 20 ms | 5 ms | none | x3; forward rate cut to 0.6 of the load for 10 s |
+| N4b (added later) | 20 ms | 5 ms | none | as N4, with a bottleneck queue of about 250 ms |
 | N5 outage | 20 ms | none | none | x3; both directions dropped for 5 s |
 | N6 asymmetric | 20 ms forward, 80 ms reverse | 5 ms | 0.1 % forward, 1 % reverse | x3 |
 
@@ -179,4 +180,24 @@ gate failed.
 
 ## Changes after the first results
 
-None.
+First results: 2026-11-12, primary and secondary plans. No definition,
+gate, deadline or existing profile was changed. Three things were added or
+corrected afterwards, and one follow-up plan was run:
+
+1. **UDP comparator, CPU only.** Its playout loop polled without waiting
+   and used a full CPU core. Delivery and timing figures were not
+   affected; UDP CPU figures of the primary and secondary plans are
+   invalid. Corrected before the follow-up plan.
+2. **TCP and UDP comparators, end of run.** After the last sample the
+   sender waited for END to be handed over for up to 66 s, because the
+   wait included SRT's reconnect budget. On N3 the TCP connection had
+   stalled, the harness's 60 s limit expired first, and the run failed its
+   `processes_ended` gate. The failed run is kept. The wait is now 6 s for
+   the baselines.
+3. **Profile N4b added:** N4 with a bottleneck queue of about 250 ms of
+   traffic at the constrained rate, instead of 100000 packets. N4 itself
+   is unchanged. Reason: N4 showed that the deep queue, not the transport,
+   decided the outcome.
+
+Follow-up plan (`--plan followup`), one run each: N3 over TCP again, N4b
+over all three transports, and N2 over UDP to check the corrected CPU use.

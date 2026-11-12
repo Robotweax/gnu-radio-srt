@@ -602,6 +602,43 @@ def lost_end_is_not_completion(suite):
     return summary(tx, rx)
 
 
+def baseline_transports_carry_the_same_records(suite):
+    """The UDP and TCP comparators of the qualification harness: same peers,
+    same framing, exact transfer on a clean path."""
+    out = {}
+    for transport in ("udp", "tcp"):
+        port = free_udp_port()
+        n = 100001
+        rx = suite.receiver(None, transport=transport, role="listener", port=port, rate="200000", timeout_ms=30000)
+        time.sleep(0.3)
+        tx = suite.sender(None, transport=transport, role="caller", port=port, rate="200000", samples=n)
+        tx.finish()
+        rx.finish()
+        r = rx.json
+        check(tx.code == 0 and rx.code == 0, "%s: exit %d/%d" % (transport, tx.code, rx.code))
+        check(r["samples_received"] == n and r["samples_altered"] == 0, "%s: data not exact" % transport)
+        check(r["discontinuities"] == 0 and r["session"]["end"] == "complete", "%s: not complete" % transport)
+        check(tx.json["session"]["counters"]["end_sent"] == 1, "%s: END not sent" % transport)
+        check(tx.json["t0_mono_ns"] > 0 and tx.json["resources"]["cpu_seconds"] >= 0, "timing fields missing")
+        out[transport] = {"records": r["records"], "playout_high_water":
+                          r["session"]["counters"]["playout_high_water"]}
+    # UDP holds one latency budget of records; TCP holds none.
+    check(out["udp"]["playout_high_water"] > 100 and out["tcp"]["playout_high_water"] == 0, str(out))
+    return out
+
+
+def baseline_receivers_fail_without_a_peer(suite):
+    out = {}
+    for transport in ("udp", "tcp"):
+        rx = suite.receiver(None, transport=transport, role="listener", port=free_udp_port(),
+                            startup_timeout_ms=1000, timeout_ms=10000)
+        rx.finish()
+        check(rx.code == 2 and rx.json["session"]["failure"] == "startup_timeout",
+              "%s: exit %d %s" % (transport, rx.code, rx.json["session"]["failure"]))
+        out[transport] = round(rx.wall_s, 2)
+    return out
+
+
 CASES = [
     cf32_ctr_sink_caller,
     f32_plaintext_sink_listener,
@@ -629,6 +666,8 @@ CASES = [
     receiver_killed_then_replaced,
     strict_sender_fails_when_receiver_is_killed,
     lost_end_is_not_completion,
+    baseline_transports_carry_the_same_records,
+    baseline_receivers_fail_without_a_peer,
 ]
 
 

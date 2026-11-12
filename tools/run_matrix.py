@@ -63,6 +63,11 @@ def plan_runs(name, seconds, reps):
                 add(profile, 100000, latency, 0, ("srt", "udp"))
         for profile in ("N0", "N1", "N2"):
             add(profile, 1000000, 250, 0)
+    elif name == "followup":
+        # Added after the first results; see "Changes" in docs/benchmarking.md.
+        add("N3", 100000, 250, 1, ("tcp",))
+        add("N4b", 100000, 250, 0)
+        add("N2", 100000, 250, 5, ("udp",))
     elif name == "smoke":
         for profile in ("N0", "N2", "N5"):
             add(profile, 100000, 250, 0)
@@ -91,15 +96,25 @@ def netem_args(spec, wire_bps):
     return args
 
 
-def apply_netem(ns, dev, spec, wire_bps):
+def apply_netem(ns, dev, spec, wire_bps, queue_packets=100000):
     args = netem_args(spec, wire_bps)
     if not args:
         sh(["ip", "netns", "exec", ns, "tc", "qdisc", "del", "dev", dev, "root"], check=False)
         return "none"
-    # A deep queue: the profile, not the emulator's buffer, should decide what is lost.
+    # Default: a deep queue, so the profile and not the emulator's buffer
+    # decides what is lost. Profiles with "queue_ms" set a realistic depth.
     sh(["ip", "netns", "exec", ns, "tc", "qdisc", "replace", "dev", dev, "root", "netem",
-        "limit", "100000"] + args)
-    return " ".join(args)
+        "limit", str(queue_packets)] + args)
+    return "limit %d %s" % (queue_packets, " ".join(args))
+
+
+def forward_queue_packets(profile, wire_bps):
+    """Queue depth of the forward bottleneck in packets (1244 bytes each)."""
+    ms = profile["forward"].get("queue_ms")
+    if not ms:
+        return 100000
+    factor = float(profile.get("event", {}).get("forward_rate", profile["forward"]["rate"])[1:])
+    return max(50, int(ms / 1000.0 * wire_bps * factor / 8 / 1244))
 
 
 def reduce_timing(path, t0_ns, cfg, warmup_s, restore_ns):
@@ -185,7 +200,8 @@ def run_one(cfg, slot, out_root, bins, warmup_s):
     rx_ip = "10.%d.2.2" % (100 + slot)
     try:
         network["topology"] = sh([TOPOLOGY, "up", str(slot)]).strip()
-        network["forward_netem"] = apply_netem(x, "xr", profile["forward"], wire)
+        fq = forward_queue_packets(profile, wire)
+        network["forward_netem"] = apply_netem(x, "xr", profile["forward"], wire, fq)
         network["reverse_netem"] = apply_netem(x, "xs", profile["reverse"], wire)
         ping = sh(["ip", "netns", "exec", s, "ping", "-c", "20", "-i", "0.02", "-q", rx_ip], check=False)
         network["ping_before"] = [l for l in ping.splitlines() if "rtt" in l or "loss" in l]
@@ -221,11 +237,11 @@ def run_one(cfg, slot, out_root, bins, warmup_s):
                         "loss", "100%"])
             else:
                 fwd = dict(profile["forward"], rate=event["forward_rate"])
-                apply_netem(x, "xr", fwd, wire)
+                apply_netem(x, "xr", fwd, wire, fq)
             network["event_applied_mono_ns"] = time.monotonic_ns()
             network["event_qdisc"] = sh(["ip", "netns", "exec", x, "tc", "qdisc", "show", "dev", "xr"]).strip()
             time.sleep(event["duration_s"])
-            apply_netem(x, "xr", profile["forward"], wire)
+            apply_netem(x, "xr", profile["forward"], wire, fq)
             apply_netem(x, "xs", profile["reverse"], wire)
             restore_ns = time.monotonic_ns()
             network["event_restored_mono_ns"] = restore_ns

@@ -5,15 +5,17 @@ impaired IP network using the [Robotweax SRT](https://github.com/Robotweax/srt)
 public C API, with bounded buffering, reported discontinuities and predictable
 shutdown.
 
-**Status: milestones M0 to M3 are complete.** The module has two blocks,
+**Status: milestones M0 to M3 are complete; M4 is complete as far as one
+emulated machine allows.** The module has two blocks,
 `srt_sink` and `srt_source`, that carry f32 or cf32 sample streams between
 two GNU Radio flowgraphs, with record, discontinuity and capture-time tags,
 strict and segmented continuity modes, AES-CTR, status reporting, Companion
 definitions and examples. Outages, reconnects, lost records and a vanished peer are tested with a
-scripted fault-injecting relay. **Everything so far runs on loopback. Nothing
-has been measured on a real or emulated network with delay, jitter and
-bandwidth limits (milestone M4), so do not rely on it over a real network
-yet.** No performance or
+scripted fault-injecting relay. The transport was measured against UDP and TCP on emulated paths (netem) on
+one virtualised machine; see [docs/results-m4.md](docs/results-m4.md) for
+what that showed and for the supported operating envelope. **It has not been
+run on a real network, between two hosts, or with acquisition hardware. Field
+readiness is not claimed.** No performance or
 benchmark result is claimed.
 
 - Specification: [docs/project-plan.md](docs/project-plan.md)
@@ -21,9 +23,10 @@ benchmark result is claimed.
 - Tags, gaps and time: [docs/continuity-and-time.md](docs/continuity-and-time.md)
 - Examples: [examples/](examples/)
 - Wire protocol: [docs/protocol-v1.md](docs/protocol-v1.md)
+- Measurement protocol and results: [docs/benchmarking.md](docs/benchmarking.md), [docs/results-m4.md](docs/results-m4.md)
 - Findings and decisions, and where they change the plan: [docs/decisions.md](docs/decisions.md)
 - Pinned dependencies: [dependencies.lock.json](dependencies.lock.json)
-- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/), [docs/evidence/m2/](docs/evidence/m2/), [docs/evidence/m3/](docs/evidence/m3/)
+- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/), [docs/evidence/m2/](docs/evidence/m2/), [docs/evidence/m3/](docs/evidence/m3/), [docs/evidence/m4/](docs/evidence/m4/)
 
 ## Qualified platform
 
@@ -100,6 +103,7 @@ passphrase for local tests; there is no automatic fallback to it.
 | `tests/fixtures/rwsr_v1/` | Golden byte vectors |
 | `tools/reference_peer/` | Headless sender and receiver |
 | `tools/impair/` | Scripted UDP fault-injection relay for robustness tests |
+| `tests/netem/`, `tools/run_matrix.py`, `tools/validate_results.py` | Network qualification: namespaces with netem, run matrix, evidence validator |
 | `tests/install_consumer/` | C++ consumer of the installed package |
 | `tools/dev/` | Image, build, test and gate scripts |
 | `docker/` | Development image definition |

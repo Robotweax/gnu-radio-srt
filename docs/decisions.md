@@ -8,7 +8,8 @@ Numbers are measurements from one host inside a container. They show that a
 mechanism works and roughly how it behaves. They are not performance claims.
 Evidence: `tools/dev/run.sh tools/dev/gate.sh`, summaries in
 [evidence/m0/](evidence/m0/), [evidence/m1/](evidence/m1/),
-[evidence/m2/](evidence/m2/) and [evidence/m3/](evidence/m3/).
+[evidence/m2/](evidence/m2/), [evidence/m3/](evidence/m3/) and
+[evidence/m4/](evidence/m4/).
 
 ## Status of the M0 blocking checks
 
@@ -805,3 +806,96 @@ The live plot (`--gui`) needs Qt and a display and has not been run.
 4. The strict Sink's sender-drop path (D33) needs a profile that triggers it.
 5. Two-host and hardware experiments.
 6. No first user: academic project for now (owner, 2026-11-12).
+
+# Milestone M4: qualification
+
+M4 exit gate (plan section 13): reproducible evidence and an honest
+supported operating envelope. Protocol: [benchmarking.md](benchmarking.md).
+Results and envelope: [results-m4.md](results-m4.md).
+
+| Plan item | Status |
+|---|---|
+| netem matrix N0 to N6 | done in emulation: 83 runs, all kept |
+| UDP and TCP comparisons with equal framing and deadlines | done |
+| Primary envelope declared before collecting results | done; the protocol commit precedes the runs |
+| Five 120 s repetitions with warm-up for the headline comparison | done for N0 to N2 |
+| Clock accounting | same-host shared monotonic clock: done. Two hosts: not done |
+| Two-host experiment | **not done**: no second host |
+| Hardware or acquisition adapter | **not done** |
+| Reference host for timing | **not done**: a shared virtualised machine was used |
+| Full matrix on x86-64 | **not done**: CI runs only a short harness check |
+
+M4 is therefore complete as far as one emulated machine allows, and open
+where the plan needs a second host, hardware or a dedicated machine. Field
+readiness is not claimed.
+
+## D41. Measurement design
+
+- Three network namespaces per run with netem in the router namespace
+  only (`tests/netem/topology.sh`). Nothing outside the container is
+  touched.
+- Sender and receiver share one monotonic clock. The sender's sample clock
+  defines the nominal capture time of every sample; the receiver logs the
+  output time of every record. Age is exact up to pacing granularity of
+  about 1 ms. No protocol field was misused to carry the time.
+- "Usable on time" counts 1024-sample windows delivered completely within
+  the deadline (latency + 150 ms): what a block-processing consumer can use.
+- Verdicts are derived from recorded evidence by one module used by both
+  the runner and the validator. Missing evidence is a failure.
+
+## D42. Baselines
+
+UDP with a fixed playout delay equal to the SRT latency, and TCP with a
+send buffer of one latency budget. Both decisions favour the baselines:
+without the playout delay UDP could not reorder, and with the kernel's
+default buffer TCP delivered data 25 s old in a harness check. All three
+transports run in plaintext. Two comparator defects were found during the
+runs and are recorded in benchmarking.md; neither changed what was
+delivered.
+
+## D43. What the results say
+
+- The SRT gates of the declared envelope passed in 15 of 15 runs.
+- The predeclared benefit criterion was met on N2 and not met against TCP
+  on N1.
+- SRT's cost is latency: its age is the configured latency plus the path
+  delay, about ten times TCP's on a mildly impaired path.
+- These are properties of SRT with this module's settings in this
+  emulation. They are not yet a statement about any real path.
+
+## D44. Limitation found: no bound on age under queueing congestion
+
+With the forward path constrained below the load in front of a deep queue
+(N4), nothing is lost, so SRT neither retransmits nor drops, and samples
+arrive up to 6.3 s old. 83.7 % were on time. The module passed its N4 gate,
+which only asks for bounded memory and no deadlock; the result is still a
+limitation a user must know. With a queue of about 250 ms (N4b) the network
+drops the excess and SRT stays on time.
+
+Not fixed. Options for later, each a design decision: let the Source
+discard records older than a limit when capture times are present; expose
+the SRT sender buffer delay and react to it; or document the requirement
+of a bounded bottleneck queue. D20's question about the overhead reserve
+was not the limiting factor in any profile here.
+
+## D45. Hosted runner
+
+`sch_netem` and privileged containers were first tried on the hosted
+runner with this milestone's CI job (`netem-smoke` in `gate.yml`): three
+profiles, three transports, 30 s each, validated like the real runs. It
+checks the harness. Its figures are not qualification data: the runner has
+two shared CPUs.
+
+## Open items carried into M5
+
+1. Two-host experiment with independent clocks, and a clock-offset
+   procedure for it.
+2. Acquisition hardware and an adapter that supplies capture times and
+   overrun reports.
+3. A dedicated host, and the matrix on x86-64.
+4. Bound on end-to-end age under queueing congestion (D44).
+5. Repetitions for the secondary cells that matter (1 MS/s, burst loss).
+6. The blocks themselves under netem; encryption under impairment.
+7. The strict Sink's sender-drop path (D33) was not triggered by any
+   profile either.
+8. No first user: academic project for now (owner, 2026-11-12).

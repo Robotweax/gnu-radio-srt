@@ -2,27 +2,124 @@
   "comment": "Network profiles of plan section 12 C. Delay and jitter in ms, loss as netem arguments. 'forward' is sender to receiver. Bottleneck 'x3' means three times the offered wire load. These are experiment conditions, not claims of expected success.",
   "event_start_s": 40,
   "profiles": {
-    "N0": {"name": "clean", "forward": {}, "reverse": {}},
-    "N1": {"name": "modest WAN",
-           "forward": {"delay_ms": 20, "jitter_ms": 5, "loss": "0.1%", "rate": "x3"},
-           "reverse": {"delay_ms": 20, "jitter_ms": 5, "loss": "0.1%", "rate": "x3"}},
-    "N2": {"name": "impaired WAN",
-           "forward": {"delay_ms": 40, "jitter_ms": 10, "loss": "1%", "rate": "x3"},
-           "reverse": {"delay_ms": 40, "jitter_ms": 10, "loss": "1%", "rate": "x3"}},
-    "N3": {"name": "burst loss",
-           "comment": "Gilbert-Elliott: 1% chance to enter the bad state, 10% to leave it, 70% loss in the bad state, 0.1% in the good state. Mean burst about 10 packets, mean loss about 6.5%. netem's generator cannot be seeded with iproute2 6.1, so the realisation differs between runs.",
-           "forward": {"delay_ms": 40, "jitter_ms": 10, "loss": "gemodel 1% 10% 70% 0.1%", "rate": "x3"},
-           "reverse": {"delay_ms": 40, "jitter_ms": 10, "loss": "gemodel 1% 10% 70% 0.1%", "rate": "x3"}},
-    "N4": {"name": "constrained",
-           "forward": {"delay_ms": 20, "jitter_ms": 5, "rate": "x3"},
-           "reverse": {"delay_ms": 20, "jitter_ms": 5, "rate": "x3"},
-           "event": {"kind": "constrain", "duration_s": 10, "forward_rate": "x0.6"}},
-    "N5": {"name": "outage",
-           "forward": {"delay_ms": 20, "rate": "x3"},
-           "reverse": {"delay_ms": 20, "rate": "x3"},
-           "event": {"kind": "outage", "duration_s": 5}},
-    "N6": {"name": "asymmetric",
-           "forward": {"delay_ms": 20, "jitter_ms": 5, "loss": "0.1%", "rate": "x3"},
-           "reverse": {"delay_ms": 80, "jitter_ms": 5, "loss": "1%", "rate": "x3"}}
+    "N0": {
+      "name": "clean",
+      "forward": {},
+      "reverse": {}
+    },
+    "N1": {
+      "name": "modest WAN",
+      "forward": {
+        "delay_ms": 20,
+        "jitter_ms": 5,
+        "loss": "0.1%",
+        "rate": "x3"
+      },
+      "reverse": {
+        "delay_ms": 20,
+        "jitter_ms": 5,
+        "loss": "0.1%",
+        "rate": "x3"
+      }
+    },
+    "N2": {
+      "name": "impaired WAN",
+      "forward": {
+        "delay_ms": 40,
+        "jitter_ms": 10,
+        "loss": "1%",
+        "rate": "x3"
+      },
+      "reverse": {
+        "delay_ms": 40,
+        "jitter_ms": 10,
+        "loss": "1%",
+        "rate": "x3"
+      }
+    },
+    "N3": {
+      "name": "burst loss",
+      "comment": "Gilbert-Elliott: 1% chance to enter the bad state, 10% to leave it, 70% loss in the bad state, 0.1% in the good state. Mean burst about 10 packets, mean loss about 6.5%. netem's generator cannot be seeded with iproute2 6.1, so the realisation differs between runs.",
+      "forward": {
+        "delay_ms": 40,
+        "jitter_ms": 10,
+        "loss": "gemodel 1% 10% 70% 0.1%",
+        "rate": "x3"
+      },
+      "reverse": {
+        "delay_ms": 40,
+        "jitter_ms": 10,
+        "loss": "gemodel 1% 10% 70% 0.1%",
+        "rate": "x3"
+      }
+    },
+    "N4": {
+      "name": "constrained",
+      "forward": {
+        "delay_ms": 20,
+        "jitter_ms": 5,
+        "rate": "x3"
+      },
+      "reverse": {
+        "delay_ms": 20,
+        "jitter_ms": 5,
+        "rate": "x3"
+      },
+      "event": {
+        "kind": "constrain",
+        "duration_s": 10,
+        "forward_rate": "x0.6"
+      }
+    },
+    "N5": {
+      "name": "outage",
+      "forward": {
+        "delay_ms": 20,
+        "rate": "x3"
+      },
+      "reverse": {
+        "delay_ms": 20,
+        "rate": "x3"
+      },
+      "event": {
+        "kind": "outage",
+        "duration_s": 5
+      }
+    },
+    "N6": {
+      "name": "asymmetric",
+      "forward": {
+        "delay_ms": 20,
+        "jitter_ms": 5,
+        "loss": "0.1%",
+        "rate": "x3"
+      },
+      "reverse": {
+        "delay_ms": 80,
+        "jitter_ms": 5,
+        "loss": "1%",
+        "rate": "x3"
+      }
+    },
+    "N4b": {
+      "name": "constrained, shallow queue",
+      "comment": "Added after the first results. Same as N4, but the bottleneck queue holds about 250 ms of traffic at the constrained rate instead of 100000 packets.",
+      "forward": {
+        "delay_ms": 20,
+        "jitter_ms": 5,
+        "rate": "x3",
+        "queue_ms": 250
+      },
+      "reverse": {
+        "delay_ms": 20,
+        "jitter_ms": 5,
+        "rate": "x3"
+      },
+      "event": {
+        "kind": "constrain",
+        "duration_s": 10,
+        "forward_rate": "x0.6"
+      }
+    }
   }
 }

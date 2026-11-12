@@ -58,3 +58,55 @@ jobs:
           path: artifacts/
           if-no-files-found: error
           retention-days: 90
+
+  netem-smoke:
+    # Exercises the qualification harness: namespaces, netem, three
+    # transports, evidence and validator. Short runs on a shared 2-CPU
+    # runner; it checks that the harness works, it is not qualification data.
+    name: netem harness smoke (ubuntu-24.04 x86-64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read the Robotweax SRT pin
+        id: pin
+        run: |
+          echo "commit=$(python3 -I -c 'import json; print(json.load(open("dependencies.lock.json"))["robotweax_srt"]["commit"])')" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch Robotweax SRT at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: Robotweax/srt
+          ref: ${{ steps.pin.outputs.commit }}
+          path: _deps/srt
+          persist-credentials: false
+
+      - name: Load netem
+        run: |
+          sudo modprobe sch_netem || {
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq "linux-modules-extra-$(uname -r)"
+            sudo modprobe sch_netem
+          }
+          lsmod | grep sch_netem
+
+      - name: Build the development image
+        run: tools/dev/build-image.sh "$PWD/_deps/srt"
+
+      - name: Run the smoke plan
+        run: tools/dev/netem.sh smoke artifacts/qual-smoke --seconds 30 --warmup 5 --parallel 2
+
+      - name: Validate the evidence
+        run: python3 -I tools/validate_results.py artifacts/qual-smoke --summary-dir artifacts/qual-smoke-summary
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: netem-smoke-evidence-x86_64
+          path: |
+            artifacts/qual-smoke/
+            artifacts/qual-smoke-summary/
+          if-no-files-found: error
+          retention-days: 90

@@ -338,9 +338,11 @@ void baseline_link::run_receive_udp()
         }
         int wait = slice_ms;
         if (!buffer.empty()) {
-            const auto until = std::chrono::duration_cast<std::chrono::milliseconds>(
+            // Rounded up to a whole millisecond: polling with zero timeout
+            // until the record is due would spin a core.
+            const auto until = std::chrono::duration_cast<std::chrono::microseconds>(
                                    buffer.begin()->second.due - clock_type::now()).count();
-            wait = static_cast<int>(std::clamp<long long>(until, 0, slice_ms));
+            wait = static_cast<int>(std::clamp<long long>((until + 999) / 1000, 0, slice_ms));
         }
         while (readable(fd, wait)) {
             wait = 0;

@@ -106,7 +106,7 @@ def judge(run_dir):
                  "p99 %.1f ms, budget %d ms (effective latency %d + %d)" %
                  (p99, budget, latency, DEADLINE_MARGIN_MS))
 
-    if profile in ("N4", "N5"):
+    if profile in ("N4", "N4b", "N5"):
         hw = max(tx["queue"]["high_water_records"], rx["queue"]["high_water_records"])
         gate("queues_bounded", "pass" if hw <= QUEUE_MAX_RECORDS else "fail", True,
              "high water %d records" % hw)

@@ -1,0 +1,496 @@
+{
+ "table": [
+  {
+   "profile": "N2",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "udp",
+   "runs": 1,
+   "verdicts": {
+    "pass": 1,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9893112727272727,
+    "min": 0.9893112727272727,
+    "max": 0.9893112727272727,
+    "n": 1
+   },
+   "on_time_fraction": {
+    "median": 0.9893112727272727,
+    "min": 0.9893112727272727,
+    "max": 0.9893112727272727,
+    "n": 1
+   },
+   "usable_on_time_fraction": {
+    "median": 0.9115538590447817,
+    "min": 0.9115538590447817,
+    "max": 0.9115538590447817,
+    "n": 1
+   },
+   "age_p50_ms": {
+    "median": 296.79504900000757,
+    "min": 296.79504900000757,
+    "max": 296.79504900000757,
+    "n": 1
+   },
+   "age_p95_ms": {
+    "median": 297.7129300000015,
+    "min": 297.7129300000015,
+    "max": 297.7129300000015,
+    "n": 1
+   },
+   "age_p99_ms": {
+    "median": 298.0470140000034,
+    "min": 298.0470140000034,
+    "max": 298.0470140000034,
+    "n": 1
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 6.712,
+    "min": 6.712,
+    "max": 6.712,
+    "n": 1
+   },
+   "cpu_seconds_receiver": {
+    "median": 7.473,
+    "min": 7.473,
+    "max": 7.473,
+    "n": 1
+   }
+  },
+  {
+   "profile": "N3",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "tcp",
+   "runs": 1,
+   "verdicts": {
+    "pass": 1,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.12539963636363635,
+    "min": 0.12539963636363635,
+    "max": 0.12539963636363635,
+    "n": 1
+   },
+   "on_time_fraction": {
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 1
+   },
+   "usable_on_time_fraction": {
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 1
+   },
+   "age_p50_ms": {
+    "median": 2243.217985999996,
+    "min": 2243.217985999996,
+    "max": 2243.217985999996,
+    "n": 1
+   },
+   "age_p95_ms": {
+    "median": 22124.453339999993,
+    "min": 22124.453339999993,
+    "max": 22124.453339999993,
+    "n": 1
+   },
+   "age_p99_ms": {
+    "median": 38311.409212000006,
+    "min": 38311.409212000006,
+    "max": 38311.409212000006,
+    "n": 1
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 1.376,
+    "min": 1.376,
+    "max": 1.376,
+    "n": 1
+   },
+   "cpu_seconds_receiver": {
+    "median": 0.482,
+    "min": 0.482,
+    "max": 0.482,
+    "n": 1
+   }
+  },
+  {
+   "profile": "N4b",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "srt",
+   "runs": 1,
+   "verdicts": {
+    "pass": 1,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9567934545454545,
+    "min": 0.9567934545454545,
+    "max": 0.9567934545454545,
+    "n": 1
+   },
+   "on_time_fraction": {
+    "median": 0.9567934545454545,
+    "min": 0.9567934545454545,
+    "max": 0.9567934545454545,
+    "n": 1
+   },
+   "usable_on_time_fraction": {
+    "median": 0.9123917698538311,
+    "min": 0.9123917698538311,
+    "max": 0.9123917698538311,
+    "n": 1
+   },
+   "age_p50_ms": {
+    "median": 278.2196599999879,
+    "min": 278.2196599999879,
+    "max": 278.2196599999879,
+    "n": 1
+   },
+   "age_p95_ms": {
+    "median": 290.0112769999978,
+    "min": 290.0112769999978,
+    "max": 290.0112769999978,
+    "n": 1
+   },
+   "age_p99_ms": {
+    "median": 315.22535400000197,
+    "min": 315.22535400000197,
+    "max": 315.22535400000197,
+    "n": 1
+   },
+   "recovery_s": {
+    "median": 0.001790834,
+    "min": 0.001790834,
+    "max": 0.001790834,
+    "n": 1
+   },
+   "cpu_seconds_sender": {
+    "median": 8.152,
+    "min": 8.152,
+    "max": 8.152,
+    "n": 1
+   },
+   "cpu_seconds_receiver": {
+    "median": 6.619,
+    "min": 6.619,
+    "max": 6.619,
+    "n": 1
+   }
+  },
+  {
+   "profile": "N4b",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "tcp",
+   "runs": 1,
+   "verdicts": {
+    "pass": 1,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9710952727272727,
+    "min": 0.9710952727272727,
+    "max": 0.9710952727272727,
+    "n": 1
+   },
+   "on_time_fraction": {
+    "median": 0.9139130909090909,
+    "min": 0.9139130909090909,
+    "max": 0.9139130909090909,
+    "n": 1
+   },
+   "usable_on_time_fraction": {
+    "median": 0.913508984265897,
+    "min": 0.913508984265897,
+    "max": 0.913508984265897,
+    "n": 1
+   },
+   "age_p50_ms": {
+    "median": 25.034373000002233,
+    "min": 25.034373000002233,
+    "max": 25.034373000002233,
+    "n": 1
+   },
+   "age_p95_ms": {
+    "median": 611.5494810000018,
+    "min": 611.5494810000018,
+    "max": 611.5494810000018,
+    "n": 1
+   },
+   "age_p99_ms": {
+    "median": 806.1134789999996,
+    "min": 806.1134789999996,
+    "max": 806.1134789999996,
+    "n": 1
+   },
+   "recovery_s": {
+    "median": 0.422593208,
+    "min": 0.422593208,
+    "max": 0.422593208,
+    "n": 1
+   },
+   "cpu_seconds_sender": {
+    "median": 4.491,
+    "min": 4.491,
+    "max": 4.491,
+    "n": 1
+   },
+   "cpu_seconds_receiver": {
+    "median": 4.111,
+    "min": 4.111,
+    "max": 4.111,
+    "n": 1
+   }
+  },
+  {
+   "profile": "N4b",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "udp",
+   "runs": 1,
+   "verdicts": {
+    "pass": 1,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9684983636363637,
+    "min": 0.9684983636363637,
+    "max": 0.9684983636363637,
+    "n": 1
+   },
+   "on_time_fraction": {
+    "median": 0.9684983636363637,
+    "min": 0.9684983636363637,
+    "max": 0.9684983636363637,
+    "n": 1
+   },
+   "usable_on_time_fraction": {
+    "median": 0.9104366446327158,
+    "min": 0.9104366446327158,
+    "max": 0.9104366446327158,
+    "n": 1
+   },
+   "age_p50_ms": {
+    "median": 271.4394319999992,
+    "min": 271.4394319999992,
+    "max": 271.4394319999992,
+    "n": 1
+   },
+   "age_p95_ms": {
+    "median": 272.2109610000043,
+    "min": 272.2109610000043,
+    "max": 272.2109610000043,
+    "n": 1
+   },
+   "age_p99_ms": {
+    "median": 272.52169299999514,
+    "min": 272.52169299999514,
+    "max": 272.52169299999514,
+    "n": 1
+   },
+   "recovery_s": {
+    "median": 0.000646875,
+    "min": 0.000646875,
+    "max": 0.000646875,
+    "n": 1
+   },
+   "cpu_seconds_sender": {
+    "median": 4.453,
+    "min": 4.453,
+    "max": 4.453,
+    "n": 1
+   },
+   "cpu_seconds_receiver": {
+    "median": 4.648,
+    "min": 4.648,
+    "max": 4.648,
+    "n": 1
+   }
+  }
+ ],
+ "runs": [
+  {
+   "run": "N2_udp_r100000_l250_rep5",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "udp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 5,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9893112727272727,
+    "on_time_fraction": 0.9893112727272727,
+    "usable_on_time_fraction": 0.9115538590447817,
+    "missing_samples": 117576,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 296.79504900000757,
+     "p95": 297.7129300000015,
+     "p99": 298.0470140000034,
+     "max": 309.18297700000403,
+     "min": 296.14303700000164
+    },
+    "sender_cpu_seconds": 6.712,
+    "receiver_cpu_seconds": 7.473
+   }
+  },
+  {
+   "run": "N3_tcp_r100000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "tcp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.12539963636363635,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 9620604,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 2243.217985999996,
+     "p95": 22124.453339999993,
+     "p99": 38311.409212000006,
+     "max": 44024.433048,
+     "min": 639.5693909999973
+    },
+    "sender_cpu_seconds": 1.376,
+    "receiver_cpu_seconds": 0.482
+   }
+  },
+  {
+   "run": "N4b_srt_r100000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N4b",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9567934545454545,
+    "on_time_fraction": 0.9567934545454545,
+    "usable_on_time_fraction": 0.9123917698538311,
+    "missing_samples": 475272,
+    "recovery_s": 0.001790834,
+    "age_ms": {
+     "p50": 278.2196599999879,
+     "p95": 290.0112769999978,
+     "p99": 315.22535400000197,
+     "max": 389.44249000000127,
+     "min": 276.8274109999911
+    },
+    "sender_cpu_seconds": 8.152,
+    "receiver_cpu_seconds": 6.619
+   }
+  },
+  {
+   "run": "N4b_tcp_r100000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N4b",
+    "transport": "tcp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9710952727272727,
+    "on_time_fraction": 0.9139130909090909,
+    "usable_on_time_fraction": 0.913508984265897,
+    "missing_samples": 317952,
+    "recovery_s": 0.422593208,
+    "age_ms": {
+     "p50": 25.034373000002233,
+     "p95": 611.5494810000018,
+     "p99": 806.1134789999996,
+     "max": 1332.2790639999948,
+     "min": 17.833944999998494
+    },
+    "sender_cpu_seconds": 4.491,
+    "receiver_cpu_seconds": 4.111
+   }
+  },
+  {
+   "run": "N4b_udp_r100000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N4b",
+    "transport": "udp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9684983636363637,
+    "on_time_fraction": 0.9684983636363637,
+    "usable_on_time_fraction": 0.9104366446327158,
+    "missing_samples": 346518,
+    "recovery_s": 0.000646875,
+    "age_ms": {
+     "p50": 271.4394319999992,
+     "p95": 272.2109610000043,
+     "p99": 272.52169299999514,
+     "max": 381.1424079999997,
+     "min": 270.8221389999999
+    },
+    "sender_cpu_seconds": 4.453,
+    "receiver_cpu_seconds": 4.648
+   }
+  }
+ ]
+}

@@ -145,7 +145,7 @@ int main(int argc, char** argv)
         (void)assembler->finish(emit);
         finished = worker->wait_finished(std::chrono::milliseconds(
             transport.stop_timeout.count() + 5000 +
-            (strict ? 0 : transport.retry.total_budget.count())));
+            (strict || kind != rwsrt_peer::link_kind::srt ? 0 : transport.retry.total_budget.count())));
     }
     const std::string status = worker->status_json();
     const bool completed = worker->completed();
