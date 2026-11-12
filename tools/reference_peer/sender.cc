@@ -9,8 +9,8 @@
 // 3 cancelled by --cancel-after-ms (no END), 64 usage error.
 
 #include "peer_common.h"
+#include "peer_link.h"
 #include "record_assembler.h"
-#include "session_worker.h"
 
 #include <chrono>
 #include <cinttypes>
@@ -27,12 +27,14 @@ int main(int argc, char** argv)
     stream_config stream;
     long long total_samples = 0, cancel_after_ms = 0, connect_wait_ms = 0;
     bool unpaced = false;
+    rwsrt_peer::link_kind kind = rwsrt_peer::link_kind::srt;
     try {
         rwsrt_peer::options o(argc, argv);
         rwsrt_peer::read_common(o, transport, stream);
         total_samples = o.num("samples", -1);      // -1: endless
         cancel_after_ms = o.num("cancel-after-ms", 0);
         unpaced = o.flag("unpaced");
+        kind = rwsrt_peer::parse_transport(o.str("transport", "srt"));
         o.finish();
         if (total_samples < 0 && cancel_after_ms <= 0)
             throw std::invalid_argument("an endless run needs --cancel-after-ms");
@@ -59,11 +61,11 @@ int main(int argc, char** argv)
     ac.record_limit_bytes = stream.record_limit_bytes;
     ac.flush_interval = stream.flush_interval;
 
-    std::unique_ptr<session_worker> worker;
+    std::unique_ptr<rwsrt_peer::peer_link> worker;
     std::unique_ptr<record_assembler> assembler;
     try {
         // The worker validates the whole configuration and names the problem.
-        worker = std::make_unique<session_worker>(stream_direction::send, transport, stream, queue);
+        worker = std::make_unique<rwsrt_peer::peer_link>(kind, stream_direction::send, transport, stream, queue);
         assembler = std::make_unique<record_assembler>(ac, run);
     } catch (const std::exception& e) {
         std::fprintf(stderr, "sender: %s\n", e.what());
@@ -81,7 +83,7 @@ int main(int argc, char** argv)
         if (ps != push_status::ok) {
             // Strict mode: a full queue is a terminal error, never a silent drop.
             overflowed = true;
-            worker->fail(session_failure::queue_overflow, "transmit queue full");
+            worker->fail_overflow("transmit queue full");
         }
     };
 
@@ -96,6 +98,9 @@ int main(int argc, char** argv)
     std::vector<float> chunk;
     std::uint64_t produced = 0;
     const auto production_start = clock::now();
+    // Nominal capture time of sample k is t0 + k / rate on this monotonic
+    // clock: the reference for every age measurement.
+    const long long t0_mono_ns = rwsrt_peer::monotonic_ns();
     while (proceed && !overflowed) {
         if (cancel_after_ms > 0 && clock::now() - started >= std::chrono::milliseconds(cancel_after_ms)) {
             cancelled = true;
@@ -103,7 +108,7 @@ int main(int argc, char** argv)
         }
         if (total_samples >= 0 && produced >= static_cast<std::uint64_t>(total_samples))
             break;
-        if (worker->snapshot().state == session_state::failed)
+        if (worker->failed())
             break;
         // Paced like a sample clock: produce what is due by now, in 1 ms steps.
         std::uint64_t due;
@@ -122,7 +127,7 @@ int main(int argc, char** argv)
                 rwsrt_peer::test_signal(stream.format, produced + i, &chunk[i * floats]);
             std::size_t consumed = 0;
             if (assembler->append(chunk.data(), n, clock::now(), emit, consumed) != assembler_status::ok) {
-                worker->fail(session_failure::internal, "sample coordinates exhausted");
+                worker->fail_overflow("sample coordinates exhausted");
                 break;
             }
             produced += consumed;
@@ -135,14 +140,16 @@ int main(int argc, char** argv)
     }
 
     bool finished = false;
-    if (proceed && !overflowed && !cancelled && worker->snapshot().state != session_state::failed) {
+    if (proceed && !overflowed && !cancelled && !worker->failed()) {
         // Natural end: flush the partial record and send END.
         (void)assembler->finish(emit);
         finished = worker->wait_finished(std::chrono::milliseconds(
             transport.stop_timeout.count() + 5000 +
             (strict ? 0 : transport.retry.total_budget.count())));
     }
-    const session_snapshot snap = worker->snapshot();
+    const std::string status = worker->status_json();
+    const bool completed = worker->completed();
+    const bool link_failed = worker->failure() != "none";
     const queue_stats qs = queue.stats();
     const auto stop_started = clock::now();
     worker->stop();
@@ -150,17 +157,19 @@ int main(int argc, char** argv)
 
     std::printf("{\"peer\":\"sender\",\"samples_produced\":%" PRIu64 ",\"records_assembled\":%" PRIu64
                 ",\"cancelled\":%s,\"queue_overflow\":%s,\"waited_for_end\":%s,"
-                "\"offered_bytes_per_second\":%lld,\"stop_ms\":%.3f,\"runtime_leases_after_stop\":%d,"
-                "\"library_log_messages\":%llu,\"queue\":%s,\"session\":%s}\n",
+                "\"offered_bytes_per_second\":%lld,\"t0_mono_ns\":%lld,\"stop_ms\":%.3f,"
+                "\"runtime_leases_after_stop\":%d,\"library_log_messages\":%llu,"
+                "\"resources\":%s,\"queue\":%s,\"session\":%s}\n",
                 produced, assembler->records_assembled(), cancelled ? "true" : "false",
                 overflowed ? "true" : "false", finished ? "true" : "false",
-                static_cast<long long>(offered_bytes_per_second(stream)), stop_ms,
+                static_cast<long long>(offered_bytes_per_second(stream)), t0_mono_ns, stop_ms,
                 runtime_owner::active_leases(),
                 static_cast<unsigned long long>(runtime_owner::library_log().messages),
-                rwsrt_peer::queue_json(qs).c_str(), to_json(snap).c_str());
-    if (snap.completed)
+                rwsrt_peer::resource_json().c_str(), rwsrt_peer::queue_json(qs).c_str(),
+                status.c_str());
+    if (completed)
         return 0;
-    if (snap.failure != session_failure::none || overflowed)
+    if (link_failed || overflowed)
         return 2;
     return 3;
 }

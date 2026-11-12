@@ -53,7 +53,8 @@ endif()
 
 # Headless reference peers: same codec, queue and worker as the blocks.
 foreach(peer sender receiver)
-    add_executable(rwsrt_ref_${peer} ../tools/reference_peer/${peer}.cc)
+    add_executable(rwsrt_ref_${peer} ../tools/reference_peer/${peer}.cc
+                   ../tools/reference_peer/baseline_link.cc)
     target_link_libraries(rwsrt_ref_${peer} PRIVATE rwsrt_transport)
     target_compile_options(rwsrt_ref_${peer} PRIVATE -Wall -Wextra)
 endforeach()
