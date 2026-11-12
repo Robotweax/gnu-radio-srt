@@ -618,7 +618,9 @@ soak. The integration gates are the list in plan section 12 B.
 | 30-minute run | pass (aarch64, one run) | `tools/dev/soak.sh`, D39 |
 
 The block suites now hold 56 flowgraph tests in seven files; the native
-end-to-end suite holds 26 cases. All of it is loopback.
+end-to-end suite holds 26 cases. All of it is loopback. The full gate (11
+checks) also passes on the hosted x86-64 runner: run 43254414141 on commit
+`1b651ea`, 26 minutes.
 
 Not covered in M3:
 
