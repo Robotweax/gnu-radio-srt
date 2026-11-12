@@ -5,13 +5,15 @@ impaired IP network using the [Robotweax SRT](https://github.com/Robotweax/srt)
 public C API, with bounded buffering, reported discontinuities and predictable
 shutdown.
 
-**Status: milestones M0 to M2 are complete.** The module has two blocks,
+**Status: milestones M0 to M3 are complete.** The module has two blocks,
 `srt_sink` and `srt_source`, that carry f32 or cf32 sample streams between
 two GNU Radio flowgraphs, with record, discontinuity and capture-time tags,
 strict and segmented continuity modes, AES-CTR, status reporting, Companion
-definitions and examples. **Everything so far is tested on loopback only.
-Nothing has been tested under network loss, delay or outage (milestones M3
-and M4), so do not rely on it over a real network yet.** No performance or
+definitions and examples. Outages, reconnects, lost records and a vanished peer are tested with a
+scripted fault-injecting relay. **Everything so far runs on loopback. Nothing
+has been measured on a real or emulated network with delay, jitter and
+bandwidth limits (milestone M4), so do not rely on it over a real network
+yet.** No performance or
 benchmark result is claimed.
 
 - Specification: [docs/project-plan.md](docs/project-plan.md)
@@ -21,7 +23,7 @@ benchmark result is claimed.
 - Wire protocol: [docs/protocol-v1.md](docs/protocol-v1.md)
 - Findings and decisions, and where they change the plan: [docs/decisions.md](docs/decisions.md)
 - Pinned dependencies: [dependencies.lock.json](dependencies.lock.json)
-- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/), [docs/evidence/m2/](docs/evidence/m2/)
+- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/), [docs/evidence/m2/](docs/evidence/m2/), [docs/evidence/m3/](docs/evidence/m3/)
 
 ## Qualified platform
 
@@ -45,12 +47,19 @@ tools/dev/build-image.sh [path-to-srt-checkout]
 tools/dev/run.sh tools/dev/gate.sh
 ```
 
-The gate covers all three milestones: SRT API spike, module build, native
-unit tests and golden vectors, 39 flowgraph tests of the two blocks
-(repeated), clean-prefix install with Companion and the examples run end to
-end, a C++ consumer, the reference-peer end-to-end suite, sanitizer runs and
-two fuzz targets. It writes `artifacts/gate/` and exits nonzero if any gate
-fails. It takes about fifteen minutes.
+The gate covers every milestone so far: SRT API spike, module build, native
+unit tests and golden vectors, the flowgraph test suites of the two blocks
+(repeated, and once more under ASan/UBSan), fault-injection tests, a
+clean-prefix install with Companion and the examples run end to end, a C++
+consumer, the reference-peer end-to-end suite, sanitizer runs and two fuzz
+targets. It writes `artifacts/gate/` and exits nonzero if any gate fails. It
+takes about twenty-five minutes.
+
+The 30-minute soak is separate:
+
+```sh
+tools/dev/run.sh tools/dev/soak.sh 1800
+```
 
 Individual steps:
 
@@ -90,6 +99,7 @@ passphrase for local tests; there is no automatic fallback to it.
 | `tests/unit/`, `tests/fuzz/`, `tests/integration/` | Native tests; `tests/` is also a standalone CMake project |
 | `tests/fixtures/rwsr_v1/` | Golden byte vectors |
 | `tools/reference_peer/` | Headless sender and receiver |
+| `tools/impair/` | Scripted UDP fault-injection relay for robustness tests |
 | `tests/install_consumer/` | C++ consumer of the installed package |
 | `tools/dev/` | Image, build, test and gate scripts |
 | `docker/` | Development image definition |

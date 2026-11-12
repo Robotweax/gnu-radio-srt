@@ -66,6 +66,7 @@ rwsrt::transport_config to_internal(const transport_config& t)
     out.latency_ms = t.latency_ms;
     out.connect_timeout_ms = t.connect_timeout_ms;
     out.startup_timeout = std::chrono::milliseconds(t.startup_timeout_ms);
+    out.peer_idle_timeout_ms = t.peer_idle_timeout_ms;
     out.reconnect = t.reconnect;
     out.retry.initial = std::chrono::milliseconds(t.reconnect_initial_ms);
     out.retry.maximum = std::chrono::milliseconds(t.reconnect_max_ms);
@@ -117,6 +118,7 @@ rwsrt::status_doc describe(const transport_config& t, const stream_config& s)
         .set_int("port", t.port)
         .set_str("stream_id", t.stream_id)
         .set_int("latency_ms", t.latency_ms)
+        .set_int("peer_idle_timeout_ms", t.peer_idle_timeout_ms)
         .set_str("security_mode", t.security == security_mode::ctr ? "ctr" : "none")
         .set_str("sample_format", s.format == sample_format::f32 ? "f32" : "cf32")
         .set_uint("sample_rate_num", s.sample_rate_num)

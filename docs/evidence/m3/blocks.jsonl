@@ -1,0 +1,35 @@
+{"block": "sink", "detail": "environment variable RWSRT_QA_UNSET_VARIABLE (passphrase_env) is not set", "env": "RWSRT_QA_UNSET_VARIABLE", "failure": "configuration", "test": "start_without_secret", "waited_s": 0.08710616700000173}
+{"block": "source", "detail": "environment variable RWSRT_QA_UNSET_VARIABLE (passphrase_env) is not set", "env": "RWSRT_QA_UNSET_VARIABLE", "failure": "configuration", "test": "start_without_secret", "waited_s": 0.00036033300011695246}
+{"block": "sink", "detail": "passphrase from RWSRT_QA_SHORT: CTR mode needs a passphrase of 10-79 bytes", "env": "RWSRT_QA_SHORT", "failure": "configuration", "test": "start_without_secret", "waited_s": 0.08759183299980577}
+{"block": "source", "detail": "passphrase from RWSRT_QA_SHORT: CTR mode needs a passphrase of 10-79 bytes", "env": "RWSRT_QA_SHORT", "failure": "configuration", "test": "start_without_secret", "waited_s": 0.0005518340003618505}
+{"encrypted": true, "fmt": "cf32", "records": 440, "rtt_ms": 2.419, "samples": 60017, "sink_role": "caller", "sink_stop_ms": 20.8352, "source_stop_ms": 27.0849, "test": "transfer"}
+{"encrypted": false, "fmt": "cf32", "records": 440, "rtt_ms": 2.426, "samples": 60017, "sink_role": "listener", "sink_stop_ms": 22.4771, "source_stop_ms": 22.9375, "test": "transfer"}
+{"encrypted": false, "fmt": "f32", "records": 220, "rtt_ms": 2.521, "samples": 60017, "sink_role": "caller", "sink_stop_ms": 42.3045, "source_stop_ms": 22.25, "test": "transfer"}
+{"encrypted": true, "fmt": "f32", "records": 220, "rtt_ms": 2.438, "samples": 60017, "sink_role": "listener", "sink_stop_ms": 43.4838, "source_stop_ms": 26.4748, "test": "transfer"}
+{"records": 30, "samples": 600, "test": "flush_interval"}
+{"attempts": 1, "test": "strict_sink_first"}
+{"kind": "sample gap", "receiver_samples": 0, "test": "strict_sink_upstream_gap"}
+{"kind": "unknown", "receiver_samples": 0, "test": "strict_sink_upstream_gap"}
+{"first_index": 77815, "received": 122185, "sender_dropped": 77815, "test": "late_receiver"}
+{"attempts": 2, "block": "sink", "ended_after_s": 1.5285393340000155, "test": "startup_deadline"}
+{"attempts": 1, "block": "source", "ended_after_s": 1.525816918000146, "test": "startup_deadline"}
+{"end": "complete", "reasons": "reconnect,new_run", "tag_offset": 69624, "test": "new_run"}
+{"dropped": 189413, "received": 110587, "tags": 16, "test": "slow_consumer_segmented", "untagged": 1}
+{"connections": 1, "cycles": 100, "fds_after": 5, "fds_before": 5, "test": "start_stop_cycles", "thread_settle_ms": 0, "threads_after": 11, "threads_before": 11, "worst_stop_ms": 47.027042000081565}
+{"cases": [["sink", "caller", "strict_stop", 38.2], ["sink", "caller", "segmented_live", 14.8], ["sink", "listener", "strict_stop", 19.1], ["sink", "listener", "segmented_live", 10.9], ["source", "caller", "strict_stop", 45.9], ["source", "caller", "segmented_live", 38.7], ["source", "listener", "strict_stop", 25.1], ["source", "listener", "segmented_live", 21.1]], "test": "stop_no_peer", "worst_ms": 45.9}
+{"consumed": 69624, "received": 69624, "receiver_ended_after_s": 0.27609174999997776, "sink_stop_ms": 16.786916999990353, "test": "user_stop"}
+{"detail": "connection attempt failed: Incorrect passphrase", "sender_ended_after_s": 0.04163658300012685, "test": "wrong_key"}
+{"breaks": 1, "missing": 495556, "reconnect_gap": 495556, "sender_attempts": 4, "sender_dropped": 294738, "test": "long_outage_reconnect"}
+{"segmented_live": {"end_packets_dropped": 1, "sink_stop_ms": 887.375}, "strict_stop": {"end_packets_dropped": 1, "sink_stop_ms": 857.342}, "test": "lost_end"}
+{"missing": 102, "packets_dropped": 12, "policy": "segmented_live", "test": "lost_final_record"}
+{"missing": 102, "packets_dropped": 12, "policy": "strict_stop", "test": "lost_final_record"}
+{"consumed": 413646, "emitted": 259949, "sink_detail": "connection lost", "sink_failure": "connection_lost", "source_detail": "continuity break in strict mode", "source_failure": "continuity", "test": "outage_strict"}
+{"connections": 2, "missing": 999672, "resume_delay_s": 0.30411925299995346, "test": "outage_default_timers"}
+{"proxy_dropped": 74, "received": 400000, "receiver_end": "complete", "receiver_failure": "none", "retransmitted": 67, "sender_failure": "none", "test": "random_loss_strict"}
+{"missing": 1332742, "received": 1267258, "test": "repeated_reconnects"}
+{"intruder_attempts": 3, "rejected": 3, "test": "second_caller"}
+{"breaks": 1, "missing": 96636, "proxy_dropped": 1189, "sender_srt_dropped": 0, "test": "short_outage_segmented"}
+{"segmented_live": {"attempts": 5, "loss_detected_after_s": 2.0149298350002027}, "strict_stop": {"sink_ended_after_s": 2.047054790999937, "sink_failure": "connection_lost"}, "test": "vanished_peer"}
+{"detail": "connection attempt failed: the peer does not serve this stream_id", "sender_ended_after_s": 0.044867707999856066, "test": "wrong_stream_id"}
+{"discarded": 247, "missing": 99948, "restarts": 1, "test": "gap_aware_fft_outage", "windows": 1952}
+{"test": "scheduler_parks_zero_return", "calls_per_second": 4.0}

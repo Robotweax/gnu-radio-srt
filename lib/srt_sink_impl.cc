@@ -181,6 +181,7 @@ bool srt_sink_impl::stop()
             std::lock_guard<std::mutex> state(d_state_mutex);
             d_end_enqueued = true;
         }
+        // The worker bounds its own drain inside stop_timeout.
         (void)d_worker->wait_finished(d_transport.stop_timeout);
     }
 

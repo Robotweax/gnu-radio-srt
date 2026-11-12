@@ -1,0 +1,52 @@
+name: soak
+
+# The 30-minute long-run check of both blocks (plan section 12 B). Started by
+# hand: it is too long to run on every push.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: Duration in seconds (resource criteria need at least 720)
+        default: "1800"
+
+permissions:
+  contents: read
+
+jobs:
+  soak:
+    name: soak (ubuntu-24.04 x86-64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read the Robotweax SRT pin
+        id: pin
+        run: |
+          echo "commit=$(python3 -I -c 'import json; print(json.load(open("dependencies.lock.json"))["robotweax_srt"]["commit"])')" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch Robotweax SRT at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: Robotweax/srt
+          ref: ${{ steps.pin.outputs.commit }}
+          path: _deps/srt
+          persist-credentials: false
+
+      - name: Build the development image
+        run: tools/dev/build-image.sh "$PWD/_deps/srt"
+
+      - name: Run the soak
+        env:
+          SOAK_SECONDS: ${{ inputs.seconds }}
+        run: tools/dev/run.sh tools/dev/soak.sh "$SOAK_SECONDS"
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: soak-evidence-x86_64
+          path: artifacts/soak/
+          if-no-files-found: error
+          retention-days: 90

@@ -7,8 +7,8 @@ plan file is kept as received; this file wins where the two differ.
 Numbers are measurements from one host inside a container. They show that a
 mechanism works and roughly how it behaves. They are not performance claims.
 Evidence: `tools/dev/run.sh tools/dev/gate.sh`, summaries in
-[evidence/m0/](evidence/m0/), [evidence/m1/](evidence/m1/) and
-[evidence/m2/](evidence/m2/).
+[evidence/m0/](evidence/m0/), [evidence/m1/](evidence/m1/),
+[evidence/m2/](evidence/m2/) and [evidence/m3/](evidence/m3/).
 
 ## Status of the M0 blocking checks
 
@@ -276,7 +276,7 @@ rules. The `.conda` recipe from the template was removed as unqualified.
 6. Receiver idle/disconnect policy against the outage profile N5: the 5 s
    outage equals the default `SRTO_PEERIDLETIMEO` of 5000 ms, so the
    connection may or may not survive it. To be set deliberately.
-7. The thread-count watch item (D6).
+7. Explained in M3: the thread-count watch item (D6 update).
 8. Done in M1: sanitizer and fuzz builds (D21).
 9. CI: `.github/workflows/gate.yml` runs the gate on a hosted
    `ubuntu-24.04` x86-64 runner on every push (owner decision 2026-11-12).
@@ -591,3 +591,215 @@ Formats and rules are in `continuity-and-time.md`. Points decided here:
 6. 30-minute soak and memory growth.
 7. Gap-aware spectrum demonstration.
 8. No first user: academic project for now (owner, 2026-11-12).
+
+# Milestone M3: robustness
+
+M3 exit gate (plan section 13): mandatory integration gates and a 30-minute
+soak. The integration gates are the list in plan section 12 B.
+
+| Gate (plan 12 B) | Result | Where |
+|---|---|---|
+| f32 and cf32, both Caller/Listener assignments | pass | `qa_transfer` |
+| Plaintext and CTR; wrong or missing key delivers nothing | pass | `qa_lifecycle`, native suite |
+| Several block instances, independent start and stop | pass | `qa_robustness` (two pairs in one process) |
+| Missing peer | pass | `qa_lifecycle` |
+| Refused connection | pass | `qa_robustness`: second Caller and wrong stream ID refused in the handshake |
+| Peer crash | pass | native suite: receiver killed with SIGKILL, then replaced; `qa_robustness`: vanished peer |
+| Receiver stall | pass | `qa_lifecycle` slow consumer, both modes |
+| Sender stall | pass | `qa_robustness`: upstream pauses 2 s inside a record |
+| Repeated reconnect | pass | `qa_robustness`: three outages, four connections, one run |
+| Natural EOF with a partial final record | pass | `qa_transfer` |
+| Lost final DATA, lost END, close without END | pass | `qa_robustness`, `qa_lifecycle` |
+| Clean-prefix C++ consumer, Python import, Companion | pass | `tools/dev/check-install.sh` |
+| Exact equality without loss | pass | `qa_transfer` |
+| Known gaps correctly bounded under impairment | partly | exact for scripted outages and drops; delay, jitter and rate limits are M4 |
+| Normal stop paths within 1 s | pass | worst 52 ms; 855 ms when END is never acknowledged |
+| 100 start/stop cycles | pass | `qa_lifecycle`, no thread or descriptor left |
+| 30-minute run | pass (aarch64, one run) | `tools/dev/soak.sh`, D39 |
+
+The block suites now hold 56 flowgraph tests in seven files; the native
+end-to-end suite holds 26 cases. All of it is loopback.
+
+Not covered in M3:
+
+- Delay, jitter, reordering, bandwidth limits and realistic loss patterns
+  (M4, netem).
+- The strict Sink's reaction to SRT sender-side drops (D33): implemented,
+  never triggered by any test.
+- ThreadSanitizer on the block code inside GNU Radio (D37).
+- The `--gui` mode of the spectrum example.
+
+## D31. Fault injection
+
+`tools/impair/udp_proxy.py` relays UDP between a Caller and a Listener and
+applies scripted faults: outages, a blackhole from a given time, seeded
+random loss, and dropping the packets that carry a given RWSR record (END,
+or the record containing a given sample) together with their
+retransmissions. It is deterministic and needs no privileges, so the same
+tests run locally and on the hosted runner.
+
+It is a fault injector, not a network emulator: no delay, jitter,
+reordering or rate limit. Results obtained with it say that a mechanism
+works, not how the module performs on a real path. Qualification uses
+netem in M4.
+
+## D32. Peer idle timeout and outages
+
+`peer_idle_timeout_ms` is now a public parameter (default 5000, minimum
+1000). It decides which of two behaviours an outage produces:
+
+- **Shorter than the timeout:** the connection survives. With a 0.8 s
+  outage at 200 kS/s the Source reported one gap of 101328 samples and the
+  totals matched exactly (received plus reported missing equals sent).
+- **Longer than the timeout:** both ends notice the loss and reconnect. Run
+  and coordinates continue; the boundary is tagged `reconnect` with the
+  exact gap. Three outages in a row gave connection generations 2, 3 and 4
+  within one run.
+
+Plan profile N5 in miniature (5 s outage, default timers, loopback): output
+resumed 0.3 s after the path returned, far inside the 10 s budget. One
+configuration on loopback; the N5 gate itself is M4.
+
+During an outage a segmented Sink keeps consuming and discards aged
+records: in the 2.5 s outage test it discarded about 299000 samples locally
+and its queue stayed inside its limits. Nothing old is replayed afterwards.
+
+## D33. What a strict Sink can and cannot see
+
+In the short-outage test SRT's sender-side drop counter stayed at zero
+while about 100000 samples were lost: the loss was decided at the receiver.
+A strict Sink therefore cannot detect network loss on its own. In the
+strict outage test the Source failed with `continuity` at the first gap and
+the Sink failed with `connection_lost` only because the Source closed.
+
+- For a run that must end on any loss, the **Source** must be strict.
+  Stated in the block reference.
+- The Sink additionally fails with `continuity` if SRT ever reports
+  sender-side drops. That path is implemented and has not been triggered by
+  any test.
+
+## D34. END delivery, refined
+
+- The wait for END to leave SRT is now bounded inside `stop_timeout_ms`
+  (150 ms kept for teardown), so a natural end stops within the same bound
+  as any other stop. Measured with END dropped on the path: 855 ms.
+- New status field `end_acknowledged_by_transport`: after END, SRT reported
+  nothing left unacknowledged. True on clean runs, false when END was
+  dropped. It is transport-level only, and false does not prove a loss.
+- With END lost the Source never reports completion: `termination_unknown`
+  is true and the session fails (`connection_lost` in strict mode,
+  `reconnect_timeout` in segmented mode). All samples had arrived in that
+  test; only the end was unknown.
+- With the final record lost but END delivered, END exposes the missing
+  tail exactly (102 samples in the test). No sample follows, so there is no
+  tag: the Source counts it in `untagged_discontinuities` and publishes a
+  status event. Strict mode fails with `continuity`.
+
+## D35. Admission in the handshake
+
+Closes the weakness of D19. The Listener installs an SRT listen callback:
+
+- wrong stream ID: rejected with reason 1404. The Caller classifies it as
+  a terminal `configuration` failure. Measured: the Sink ended 0.04 s after
+  start, with no connection and no sample consumed.
+- already serving a peer: rejected with reason 1409. The Caller treats it
+  as temporary and retries inside its startup timeout. The first peer's
+  transfer was unaffected and exact.
+
+Found on the way: when no further retry delay fitted into the startup
+timeout, the Caller made back-to-back attempts until the deadline (15
+attempts in 1.2 s). It now waits out the remainder (3 attempts).
+
+## D36. UDP receive buffer
+
+Closes the open point of D10. The module reads `net.core.rmem_max` and
+requests no more than that for `SRTO_UDP_RCVBUF` (at most the library's
+own default of 12288000 bytes), so the library no longer logs a capped
+request. The kernel limit is in the status as
+`effective.udp_rcv_buf_limit_bytes`. Whether a given limit is enough for a
+given rate is an M4 question.
+
+## D37. Sanitizers on the block code
+
+`tools/dev/block-asan.sh` builds the GNU Radio module with ASan and UBSan,
+preloads the sanitizer runtime into Python and runs the flowgraph suites.
+Result: all pass, no report. It is part of the gate. Leak detection is off
+there because the interpreter never frees everything; leaks are covered by
+the native ASan runs and by the soak.
+
+ThreadSanitizer inside GNU Radio was not attempted: neither Python nor the
+GNU Radio runtime is instrumented, and D21 showed what that does to TSan's
+reports. The native code under the blocks does run under TSan with an
+instrumented SRT.
+
+## D38. A GNU Radio pitfall met in testing
+
+A test crashed with a segmentation fault inside GNU Radio's Python
+gateway. Cause: a Python-implemented block was passed to `connect()`
+without keeping a reference, was garbage-collected, and GNU Radio later
+called into the freed object. This is GNU Radio behaviour for Python
+blocks, not a defect of this module, and does not affect the C++ blocks.
+The examples keep references to their Python blocks.
+
+## D6 update. The thread-count watch item is explained
+
+The occasional extra thread first seen in M0 appeared again in M3, in a
+test that compared the thread count immediately after a flowgraph ended
+(12 instead of 11, once in a full gate run). Repeating that suite 40 times
+showed the pattern: in 16 of 160 checks one thread was still unwinding at
+the first reading, and every time it was gone within 10 ms. It is a thread
+finishing its exit, not a leak. All thread checks now use the rule the leak
+tests already had: the count must return to its baseline within one
+second, and any settling time is recorded. The 30-minute soak shows the
+same flat count (D39).
+
+## D39. Soak
+
+`tools/dev/soak.sh` runs two sender/receiver pairs for 30 minutes with the
+headless examples at 100 kS/s cf32 with AES-CTR, and samples memory,
+threads and open descriptors of all four processes every 10 s. The
+criteria are written in `tools/dev/soak.py` and were fixed before the run.
+
+Result of the run on aarch64 (2026-11-12, one run):
+
+| Run | Result |
+|---|---|
+| Clean, strict | 180000000 samples sent, 180000000 received, one contiguous stretch, receiver-observed complete, no SRT loss or retransmission |
+| Outages, segmented, 7 s outage every 2 minutes | 15 outages, 16 connections on each side, one run. 169559594 received plus 10440406 reported missing equals 180000000. No unknown break. Queue high-water 90 records |
+
+| Process | Threads early / late | Descriptors early / late | Median RSS early / late |
+|---|---|---|---|
+| Clean receiver | 24 / 24 | 6 / 6 | 46.7 / 46.9 MiB |
+| Clean sender | 26 / 26 | 6 / 6 | 54.8 / 54.9 MiB |
+| Outage receiver | 24 / 24 | 6 / 6 | 49.3 / 50.6 MiB |
+| Outage sender | 26 / 26 | 6 / 6 | 56.9 / 58.0 MiB |
+
+"Early" is minutes 2 to 7, "late" the last 5 minutes. Memory grew by at
+most 1.3 MiB over 30 minutes against an allowance of 16 MiB. Thirty
+minutes cannot rule out slow growth over days.
+
+The soak is not part of the per-push gate. `.github/workflows/soak.yml`
+runs it on the hosted x86-64 runner when started by hand; it has not been
+run there yet.
+
+## D40. Gap-aware spectrum demonstration
+
+`examples/gap_aware_spectrum.py` provides `gap_aware_fft`: it builds every
+FFT window from contiguous samples only, discards the unfinished window at
+a `rwsrt.discontinuity` tag and tags the first spectrum after a break.
+Tested with synthetic breaks (window positions, and no energy from the
+neighbouring stretch within 60 dB) and behind a real Source with an outage.
+The live plot (`--gui`) needs Qt and a display and has not been run.
+
+## Open items carried into M4
+
+1. Network qualification with netem: profiles N0 to N6, UDP and TCP
+   baselines, clock accounting. Needs `NET_ADMIN` and the `sch_netem`
+   kernel module in the test environment; not yet checked on the hosted
+   runner.
+2. A dedicated x86-64 host for timing-sensitive results (D2).
+3. Overhead reserve (`SRTO_OHEADBW` 25 %) under loss (D20), and records per
+   second as the cost driver (D22).
+4. The strict Sink's sender-drop path (D33) needs a profile that triggers it.
+5. Two-host and hardware experiments.
+6. No first user: academic project for now (owner, 2026-11-12).

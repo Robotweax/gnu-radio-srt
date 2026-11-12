@@ -1,0 +1,107 @@
+{
+  "seconds": 1800,
+  "samples_expected": 180000000,
+  "hung": [],
+  "proxy": {
+    "data_records_seen": 0,
+    "dropped_blackhole": 0,
+    "dropped_end": 0,
+    "dropped_loss": 0,
+    "dropped_outage": 91808,
+    "dropped_sample": 0,
+    "end_records_seen": 0,
+    "forward": 1388045,
+    "reverse": 146003,
+    "send_errors": 0
+  },
+  "exit": {
+    "clean_rx": 0,
+    "outage_rx": 1,
+    "clean_tx": 0,
+    "outage_tx": 0
+  },
+  "resources": {
+    "clean_rx": {
+      "threads": "pass",
+      "threads_early_max": 24,
+      "threads_late_max": 24,
+      "fds": "pass",
+      "fds_early_max": 6,
+      "fds_late_max": 6,
+      "memory": "pass",
+      "rss_early_median_kib": 47812.0,
+      "rss_late_median_kib": 47980,
+      "rss_max_kib": 47980
+    },
+    "outage_rx": {
+      "threads": "pass",
+      "threads_early_max": 24,
+      "threads_late_max": 24,
+      "fds": "pass",
+      "fds_early_max": 6,
+      "fds_late_max": 6,
+      "memory": "pass",
+      "rss_early_median_kib": 50440.0,
+      "rss_late_median_kib": 51848,
+      "rss_max_kib": 51904
+    },
+    "clean_tx": {
+      "threads": "pass",
+      "threads_early_max": 26,
+      "threads_late_max": 26,
+      "fds": "pass",
+      "fds_early_max": 6,
+      "fds_late_max": 6,
+      "memory": "pass",
+      "rss_early_median_kib": 56140.0,
+      "rss_late_median_kib": 56180.0,
+      "rss_max_kib": 56180
+    },
+    "outage_tx": {
+      "threads": "pass",
+      "threads_early_max": 26,
+      "threads_late_max": 26,
+      "fds": "pass",
+      "fds_early_max": 6,
+      "fds_late_max": 6,
+      "memory": "pass",
+      "rss_early_median_kib": 58292.0,
+      "rss_late_median_kib": 59436.0,
+      "rss_max_kib": 59708
+    }
+  },
+  "outages": {
+    "first_index": 0,
+    "received": 169559594,
+    "reported_missing": 10440406,
+    "accounted": 180000000,
+    "unknown_breaks": 0,
+    "discontinuities": 15,
+    "connections": 16,
+    "sender_connections": 16,
+    "end": "incomplete",
+    "sender_failure": "none",
+    "receiver_failure": "none",
+    "sender_queue_high_water_records": 90,
+    "receiver_queue_high_water_records": 88
+  },
+  "gates": {
+    "clean_complete": "pass",
+    "outages_accounted": "pass",
+    "outages_reconnected": "pass",
+    "queues_bounded": "pass",
+    "clean_rx_threads": "pass",
+    "clean_rx_fds": "pass",
+    "clean_rx_memory": "pass",
+    "outage_rx_threads": "pass",
+    "outage_rx_fds": "pass",
+    "outage_rx_memory": "pass",
+    "clean_tx_threads": "pass",
+    "clean_tx_fds": "pass",
+    "clean_tx_memory": "pass",
+    "outage_tx_threads": "pass",
+    "outage_tx_fds": "pass",
+    "outage_tx_memory": "pass"
+  },
+  "overall": "pass"
+}

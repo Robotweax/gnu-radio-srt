@@ -8,6 +8,7 @@
 #include "srt_adapter.h"
 #include "session_worker.h"
 
+#include <srt/access_control.h>
 #include <srt/srt.h>
 #include <srt/version.h>
 
@@ -15,6 +16,8 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
+#include <algorithm>
+#include <cstdio>
 #include <cstring>
 
 namespace rwsrt {
@@ -58,10 +61,41 @@ connect_failure classify_reject(int reason)
     case SRT_REJ_ROGUE:
         return connect_failure::configuration;
     default:
-        // Timeout, backlog, resource, close, peer and unknown reasons can
-        // clear up without any local change.
+        break;
+    }
+    // Application rejections from a peer's admission check.
+    switch (reason) {
+    case SRT_REJX_BAD_REQUEST:
+    case SRT_REJX_UNAUTHORIZED:
+    case SRT_REJX_FORBIDDEN:
+    case SRT_REJX_NOTFOUND: // this module: unexpected stream ID
+    case SRT_REJX_BAD_MODE:
+    case SRT_REJX_UNACCEPTABLE:
+    case SRT_REJX_NOTSUP_MEDIA:
+        return connect_failure::configuration;
+    default:
+        // Timeout, backlog, resource, close, a busy peer (conflict) and
+        // unknown reasons can clear up without any local change.
         return connect_failure::transient;
     }
+}
+
+int listen_hook(void* opaque, SRTSOCKET socket, int /*handshake_version*/,
+                const sockaddr* /*peer*/, const char* stream_id)
+{
+    return static_cast<srt_endpoint*>(opaque)->admit(socket, stream_id);
+}
+
+// The largest UDP receive buffer the kernel grants an unprivileged socket.
+int kernel_udp_receive_limit()
+{
+    int value = -1;
+    if (std::FILE* f = std::fopen("/proc/sys/net/core/rmem_max", "r")) {
+        if (std::fscanf(f, "%d", &value) != 1)
+            value = -1;
+        std::fclose(f);
+    }
+    return value;
 }
 
 } // namespace
@@ -79,6 +113,23 @@ srt_endpoint::srt_endpoint(const transport_config& config, std::size_t record_li
 }
 
 srt_endpoint::~srt_endpoint() { close(); }
+
+int srt_endpoint::admit(int socket, const char* stream_id)
+{
+    // Rejected inside the handshake, so the caller never sees a connection.
+    if (d_config.stream_id != (stream_id ? stream_id : "")) {
+        (void)srt_setrejectreason(socket, SRT_REJX_NOTFOUND);
+        ++d_rejected;
+        return -1;
+    }
+    if (d_busy.load()) {
+        // One active peer per endpoint.
+        (void)srt_setrejectreason(socket, SRT_REJX_CONFLICT);
+        ++d_rejected;
+        return -1;
+    }
+    return 0;
+}
 
 void srt_endpoint::set_error(const char* what)
 {
@@ -126,6 +177,16 @@ bool srt_endpoint::configure(int s)
             return false;
         }
     }
+    // Request no more UDP receive buffer than the kernel grants; a larger
+    // request is silently capped and only shows up as a library warning.
+    d_udp_rcv_limit = kernel_udp_receive_limit();
+    constexpr int wanted_udp_receive = 12288000; // the library's own default
+    const int udp_receive =
+        d_udp_rcv_limit > 0 ? std::min(wanted_udp_receive, d_udp_rcv_limit) : wanted_udp_receive;
+    if (!set_opt(s, SRTO_UDP_RCVBUF, udp_receive)) {
+        set_error("setting SRTO_UDP_RCVBUF");
+        return false;
+    }
     if (d_offered_bw > 0) {
         // Pace from the declared input rate plus the library's overhead
         // reserve (SRTO_OHEADBW, read back in effective()).
@@ -171,7 +232,8 @@ bool srt_endpoint::open()
             (void)srt_close(s);
             return false;
         }
-        if (srt_bind(s, reinterpret_cast<sockaddr*>(&sa), sizeof(sa)) == SRT_ERROR ||
+        if (srt_listen_callback(s, &listen_hook, this) == SRT_ERROR ||
+            srt_bind(s, reinterpret_cast<sockaddr*>(&sa), sizeof(sa)) == SRT_ERROR ||
             srt_listen(s, 2) == SRT_ERROR ||
             srt_epoll_add_usock(d_epoll, s, &mask) == SRT_ERROR) {
             set_error("bind/listen");
@@ -211,6 +273,7 @@ bool srt_endpoint::open()
 
 void srt_endpoint::reject(int socket)
 {
+    // Fallback: admission normally happens in admit(), during the handshake.
     ++d_rejected;
     (void)srt_close(socket);
 }
@@ -253,6 +316,7 @@ connect_progress srt_endpoint::poll(int slice_ms)
                 continue;
             }
             d_connection = peer;
+            d_busy.store(true);
             return connect_progress::connected;
         }
         if (s == d_pending && d_pending != SRT_INVALID_SOCK) {
@@ -263,12 +327,20 @@ connect_progress srt_endpoint::poll(int slice_ms)
                 const int mask = SRT_EPOLL_IN | SRT_EPOLL_ERR;
                 (void)srt_epoll_update_usock(d_epoll, s, &mask);
                 d_connection = s;
+                d_busy.store(true);
                 d_pending = SRT_INVALID_SOCK;
                 return connect_progress::connected;
             }
             const int reason = srt_getrejectreason(s);
             d_failure = classify_reject(reason);
-            d_error = std::string("connection attempt failed: ") + srt_rejectreason_str(reason);
+            // Name this module's own admission reasons; the library only
+            // knows them as "application-defined".
+            const char* why = reason == SRT_REJX_NOTFOUND
+                                  ? "the peer does not serve this stream_id"
+                                  : reason == SRT_REJX_CONFLICT
+                                        ? "the peer already has a connection"
+                                        : srt_rejectreason_str(reason);
+            d_error = std::string("connection attempt failed: ") + why;
             d_error_code = reason;
             (void)srt_epoll_remove_usock(d_epoll, s);
             (void)srt_close(s);
@@ -366,6 +438,7 @@ void srt_endpoint::close_connection()
             (void)srt_epoll_remove_usock(d_epoll, d_connection);
         (void)srt_close(d_connection);
         d_connection = SRT_INVALID_SOCK;
+        d_busy.store(false);
     }
     if (d_pending != SRT_INVALID_SOCK) {
         if (d_epoll != SRT_ERROR)
@@ -406,6 +479,7 @@ srt_effective srt_endpoint::effective()
     get_opt(s, SRTO_FC, e.flow_window_packets);
     get_opt(s, SRTO_UDP_SNDBUF, e.udp_snd_buf_bytes);
     get_opt(s, SRTO_UDP_RCVBUF, e.udp_rcv_buf_bytes);
+    e.udp_rcv_buf_limit_bytes = d_udp_rcv_limit;
     get_opt(s, SRTO_MAXBW, e.max_bw);
     get_opt(s, SRTO_INPUTBW, e.input_bw);
     get_opt(s, SRTO_OHEADBW, e.overhead_bw_percent);

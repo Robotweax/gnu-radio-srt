@@ -49,6 +49,7 @@ There is no command input. Neither block forwards tags as they are.
 | `latency_ms` | 250 | Requested SRT receiver and peer latency |
 | `connect_timeout_ms` | 3000 | Per connection attempt |
 | `startup_timeout_ms` | 30000 | No peer by then: terminal failure `startup_timeout` |
+| `peer_idle_timeout_ms` | 5000 | Silence after which the connection counts as lost. At least 1000 |
 | `reconnect` | true | Used in segmented mode only. Strict mode never reconnects |
 | `reconnect_initial_ms`, `reconnect_max_ms` | 250, 4000 | Exponential retry delay with 20 % jitter |
 | `reconnect_total_timeout_ms` | 60000 | Budget after an established connection failed |
@@ -121,6 +122,35 @@ as on completion. Always read `status()` afterwards.
   once. Samples it sent within the last latency window may not be delivered.
 - END itself is an ordinary live packet and can be lost. The Source then
   reports `termination_unknown`, never completion.
+
+## Outages and vanished peers
+
+Tested with a fault-injecting relay on loopback, not on a real network.
+
+| Situation | Segmented mode | Strict mode |
+|---|---|---|
+| Outage shorter than `peer_idle_timeout_ms` | The connection survives. Samples that became too late are missing; the Source tags the gap with its exact size | The Source fails with `continuity` at the first gap, the Sink with `connection_lost` when the Source closes |
+| Outage longer than `peer_idle_timeout_ms` | Both ends reconnect. Run and coordinates continue; the Source tags the boundary `reconnect` with the exact gap | Both ends fail |
+| Peer vanishes without closing | Loss is noticed after the idle timeout. The block retries within `reconnect_total_timeout_ms`, then fails with `reconnect_timeout` | Fails after the idle timeout |
+| END lost | The Source reports `termination_unknown` and fails with `reconnect_timeout` | The Source fails with `connection_lost`, `termination_unknown` true |
+| Final record lost, END arrives | `end` is `incomplete`; the missing tail is counted and published as a status event | The Source fails with `continuity` |
+
+Things to know:
+
+- During an outage a segmented Sink keeps consuming and discards records
+  older than `queue_max_age_ms`. It does not build a backlog and does not
+  replay old samples after the path returns.
+- A strict Sink sees only its own side. It cannot observe samples lost in
+  the network; the Source can. Run the Source in strict mode too if any
+  loss must end the run.
+- `session.end_acknowledged_by_transport` on the Sink is true when, after
+  END, SRT reported nothing left unacknowledged. The peer's SRT stack then
+  received every packet. It is not an acknowledgement by the receiving
+  application, and false does not prove a loss.
+- A Listener serves one peer. A second Caller, or one with a different
+  `stream_id`, is refused during the SRT handshake. The refused Caller
+  treats a wrong `stream_id` as a terminal `configuration` failure and a
+  busy peer as temporary.
 
 ## Status
 

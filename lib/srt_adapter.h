@@ -13,6 +13,7 @@
 
 #include "session_config.h"
 
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -29,7 +30,8 @@ struct srt_effective {
     int rcv_buf_bytes = -1;
     int flow_window_packets = -1;
     int udp_snd_buf_bytes = -1;
-    int udp_rcv_buf_bytes = -1;
+    int udp_rcv_buf_bytes = -1;       //!< as requested; the option does not report the grant
+    int udp_rcv_buf_limit_bytes = -1; //!< kernel limit (net.core.rmem_max), -1 unknown
     std::int64_t max_bw = -1;
     std::int64_t input_bw = -1;
     int overhead_bw_percent = -1;
@@ -101,7 +103,9 @@ public:
 
     srt_effective effective();
     srt_link_stats stats();
-    std::uint64_t rejected_peers() const noexcept { return d_rejected; }
+    std::uint64_t rejected_peers() const noexcept { return d_rejected.load(); }
+    //! Runs on an SRT thread during a peer's handshake. Returns -1 to reject.
+    int admit(int socket, const char* stream_id);
     const std::string& error() const noexcept { return d_error; }
     int error_code() const noexcept { return d_error_code; }
 
@@ -119,7 +123,9 @@ private:
     int d_pending; //!< caller socket whose connect is in progress
     int d_epoll;
     connect_failure d_failure = connect_failure::none;
-    std::uint64_t d_rejected = 0;
+    std::atomic<std::uint64_t> d_rejected{ 0 };
+    std::atomic<bool> d_busy{ false }; //!< a connection is active
+    int d_udp_rcv_limit = -1;
     std::string d_error;
     int d_error_code = 0;
 };

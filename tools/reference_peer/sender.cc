@@ -139,7 +139,7 @@ int main(int argc, char** argv)
         // Natural end: flush the partial record and send END.
         (void)assembler->finish(emit);
         finished = worker->wait_finished(std::chrono::milliseconds(
-            transport.latency_ms + transport.stop_timeout.count() + 5000 +
+            transport.stop_timeout.count() + 5000 +
             (strict ? 0 : transport.retry.total_budget.count())));
     }
     const session_snapshot snap = worker->snapshot();

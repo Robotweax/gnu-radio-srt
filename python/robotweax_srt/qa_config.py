@@ -11,7 +11,7 @@ import os
 from gnuradio import blocks, gr, gr_unittest
 
 from qa_common import (KEY_ENV, configs, evidence, free_udp_port, no_secret, robotweax_srt,
-                       thread_count, wait_done)
+                       thread_count, threads_settled, wait_done)
 
 
 class qa_config(gr_unittest.TestCase):
@@ -131,7 +131,10 @@ class qa_config(gr_unittest.TestCase):
                     self.assertNotIn(value, blk.status_json())  # ... never its content
                 self.assertFalse(st["running"])
                 self.assertEqual(st["srt_runtime_leases"], 0)
-                self.assertEqual(thread_count(), threads)
+                count, settle_ms = threads_settled(threads)
+                if settle_ms:
+                    evidence("thread_settle", block=make, settle_ms=settle_ms)
+                self.assertEqual(count, threads)
 
 if __name__ == '__main__':
     gr_unittest.run(qa_config)

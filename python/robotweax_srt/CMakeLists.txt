@@ -34,7 +34,8 @@ add_custom_target(
     copy_module_for_tests ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}
             ${PROJECT_BINARY_DIR}/test_modules/gnuradio/robotweax_srt/)
-foreach(qa qa_config qa_transfer qa_tags qa_lifecycle qa_scheduler_assumptions)
+foreach(qa qa_config qa_transfer qa_tags qa_lifecycle qa_robustness qa_gap_aware_fft
+           qa_scheduler_assumptions)
     GR_ADD_TEST(${qa} ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${qa}.py)
-    set_tests_properties(${qa} PROPERTIES TIMEOUT 180)
+    set_tests_properties(${qa} PROPERTIES TIMEOUT 300)
 endforeach()

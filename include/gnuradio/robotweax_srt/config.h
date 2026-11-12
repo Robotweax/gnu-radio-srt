@@ -37,6 +37,7 @@ struct ROBOTWEAX_SRT_API transport_config {
     int latency_ms = 250;                   //!< requested SRT receiver and peer latency
     int connect_timeout_ms = 3000;          //!< per attempt
     int startup_timeout_ms = 30000;         //!< no peer by then: terminal failure
+    int peer_idle_timeout_ms = 5000;        //!< silence after which the connection counts as lost
     bool reconnect = true;                  //!< effective in segmented mode only
     int reconnect_initial_ms = 250;
     int reconnect_max_ms = 4000;            //!< delay cap, with +-20 % jitter

@@ -91,6 +91,7 @@ inline void read_common(options& o, rwsrt::transport_config& t, rwsrt::stream_co
     t.latency_ms = static_cast<int>(o.num("latency-ms", 250));
     t.connect_timeout_ms = static_cast<int>(o.num("connect-timeout-ms", 3000));
     t.startup_timeout = std::chrono::milliseconds(o.num("startup-timeout-ms", 30000));
+    t.peer_idle_timeout_ms = static_cast<int>(o.num("peer-idle-timeout-ms", 5000));
     t.retry.total_budget = std::chrono::milliseconds(o.num("reconnect-total-timeout-ms", 60000));
     t.reconnect = !o.flag("no-reconnect");
 

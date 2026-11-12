@@ -198,7 +198,71 @@ def thread_count():
     return -1
 
 
+def threads_settled(expected, timeout=1.0):
+    """(count, milliseconds waited). A thread that is still unwinding right
+    after a flowgraph ends is not a leak; one that persists is. Returns once
+    the count equals `expected` or the timeout passed."""
+    waited = 0
+    while thread_count() != expected and waited < timeout * 1000:
+        time.sleep(0.01)
+        waited += 10
+    return thread_count(), waited
+
+
 def no_secret(testcase, *objects):
     text = json.dumps(objects, default=str)
     for secret in SECRETS:
         testcase.assertNotIn(secret, text)
+
+
+class Proxy:
+    """tools/impair/udp_proxy.py between a Caller and a Listener.
+
+    The Caller connects to self.port; the Listener binds listener_port.
+    """
+
+    SCRIPT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                           "..", "..", "tools", "impair", "udp_proxy.py"))
+
+    def __init__(self, listener_port, *faults):
+        import subprocess
+        import sys
+        self.port = free_udp_port()
+        argv = [sys.executable, "-I", self.SCRIPT, "--listen", "127.0.0.1:%d" % self.port,
+                "--target", "127.0.0.1:%d" % listener_port] + [str(f) for f in faults]
+        self.proc = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        ready = self.proc.stdout.readline()
+        if "ready" not in ready:
+            raise RuntimeError("proxy did not start: " + self.proc.stderr.read())
+        self.counters = None
+
+    def close(self):
+        if self.counters is None:
+            import signal
+            self.proc.send_signal(signal.SIGTERM)
+            out, _ = self.proc.communicate(timeout=10)
+            lines = [l for l in out.splitlines() if l.startswith("{")]
+            self.counters = json.loads(lines[-1]) if lines else {}
+        return self.counters
+
+
+def proxied_configs(*faults, sink_role="caller", **kw):
+    """configs() with a proxy in the path. Returns (proxy, ts, ss, tr, sr)."""
+    listener_port = free_udp_port()
+    proxy = Proxy(listener_port, *faults)
+    ts, ss, tr, sr = configs(listener_port, sink_role=sink_role, **kw)
+    # Only the Caller's destination changes.
+    (ts if sink_role == "caller" else tr).port = proxy.port
+    return proxy, ts, ss, tr, sr
+
+
+def check_coordinates(testcase, receiver, data):
+    """Every output sample is the right value for its coordinate (run 1 data)."""
+    got = receiver.data()
+    end = 0
+    for off, rec in receiver.tags("rwsrt.record"):
+        c, i = rec["sample_count"], rec["first_sample_index"]
+        testcase.assertEqual(got[off:off + c], data[i:i + c])
+        end = off + c
+    testcase.assertEqual(end, len(got))
+    return got

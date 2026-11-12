@@ -10,6 +10,7 @@ that is milestone M4. Writes one JSON line per case to --evidence if given.
 import argparse
 import json
 import os
+import signal
 import socket
 import subprocess
 import sys
@@ -321,14 +322,18 @@ def stream_id_mismatch_is_rejected(suite):
     rx = suite.receiver(None, role="listener", port=port, stream_id="rwsrt/v1/a", startup_timeout_ms=2500,
                         timeout_ms=20000)
     time.sleep(0.2)
-    tx = suite.sender(None, role="caller", port=port, stream_id="rwsrt/v1/b", samples=20000, policy="segmented",
-                      no_reconnect=True)
+    tx = suite.sender(None, role="caller", port=port, stream_id="rwsrt/v1/b", samples=20000)
     tx.finish()
     rx.finish()
     r = rx.json
     check(r["samples_received"] == 0, "data accepted from an unexpected stream id")
     check(r["session"]["counters"]["rejected_peers"] >= 1, "peer was not rejected")
+    check(r["session"]["counters"]["connections"] == 0, "the peer got a connection")
     check(r["session"]["failure"] == "startup_timeout", r["session"]["failure"])
+    # Refused inside the handshake, and terminal for the caller.
+    t = tx.json["session"]
+    check(t["failure"] == "configuration" and "stream_id" in t["failure_detail"], t["failure_detail"])
+    check(t["counters"]["connections"] == 0 and tx.wall_s < 2.0, "caller connected or kept retrying")
     return summary(tx, rx)
 
 
@@ -481,6 +486,122 @@ def invalid_configuration_is_rejected_before_any_socket(suite):
     return out
 
 
+PROXY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "impair", "udp_proxy.py")
+FAST = dict(peer_idle_timeout_ms=1000, connect_timeout_ms=500, reconnect_total_timeout_ms=15000)
+
+
+class FaultProxy:
+    def __init__(self, listener_port, *faults):
+        self.port = free_udp_port()
+        self.proc = subprocess.Popen([sys.executable, "-I", PROXY, "--listen", "127.0.0.1:%d" % self.port,
+                                      "--target", "127.0.0.1:%d" % listener_port] + [str(f) for f in faults],
+                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        check("ready" in self.proc.stdout.readline(), "proxy did not start")
+
+    def close(self):
+        self.proc.send_signal(signal.SIGTERM)
+        out, _ = self.proc.communicate(timeout=10)
+        return json.loads([l for l in out.splitlines() if l.startswith("{")][-1])
+
+
+def outage_reconnects_within_one_run(suite):
+    """Outage longer than the idle timeout: both peers reconnect, the run
+    continues, and every sample is delivered or reported missing."""
+    port = free_udp_port()
+    proxy = FaultProxy(port, "--outage", "1.0:2.5")
+    n = 1200000  # 6 s at 200 kS/s
+    rx = suite.receiver(None, role="listener", port=port, rate="200000", policy="segmented", timeout_ms=40000,
+                        events=True, **FAST)
+    time.sleep(0.2)
+    tx = suite.sender(None, role="caller", port=proxy.port, rate="200000", policy="segmented", samples=n, **FAST)
+    tx.finish()
+    rx.finish()
+    counters = proxy.close()
+    r = rx.json
+    check(tx.code == 0 and rx.code == 0, "exit %d/%d" % (tx.code, rx.code))
+    check(counters["dropped_outage"] > 0, "the outage dropped nothing")
+    check(r["samples_altered"] == 0, "altered samples")
+    check("reconnect" in r["reasons"], "reconnect not reported: " + r["reasons"])
+    check(r["session"]["counters"]["connections"] == 2, "connections %d" % r["session"]["counters"]["connections"])
+    check(r["session"]["continuity"]["runs"] == 1, "run changed across the reconnect")
+    events = [json.loads(l) for l in rx.stderr.splitlines() if l.startswith("{")]
+    first_index = r["first_index"]
+    check(first_index + r["samples_received"] + r["missing_known_samples"] == n and
+          r["unknown_breaks"] == (1 if first_index else 0), "samples unaccounted")
+    check(r["end_seen"] and r["end_index"] == n, "END index")
+    check(tx.json["queue"]["high_water_records"] <= 8192, "sender queue unbounded")
+    out = summary(tx, rx)
+    out["proxy"] = counters
+    out["events"] = events[:4]
+    return out
+
+
+def receiver_killed_then_replaced(suite):
+    """SIGKILL of the receiving process: the segmented sender notices within
+    the idle timeout, keeps its run, and serves a replacement receiver."""
+    port = free_udp_port()
+    n = 1600000  # 8 s
+    tx = suite.sender(None, role="listener", port=port, rate="200000", policy="segmented", samples=n, **FAST)
+    time.sleep(0.2)
+    rx1 = suite.receiver(None, role="caller", port=port, rate="200000", policy="segmented", timeout_ms=40000, **FAST)
+    time.sleep(1.5)
+    rx1.proc.kill()  # no close, no goodbye
+    rx1.proc.communicate()
+    time.sleep(2.0)  # longer than the idle timeout
+    rx2 = suite.receiver(None, role="caller", port=port, rate="200000", policy="segmented", timeout_ms=40000, **FAST)
+    rx2.finish()
+    tx.finish()
+    t, r = tx.json, rx2.json
+    check(tx.code == 0, "sender exit %d: %s" % (tx.code, t["session"]["failure_detail"]))
+    check(t["session"]["counters"]["connections"] == 2, "sender connections %d" % t["session"]["counters"]["connections"])
+    check(t["session"]["counters"]["connection_losses"] == 1, "loss not detected")
+    check(rx2.code == 0 and r["samples_altered"] == 0, "replacement receiver exit %d" % rx2.code)
+    check("initial_join" in r["reasons"] and r["first_index"] > 0, "replacement claims the start")
+    check(r["end_seen"] and r["end_index"] == n, "END index")
+    check(r["session"]["end"] == "incomplete", "end is " + r["session"]["end"])
+    return summary(tx, rx2)
+
+
+def strict_sender_fails_when_receiver_is_killed(suite):
+    port = free_udp_port()
+    rx = suite.receiver(None, role="listener", port=port, rate="200000", timeout_ms=40000, **FAST)
+    time.sleep(0.2)
+    tx = suite.sender(None, role="caller", port=port, rate="200000", samples=4000000, **FAST)
+    time.sleep(1.5)
+    t0 = time.monotonic()
+    rx.proc.kill()
+    rx.proc.communicate()
+    tx.finish()
+    detected = time.monotonic() - t0
+    s = tx.json["session"]
+    check(tx.code == 2 and s["failure"] in ("connection_lost", "continuity"),
+          "exit %d failure %s" % (tx.code, s["failure"]))
+    check(not s["completed"] and s["counters"]["end_sent"] == 0, "sender reported completion")
+    check(detected < 3.5, "took %.1fs to notice a dead peer with a 1 s idle timeout" % detected)
+    out = summary(tx)
+    out["detected_after_s"] = round(detected, 2)
+    return out
+
+
+def lost_end_is_not_completion(suite):
+    port = free_udp_port()
+    proxy = FaultProxy(port, "--drop-end")
+    rx = suite.receiver(None, role="listener", port=port, rate="200000", timeout_ms=40000, **FAST)
+    time.sleep(0.2)
+    tx = suite.sender(None, role="caller", port=proxy.port, rate="200000", samples=100000, **FAST)
+    tx.finish()
+    rx.finish()
+    counters = proxy.close()
+    r = rx.json
+    check(counters["dropped_end"] >= 1, "END was not dropped")
+    check(r["samples_received"] == 100000 and r["samples_altered"] == 0, "data incomplete")
+    check(not r["end_seen"] and r["session"]["termination_unknown"], "END or completion reported")
+    check(rx.code == 2 and r["session"]["failure"] == "connection_lost", r["session"]["failure"])
+    check(tx.json["session"]["completed"] and not tx.json["session"]["end_acknowledged_by_transport"],
+          "sender claims an acknowledged END")
+    return summary(tx, rx)
+
+
 CASES = [
     cf32_ctr_sink_caller,
     f32_plaintext_sink_listener,
@@ -504,6 +625,10 @@ CASES = [
     strict_receiver_stall_is_terminal_not_silent,
     segmented_receiver_stall_reports_the_drop,
     invalid_configuration_is_rejected_before_any_socket,
+    outage_reconnects_within_one_run,
+    receiver_killed_then_replaced,
+    strict_sender_fails_when_receiver_is_killed,
+    lost_end_is_not_completion,
 ]
 
 

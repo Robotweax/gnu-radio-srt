@@ -69,6 +69,10 @@ struct session_snapshot {
     end_observation end = end_observation::none;
     bool termination_unknown = false; //!< run was open when the session ended
     bool completed = false;           //!< reached COMPLETED; kept after stop()
+    //! Sender: after END, SRT reported nothing left unacknowledged, so the
+    //! peer's SRT stack received every packet. Not an application
+    //! acknowledgement, and false does not prove a loss.
+    bool end_acknowledged_by_transport = false;
     srt_effective effective;
     srt_link_stats link;
 };

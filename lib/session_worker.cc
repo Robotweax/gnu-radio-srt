@@ -51,7 +51,8 @@ status_doc describe(const session_snapshot& s)
                             ? "complete"
                             : s.end == end_observation::incomplete ? "incomplete" : "none")
         .set_bool("termination_unknown", s.termination_unknown)
-        .set_bool("completed", s.completed);
+        .set_bool("completed", s.completed)
+        .set_bool("end_acknowledged_by_transport", s.end_acknowledged_by_transport);
     d.child("counters")
         .set_uint("connect_attempts", c.connect_attempts)
         .set_uint("connections", c.connections)
@@ -86,6 +87,7 @@ status_doc describe(const session_snapshot& s)
         .set_int("flow_window_packets", s.effective.flow_window_packets)
         .set_int("udp_snd_buf_bytes", s.effective.udp_snd_buf_bytes)
         .set_int("udp_rcv_buf_bytes", s.effective.udp_rcv_buf_bytes)
+        .set_int("udp_rcv_buf_limit_bytes", s.effective.udp_rcv_buf_limit_bytes)
         .set_int("max_bw", s.effective.max_bw)
         .set_int("input_bw", s.effective.input_bw)
         .set_int("overhead_bw_percent", s.effective.overhead_bw_percent)
@@ -347,7 +349,18 @@ bool session_worker::establish(srt_endpoint& ep, retry_schedule& retry, bool rec
                 publish(&ep);
                 return false;
             }
-            pause(std::chrono::milliseconds(wait_slice_ms)); // let the deadline check decide
+            // No further retry delay fits into the startup timeout. Wait out
+            // the remainder instead of hammering the peer with attempts.
+            const auto left = d_transport.startup_timeout - (clock::now() - started);
+            if (left > std::chrono::nanoseconds::zero())
+                pause(left);
+            if (cancelled())
+                return false;
+            std::lock_guard<std::mutex> guard(d_mutex);
+            d_fsm.on_startup_deadline();
+            d_status.failure_detail = "no peer within the startup timeout";
+            publish(&ep);
+            return false;
         } else {
             pause(*delay);
         }
@@ -358,16 +371,24 @@ bool session_worker::establish(srt_endpoint& ep, retry_schedule& retry, bool rec
 // what it holds. Closing at once would discard it (linger is off).
 void session_worker::drain_send(srt_endpoint& ep)
 {
-    const auto limit =
-        clock::now() + std::chrono::milliseconds(d_transport.latency_ms) + d_transport.stop_timeout;
+    // Bounded inside the stop timeout (with room for the teardown that
+    // follows), so a natural end stops within the same bound as any other.
+    const auto margin = std::chrono::milliseconds(150);
+    const auto limit = clock::now() + std::max<std::chrono::milliseconds>(
+                                          d_transport.stop_timeout - margin,
+                                          std::chrono::milliseconds(50));
+    bool acknowledged = false;
     while (!cancelled() && clock::now() < limit) {
         const int pending = ep.unacknowledged_packets();
-        if (pending <= 0)
+        if (pending == 0) {
+            acknowledged = true;
             break;
-        if (ep.wait(wait_slice_ms, false, false) & wait_broken)
+        }
+        if (pending < 0 || (ep.wait(wait_slice_ms, false, false) & wait_broken))
             break;
     }
     std::lock_guard<std::mutex> guard(d_mutex);
+    d_status.end_acknowledged_by_transport = acknowledged;
     d_status.link = ep.stats();
     d_fsm.on_drained();
     publish(&ep);
@@ -442,9 +463,20 @@ void session_worker::serve_send(srt_endpoint& ep)
         }
         if (clock::now() - last_stats >= stats_interval) {
             last_stats = clock::now();
-            std::lock_guard<std::mutex> guard(d_mutex);
-            d_status.link = ep.stats();
-            publish(&ep);
+            const srt_link_stats link = ep.stats();
+            {
+                std::lock_guard<std::mutex> guard(d_mutex);
+                d_status.link = link;
+                publish(&ep);
+            }
+            // Strict mode: packets that SRT gave up on at the sender are
+            // lost samples. The receiver will see the gap; the sender must
+            // not carry on as if the stream were intact.
+            if (d_stream.policy == continuity_policy::strict_stop && link.valid &&
+                link.send_dropped > 0) {
+                fatal(session_failure::continuity, "SRT dropped packets at the sender");
+                return;
+            }
         }
     }
     // Connection lost. A record taken out of the queue but not accepted by

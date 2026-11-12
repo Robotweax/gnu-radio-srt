@@ -11,6 +11,7 @@ templates:
             role='${role}', host=${host}, bind_address=${bind_address}, port=${port},
             stream_id=${stream_id}, latency_ms=${latency_ms},
             connect_timeout_ms=${connect_timeout_ms}, startup_timeout_ms=${startup_timeout_ms},
+            peer_idle_timeout_ms=${peer_idle_timeout_ms},
             reconnect=${reconnect}, reconnect_initial_ms=${reconnect_initial_ms},
             reconnect_max_ms=${reconnect_max_ms},
             reconnect_total_timeout_ms=${reconnect_total_timeout_ms},
@@ -138,6 +139,11 @@ parameters:
   label: Startup timeout (ms)
   dtype: int
   default: '30000'
+  hide: part
+- id: peer_idle_timeout_ms
+  label: Peer idle timeout (ms)
+  dtype: int
+  default: '5000'
   hide: part
 - id: reconnect
   label: Reconnect (segmented only)

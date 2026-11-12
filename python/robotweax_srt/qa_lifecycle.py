@@ -170,7 +170,7 @@ class qa_lifecycle(gr_unittest.TestCase):
         self.assertTrue(all(len(r) == 32 for r in runs))
 
     def test_start_stop_cycles_do_not_leak(self):
-        cycles = 30
+        cycles = 100
         port = free_udp_port()
         ts, ss, tr, sr = configs(port, key=KEY_ENV, policy=SEG)
         tx = Sender(ts, ss, "cf32", None, endless=True)
