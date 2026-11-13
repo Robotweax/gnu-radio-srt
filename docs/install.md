@@ -1,6 +1,6 @@
 # Installing from the source package
 
-This is the only supported way to install release 0.1.0-rc1. There are no
+This is the only supported way to install release candidate 0.1.0-rc2. There are no
 binary packages. The steps are for Ubuntu 24.04 LTS, the one qualified
 platform (x86-64 or aarch64); see [compatibility.md](compatibility.md).
 
@@ -16,19 +16,22 @@ system-wide, GNU Radio among them; those stay until you remove them with
 
 You need about 2 GB of disk for the GNU Radio packages, network access to
 the Ubuntu archive and to GitHub, and the file
-`gr-robotweax-srt-0.1.0-rc1.tar.gz` in the directory where you run the
+`gr-robotweax-srt-0.1.0-rc2.tar.gz` in the directory where you run the
 commands.
 
-The package is attached to the release on GitHub:
+The package is attached to the release on GitHub, once that release is
+published:
 
 ```text
-https://github.com/Robotweax/gnu-radio-srt/releases/tag/v0.1.0-rc1
+https://github.com/Robotweax/gnu-radio-srt/releases
 ```
 
-Download `gr-robotweax-srt-0.1.0-rc1.tar.gz` and `SHA256SUMS` from there and
-check the file with `sha256sum -c --ignore-missing SHA256SUMS`. Do not use
-GitHub's automatic "Source code" archives: their directory name differs
-from the one used below.
+Download `gr-robotweax-srt-0.1.0-rc2.tar.gz` and `SHA256SUMS` from there and
+check the file with `sha256sum -c SHA256SUMS`. Do not use GitHub's automatic
+"Source code" archives: their directory name differs from the one used
+below. Until 0.1.0-rc2 is published, build the package from a checkout with
+`tools/release/make-source-package.sh`, or use 0.1.0-rc1 with the install
+guide inside its own package.
 
 ## 1. System packages
 
@@ -72,13 +75,13 @@ implementation; do not load another SRT library into the same flowgraph.
 ## 3. The module
 
 ```sh
-tar -xzf gr-robotweax-srt-0.1.0-rc1.tar.gz
-cmake -S gr-robotweax-srt-0.1.0-rc1 -B gr-robotweax-srt-0.1.0-rc1/build -G Ninja \
+tar -xzf gr-robotweax-srt-0.1.0-rc2.tar.gz
+cmake -S gr-robotweax-srt-0.1.0-rc2 -B gr-robotweax-srt-0.1.0-rc2/build -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_PREFIX_PATH="$HOME/rwsrt" \
     -DCMAKE_INSTALL_PREFIX="$HOME/rwsrt"
-cmake --build gr-robotweax-srt-0.1.0-rc1/build
-cmake --install gr-robotweax-srt-0.1.0-rc1/build
+cmake --build gr-robotweax-srt-0.1.0-rc2/build
+cmake --install gr-robotweax-srt-0.1.0-rc2/build
 ```
 
 ## 4. Environment
@@ -123,7 +126,7 @@ This starts a receiver, sends two seconds of a test signal at 100 kS/s to it
 over loopback and prints what each end counted:
 
 ```sh
-cd "$HOME/gr-robotweax-srt-0.1.0-rc1/examples"
+cd "$HOME/gr-robotweax-srt-0.1.0-rc2/examples"
 export RWSRT_PASSPHRASE='replace-this-loopback-test-passphrase'
 python3 headless_receiver.py --port 9000 > "$HOME/receiver.jsonl" &
 sleep 1
@@ -152,8 +155,8 @@ the graphical editor:
 
 ```sh
 cd "$HOME"
-grcc -o "$HOME" "$HOME/gr-robotweax-srt-0.1.0-rc1/examples/live_receiver.grc" \
-    "$HOME/gr-robotweax-srt-0.1.0-rc1/examples/live_sender.grc"
+grcc -o "$HOME" "$HOME/gr-robotweax-srt-0.1.0-rc2/examples/live_receiver.grc" \
+    "$HOME/gr-robotweax-srt-0.1.0-rc2/examples/live_sender.grc"
 python3 "$HOME/live_receiver.py" &
 sleep 1
 python3 "$HOME/live_sender.py"
@@ -175,7 +178,7 @@ The flowgraph test suites run from the build directory and take a few
 minutes. They use loopback UDP ports.
 
 ```sh
-cd "$HOME/gr-robotweax-srt-0.1.0-rc1/build"
+cd "$HOME/gr-robotweax-srt-0.1.0-rc2/build"
 ctest --timeout 300 --output-on-failure
 ```
 
@@ -206,7 +209,8 @@ see [limitations.md](limitations.md).
 | `ImportError: librobotweax-srt.so...: cannot open shared object file` | Same; `LD_LIBRARY_PATH` is missing |
 | `"failure": "configuration"` | Read `failure_detail` next to it. Usual causes: `RWSRT_PASSPHRASE` is unset or not 10 to 79 bytes long; the receiver was started with another sample rate or format than the sender |
 | The sender ends with `"failure": "credentials"` | The two passphrases differ. The receiver shows nothing: it keeps listening and ends with `startup_timeout` |
-| The sender ends with `connection_lost` right after connecting, or sends for its whole duration and ends with `"completed": false` | Look at the receiver's status: it refused the stream, usually for a rate or format mismatch |
+| The sender ends with a failure whose detail starts with `reported by the peer:` | The receiver refused the stream and this is its reason, usually a rate or format mismatch |
+| The sender ends with `connection_lost` right after connecting | Look at the receiver's status: it ended the run and its message did not arrive |
 | The sender ends with `startup_timeout` and the receiver stays in `listening` | Port, address or a firewall between the two |
 
 The last line of each `.jsonl` file is the final status. `session.failure`

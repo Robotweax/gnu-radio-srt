@@ -1,4 +1,4 @@
-# Known limitations of 0.1.0-rc1
+# Known limitations of 0.1.0-rc2
 
 Read this before relying on the module for a measurement.
 
@@ -22,11 +22,13 @@ Field readiness is not claimed.
 
 ## Behaviour to know about
 
-- **Age is not bounded when the network queues instead of dropping.** If a
-  bottleneck carries less than the stream for seconds in front of a deep
-  queue, nothing is lost, so nothing is retransmitted or dropped, and
-  samples arrive seconds old (6.3 s in one emulated case). `latency_ms`
-  bounds delay only while the path keeps up.
+- **By default, age is not bounded when the network queues instead of
+  dropping.** If a bottleneck carries less than the stream for seconds in
+  front of a deep queue, nothing is lost, so nothing is retransmitted or
+  dropped, and samples arrive seconds old (6.3 s in one emulated case).
+  `latency_ms` bounds delay only while the path keeps up. Since 0.1.0-rc2
+  the Source can discard such records (`max_lateness_ms`, off by default);
+  the samples are then missing and reported instead of late.
 - **SRT adds its latency to every sample.** With the default of 250 ms the
   measured age was 254 to 304 ms. On a path with little loss TCP delivered
   with a tenth of that. The benefit over TCP and UDP was shown at 1 % loss
@@ -39,16 +41,16 @@ Field readiness is not claimed.
   loopback with the receiver started first nothing is lost; on a path with
   40 ms delay the first 0.1 s typically is. Use `strict_stop` on the Sink
   if the stream must start at its first sample.
-- **Some causes of failure are visible on one end only.** A Listener does
-  not notice a Caller with a wrong passphrase. A Sink is not told that the
-  Source refused its sample rate or format. Read the status of both ends.
-- **A strict Sink cannot see network loss.** Only the Source can. Run the
-  Source in strict mode too if any loss must end the run.
-- **The end of a stream is a single packet and can be lost.** The Source
-  then cannot tell that the run is over: it waits its reconnect budget
-  (60 s by default) and ends with `termination_unknown`. All samples may
-  have arrived all the same. Seen in 1 of 6 emulated runs at 1 % loss.
-  Lower `reconnect_total_timeout_ms` on the Source if a late end hurts.
+- **A Sink learns about the receiver only if the receiver tells it.**
+  Since 0.1.0-rc2 a Source that ends a run because of what it received
+  (wrong rate or format, a loss in strict mode) says so, and the Sink fails
+  with the same reason. That message can be lost, comes too late for a run
+  shorter than about two latencies, and is neither sent nor read by
+  0.1.0-rc1. A Listener still does not notice a Caller with a wrong
+  passphrase.
+- **A strict Sink cannot see network loss by itself.** Only the Source
+  can. Run the Source in strict mode too if any loss must end the run; it
+  then tells the Sink.
 - **An abrupt end can lose the last latency window** without the Source
   being able to tell how much. It reports `termination_unknown`.
 - **Downstream blocks must honour the tags.** In segmented mode samples
@@ -88,4 +90,5 @@ automatic resampling or clock recovery, interpretation of UHD-style
 | Network measurements and operating envelope | [results-m4.md](results-m4.md) |
 | How they were measured | [benchmarking.md](benchmarking.md) |
 | The blocks, encrypted, across emulated paths | [results-m5.md](results-m5.md) |
+| The lateness bound, repeated END and receiver notice | [results-rc2.md](results-rc2.md) |
 | Every finding and decision | [decisions.md](decisions.md) |

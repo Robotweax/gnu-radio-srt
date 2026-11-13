@@ -81,6 +81,7 @@ There is no command input. Neither block forwards tags as they are.
 | `reconnect_initial_ms`, `reconnect_max_ms` | 250, 4000 | Exponential retry delay with 20 % jitter |
 | `reconnect_total_timeout_ms` | 60000 | Budget after an established connection failed |
 | `stop_timeout_ms` | 1000 | Bound for handing END to SRT at a natural end |
+| `max_lateness_ms` | 0 | Source only. Discard a record that SRT hands over later than this after its scheduled time, and report the gap. 0 keeps everything. See "Bounding the age" |
 | `security` | `ctr` | `ctr` or `none`. Never changed automatically |
 | `passphrase_env` | none | Name of the environment variable holding the passphrase |
 | `status_interval_ms` | 1000 | Period of status messages |
@@ -138,11 +139,18 @@ protection.
 | Flowgraph stopped by the user | No END. `completed` false, `failure` none | Strict: fails with `connection_lost`, `termination_unknown` true. Segmented: waits for a new connection within the reconnect budget |
 | Terminal failure | Finishes at once. `session.failure` says why | Finishes at once. `session.failure` says why |
 | Upstream finished while a segmented Sink had no connection | Waits up to `stop_timeout_ms`, then finishes with `completed` false, `failure` none, `state` `connecting`. Almost everything it consumed has expired; see `tx_queue.dropped_expired_samples` | Nothing arrives |
-| The two ends disagree on sample rate or format | The Source closes the connection. A strict Sink fails with `connection_lost`; a segmented Sink keeps retrying and ends as in the row above. **The Sink is not told the reason** | Fails at once with `configuration`; `failure_detail` names the difference |
+| The two ends disagree on sample rate or format | Fails with `configuration` about two latencies after the start; `failure_detail` is `reported by the peer: ` followed by the Source's reason. It does not retry | Fails at once with `configuration`; `failure_detail` names the difference. It tells the Sink, and keeps the connection open for one latency so that the message arrives |
+| A strict Source saw a loss | Fails with `continuity`, `reported by the peer: ...`, in either mode | Fails with `continuity` |
 
-When a run fails, read `session.failure_detail` on **both** ends. Some
-causes are visible on one end only: a rate or format mismatch on the Source,
-a wrong passphrase on the Caller.
+When a run fails, read `session.failure_detail` on **both** ends.
+
+- The Source tells the Sink when it ends a run because of what it received
+  (`configuration`, `protocol`, `continuity`, or its own queue overflowing).
+  This is one message and best effort: a run shorter than about two
+  latencies can complete on the Sink before the message arrives, and a peer
+  running 0.1.0-rc1 neither sends nor reads it. A Sink without such a
+  message knows nothing about the receiver.
+- A wrong passphrase is visible on the Caller only.
 
 **A finished flowgraph is not a successful run.** GNU Radio has no failure
 channel for a block, so both blocks finish (`WORK_DONE`) on failure as well
@@ -153,8 +161,11 @@ as on completion. Always read `status()` afterwards.
   Sink never learns it and END is not acknowledged.
 - When a Sink ends abruptly (failure or user stop) the connection closes at
   once. Samples it sent within the last latency window may not be delivered.
-- END itself is an ordinary live packet and can be lost. The Source then
-  reports `termination_unknown`, never completion.
+- END is the last packet, and SRT cannot notice the loss of a last packet.
+  The Sink therefore sends it three times, 10 ms apart
+  (`counters.end_repeats_sent`); the Source acts on the first that arrives.
+  If all three are lost the Source reports `termination_unknown`, never
+  completion.
 
 ## Outages and vanished peers
 
@@ -162,19 +173,20 @@ Tested with a fault-injecting relay on loopback, not on a real network.
 
 | Situation | Segmented mode | Strict mode |
 |---|---|---|
-| Outage shorter than `peer_idle_timeout_ms` | The connection survives. Samples that became too late are missing; the Source tags the gap with its exact size | The Source fails with `continuity` at the first gap, the Sink with `connection_lost` when the Source closes |
+| Outage shorter than `peer_idle_timeout_ms` | The connection survives. Samples that became too late are missing; the Source tags the gap with its exact size | The Source fails with `continuity` at the first gap and tells the Sink, which fails with `continuity` too |
 | Outage longer than `peer_idle_timeout_ms` | Both ends reconnect. Run and coordinates continue; the Source tags the boundary `reconnect` with the exact gap | Both ends fail |
 | Peer vanishes without closing | Loss is noticed after the idle timeout. The block retries within `reconnect_total_timeout_ms`, then fails with `reconnect_timeout` | Fails after the idle timeout |
-| END lost | The Source waits for the sender to return until `reconnect_total_timeout_ms` (60 s by default) has passed, then reports `termination_unknown` and fails with `reconnect_timeout`. Seen in 1 of 6 runs of 120 s at 1 % loss | The Source fails with `connection_lost`, `termination_unknown` true |
+| All three END transmissions lost | The Source waits for the sender to return until `reconnect_total_timeout_ms` (60 s by default) has passed, then reports `termination_unknown` and fails with `reconnect_timeout`. With a single END (0.1.0-rc1) this happened in 1 of 6 runs of 120 s at 1 % loss | The Source fails with `connection_lost`, `termination_unknown` true |
 | Final record lost, END arrives | `end` is `incomplete`; the missing tail is counted and published as a status event | The Source fails with `continuity` |
 
 Things to know:
 
-- **Age is not bounded when the network queues instead of dropping.** If a
-  bottleneck in front of a deep queue carries less than the stream for
-  seconds, nothing is lost, so nothing is dropped, and samples arrive
-  seconds old (measured in emulation: up to 6.3 s). `latency_ms` bounds
-  delay only while the path keeps up. See [results-m4.md](results-m4.md).
+- **By default, age is not bounded when the network queues instead of
+  dropping.** If a bottleneck in front of a deep queue carries less than
+  the stream for seconds, nothing is lost, so nothing is dropped, and
+  samples arrive seconds old (measured in emulation: up to 6.3 s).
+  `latency_ms` bounds delay only while the path keeps up. Set
+  `max_lateness_ms` on the Source to bound it; see "Bounding the age".
 - During an outage a segmented Sink keeps consuming and discards records
   older than `queue_max_age_ms`. It does not build a backlog and does not
   replay old samples after the path returns.
@@ -189,6 +201,34 @@ Things to know:
   `stream_id`, is refused during the SRT handshake. The refused Caller
   treats a wrong `stream_id` as a terminal `configuration` failure and a
   busy peer as temporary.
+
+## Bounding the age
+
+SRT schedules every message for delivery one latency after it was sent. A
+message that arrives after that time is handed over at once, however late.
+`max_lateness_ms` on the Source sets how late is still acceptable:
+
+- A DATA record handed over later than that is discarded. The Source never
+  sees its samples; the next record that is on time carries a
+  `rwsrt.discontinuity` tag with the exact number of missing samples, as
+  for any other loss.
+- `counters.late_records_dropped` and `late_samples_dropped` count what was
+  discarded. `counters.max_lateness_seen_ms` is the largest lateness seen,
+  whether or not a bound is set; a value far above a few milliseconds means
+  the path is queueing.
+- Lateness is measured on SRT's clock of the receiving host, against SRT's
+  own schedule. No clock of the sender is involved.
+- With the bound, the age of a delivered sample at the Source's output is
+  at most about `latency_ms` plus `max_lateness_ms` plus the path delay.
+- The bound does not make more samples arrive on time. What was late is
+  missing either way; the bound only keeps stale samples away from
+  downstream processing.
+- In strict mode a discarded record is a loss and ends the run.
+- END is never discarded.
+- The default is 0, off: nothing is discarded for being late. A value of
+  about half the latency is a reasonable start. Too small a value discards
+  records on an ordinary path; lateness on a path that keeps up was about
+  2 ms in emulation.
 
 ## Status
 
@@ -241,7 +281,7 @@ because a record was older than `queue_max_age_ms`.
 
 | Group | Content |
 |---|---|
-| `counters` | Connection attempts and losses, rejected peers, `records_send_accepted`, `samples_send_accepted`, records and bytes received, malformed records, `end_sent` |
+| `counters` | Connection attempts and losses, rejected peers, `records_send_accepted`, `samples_send_accepted`, records and bytes received, malformed records, `late_records_dropped`, `late_samples_dropped`, `max_lateness_seen_ms`, `end_sent`, `end_repeats_sent`, `peer_notices_sent`, `peer_notices_received` |
 | `continuity` | Source: samples accepted, known missing samples, unknown gaps, discontinuities, runs |
 | `effective` | Option values read back from SRT: latencies, payload size, buffers, bandwidth settings, key state |
 | `link` | SRT statistics: RTT, packets, loss, retransmissions, drops |

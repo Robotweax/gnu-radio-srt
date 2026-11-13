@@ -11,7 +11,8 @@ mechanism works and roughly how it behaves. They are not performance claims.
 Evidence: `tools/dev/run.sh tools/dev/gate.sh`, summaries in
 [evidence/m0/](evidence/m0/), [evidence/m1/](evidence/m1/),
 [evidence/m2/](evidence/m2/), [evidence/m3/](evidence/m3/),
-[evidence/m4/](evidence/m4/) and [evidence/m5/](evidence/m5/).
+[evidence/m4/](evidence/m4/), [evidence/m5/](evidence/m5/) and
+[evidence/rc2/](evidence/rc2/).
 
 ## Status of the M0 blocking checks
 
@@ -1066,3 +1067,96 @@ links into the SRT checkout were replaced with URLs at the pinned commit.
 10. Whether 0.1.0 is released with the items above open: owner decision.
 11. No first user: academic project for now (owner, 2026-11-12).
 
+# After 0.1.0-rc1: towards rc2
+
+The owner has no second machine yet (2026-11-13) and asked for the open
+items that need none. Results: [results-rc2.md](results-rc2.md).
+
+## D52. Lateness bound on the Source (closes D44 as an option)
+
+D44 listed three ways to bound age under queueing congestion. Chosen: the
+receiver discards what arrives too late, using SRT's own schedule.
+`srt_recvmsg2` returns each message's scheduled delivery time on the
+receiving host's SRT clock; lateness is the current SRT time minus that.
+No sender clock is involved, so no clock relation is needed.
+
+- `max_lateness_ms` on the Source, default 0 (off). A late DATA record is
+  dropped before the continuity ledger sees it, so the next on-time record
+  reports the gap with its exact size through the existing mechanism. END
+  is never dropped. In strict mode the gap ends the run.
+- Off by default: turning it on changes what a receiver delivers, and one
+  emulated profile is not a basis for a default.
+- Rejected alternatives: discarding by capture time (needs related clocks,
+  and most streams carry no capture time); reacting to the sender's buffer
+  (in N4 the queue was in the network, not in the sender).
+- SRT's drift correction could in principle absorb a long delay as clock
+  drift and hide it. It did not: `max_lateness_seen_ms` read 5.97 to
+  5.99 s where the measured age was 6.26 s (latency 250 ms plus path).
+- Measured under netem against criteria declared beforehand: all met.
+
+## D53. END is transmitted three times (answers D49)
+
+D49 considered a later protocol version. That is not needed. A receiver
+stops reading at the first END, so a byte-identical repeat is invisible to
+every version 1 receiver, 0.1.0-rc1 included; the rule that a record after
+END is a protocol failure is untouched because nothing after END is read.
+`protocol-v1.md` now allows up to three transmissions. Each repeat is a
+later packet that lets SRT notice the loss of the one before, and is
+itself a complete END.
+
+Two repeats, 10 ms apart: with independent loss p the chance that END is
+lost for good falls from about p to about p cubed; the spacing gives some
+protection against a short burst. The other idea of D49, ending the Source
+sooner when the peer closed in an orderly way, was dropped: SRT does not
+tell an orderly close from a loss, and a segmented Source must outlast a
+restarting sender.
+
+## D54. Receiver notice (answers D48)
+
+A Source that ends a session because of what it received sends one
+message back on the same connection: magic `RWSN`, reason, short text. It
+is not a record. Considered and rejected: carrying format and rate in the
+SRT stream id so that the handshake fails (would break interoperation
+with 0.1.0-rc1 and overload a user-visible field).
+
+- The Sink reads from its connection once per wait slice, during the
+  final drain, and once more after a break. A notice is a terminal
+  failure with the peer's reason; a segmented Sink does not retry.
+- The Source holds the connection for one latency plus 150 ms after
+  sending, inside its stop timeout, because SRT releases the message to
+  the sender only after the latency. This hold ignores a stop request:
+  the owner of the worker stops it the moment it sees the failure. A stop
+  right after such a failure can therefore take up to that long, still
+  within `stop_timeout_ms`. D6's 52 ms was measured for a stop with no
+  peer and is not affected.
+- Found on the way: SRT's message API returns an error for a receive
+  buffer smaller than the connection's payload size, whatever the message
+  size.
+- Not solved: a Listener cannot see a Caller with a wrong passphrase.
+
+## D55. Tests and tools added
+
+- Relay: `--drop-end-first N`, `--stall START:DURATION` (hold and release
+  in order: a queue that loses nothing).
+- Native suite: lost first END transmissions are recovered (fails with
+  the repeats disabled); sender is told why the receiver refused; lateness
+  bound on a stalling path. Block suites: the same three at block level.
+- Unit tests and the decoder fuzz target cover the notice format; a
+  message is never both a record and a notice.
+- `tools/run_matrix.py --plan rc2`.
+
+## Open items after rc1 work
+
+1. Two-host experiment with independent clocks, and a clock-offset
+   procedure for it.
+2. Acquisition hardware and an adapter that supplies capture times and
+   overrun reports.
+3. A dedicated host, and the full matrix on x86-64.
+4. An independent person reproducing the examples from the documentation.
+5. A default for `max_lateness_ms`: needs more than one emulated case.
+6. A Listener does not see a Caller with a wrong passphrase.
+7. Repetitions for the secondary cells of M4 (1 MS/s, burst loss).
+8. The strict Sink's sender-drop path (D33) was never triggered.
+9. Tagging 0.1.0-rc2, and whether 0.1.0 is released with the items above
+   open: owner decisions.
+10. No first user: academic project for now (owner, 2026-11-12).

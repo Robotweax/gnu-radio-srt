@@ -120,3 +120,8 @@ delay, which also includes assembly (up to `flush_interval_ms`), time in the
 local queues (up to `queue_max_age_ms` each) and the scheduler. Capture-to-
 output age can only be stated when the capture clock and the receiver's
 clock are related with known uncertainty.
+
+`latency_ms` is not an upper bound either: a record that arrives after its
+scheduled time is handed over at once, however late. `max_lateness_ms` on
+the Source discards such records; see "Bounding the age" in
+[block-reference.md](block-reference.md).

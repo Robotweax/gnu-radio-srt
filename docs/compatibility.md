@@ -1,4 +1,4 @@
-# Compatibility statement for 0.1.0-rc1
+# Compatibility statement for 0.1.0-rc2
 
 ## What this release was built and tested with
 
@@ -26,6 +26,11 @@ network matrix were run on aarch64 only.
 A Sink and a Source of this release interoperate with each other and with
 the reference sender and receiver in `tools/reference_peer/`. Both ends must
 use the same sample format, sample rate, `stream_id` and passphrase.
+
+0.1.0-rc2 interoperates with 0.1.0-rc1 in both directions:
+the records are unchanged. Two additions are simply absent when the other
+end is 0.1.0-rc1: it sends END once instead of three times, and it neither
+sends nor reads the receiver notice.
 
 The transport is standard SRT live mode with AES-CTR. Another SRT
 implementation can therefore carry or terminate the connection, but the

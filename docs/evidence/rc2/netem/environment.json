@@ -1,0 +1,26 @@
+{
+ "plan": "rc2",
+ "seconds": 120,
+ "warmup_s": 10,
+ "parallel": 4,
+ "machine": "aarch64",
+ "kernel": "7.0.14-linuxkit",
+ "cpus": 16,
+ "iproute2": "ip utility, iproute2-6.1.0, libbpf 1.3.0",
+ "note": "container on a shared, virtualised host; not a reference host for timing",
+ "run_order": [
+  "N4/srt/r100000/l250/rep0",
+  "N4/srt/r100000/l250/rep0",
+  "N2/srt/r100000/l250/rep0",
+  "N0/srt/r100000/l250/rep0",
+  "N4/srt/r100000/l250/rep1",
+  "N4/srt/r100000/l250/rep1",
+  "N2/srt/r100000/l250/rep1",
+  "N0/srt/r100000/l250/rep1",
+  "N4/srt/r100000/l250/rep2",
+  "N4/srt/r100000/l250/rep2",
+  "N2/srt/r100000/l250/rep2",
+  "N0/srt/r100000/l250/rep2"
+ ],
+ "robotweax_srt_commit": "e45d0edd346e5c427d85e4c3b1ac605c81a23397"
+}

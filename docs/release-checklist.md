@@ -1,6 +1,6 @@
 # Release checklist for 0.1.0
 
-State of release candidate 0.1.0-rc1 against the plan's definition of done
+State of release candidate 0.1.0-rc2 against the plan's definition of done
 (section 15), and the steps that turn a candidate into a release.
 
 ## Definition of done
@@ -15,7 +15,7 @@ release that could claim field readiness.
 | 2 | Protocol document and golden fixtures match the implementation | Met | `tools/gen_golden_vectors.py --check` and the unit tests run in the gate |
 | 3 | Both blocks install and appear in Companion outside the source tree | Met | Gate `clean_prefix_install_python_companion_cxx`; release check from the source package in a fresh container |
 | 4 | f32/cf32 values, item counts and tag offsets pass deterministic tests | Met | `qa_transfer`, `qa_tags` |
-| 5 | Loss, overload, run changes, reconnects and unknown termination are visible | Met | `qa_robustness`, `run_e2e.py`, [results-m5.md](results-m5.md) |
+| 5 | Loss, overload, run changes, reconnects and unknown termination are visible | Met | `qa_robustness`, `run_e2e.py`, [results-m5.md](results-m5.md), [results-rc2.md](results-rc2.md) |
 | 6 | No silent zero-fill, resampling, timestamp invention or security downgrade | Met | Same tests; wrong or missing passphrase is a terminal failure, never plaintext |
 | 7 | All mandatory lifecycle, sanitizer, memory and integration gates pass | Met | Gate, 11 of 11, on aarch64 and x86-64; 30-minute soak on aarch64 only |
 | 8 | Network experiments retain failed and inconclusive runs | Met | [results-m4.md](results-m4.md), "Runs that failed or were repeated" |
@@ -40,7 +40,9 @@ none of them happens automatically.
 
 State on 2026-11-13: steps 1 to 3 are done for 0.1.0-rc1. Commit `e10c51d`
 is tagged `v0.1.0-rc1` and published as a GitHub pre-release with the
-package from CI run 43381133959. Steps 4 and 5 are open.
+package from CI run 43381133959. 0.1.0-rc2 is prepared in the tree (version,
+documents, package) and not tagged: steps 1 to 3 are open for it. Steps 4
+and 5 are open.
 
 1. Choose the commit. Its CI run must pass all jobs: `gate`, `netem-smoke`,
    `release-check`, `blocks-netem`.
@@ -49,14 +51,14 @@ package from CI run 43381133959. Steps 4 and 5 are open.
    content everywhere: compare `CONTENT_SHA256`. The compressed file can
    differ between machines with different gzip programs, so publish one
    file, the one from CI, with the `SHA256SUMS` built next to it.
-3. To publish the candidate: tag the commit `v0.1.0-rc1` and attach the
+3. To publish the candidate: tag the commit `v0.1.0-rc2` and attach the
    package and `SHA256SUMS`. Pushing a tag starts the ordinary CI run, like
    any push; nothing else reacts to tags, and nothing is signed or published
    automatically.
 4. Give the package and [install.md](install.md) to someone who has not
    seen the project. Record what they could not do. This closes item 10.
 5. For the final release: set `RWSRT_RELEASE_VERSION` in `CMakeLists.txt` to
-   `0.1.0`; replace `0.1.0-rc1` in [install.md](install.md), `CHANGELOG.md`,
+   `0.1.0`; replace `0.1.0-rc2` in [install.md](install.md), `CHANGELOG.md`,
    `MANIFEST.md`, `README.md`, [compatibility.md](compatibility.md) and
    [limitations.md](limitations.md); run the gate and the release check; tag
    `v0.1.0`.

@@ -126,16 +126,61 @@ its first record.
 ## END and finite streams
 
 - Natural upstream completion makes the Sink flush its partial DATA record
-  and send exactly one END after all DATA.
+  and send END after all DATA. There is exactly one END record per run.
 - A user stop is cancellation and sends no END.
-- END is an ordinary Live message. It can be lost, and there is no
-  acknowledgement or retry in version 1.
+- END is an ordinary Live message and there is no acknowledgement. In SRT
+  live mode a lost packet is only noticed, and asked for again, when a
+  later packet arrives; END is the last one. **A sender may therefore
+  transmit the same END message up to three times** (since 0.1.0-rc2: three
+  times, 10 ms apart). The repeats are byte-identical. Each exposes the
+  loss of the one before it, and each is a complete END by itself.
+- A receiver acts on the first END it receives and reads nothing after it.
+  It therefore never sees a repeat, and the rule "any record after END is a
+  protocol failure" is unchanged. A receiver of 0.1.0-rc1 behaves this way
+  already.
+- END can still be lost if every transmission is lost.
 - The Source emits all accepted queued DATA before it reports END.
 - A connection that closes without END is `termination_unknown`.
 - "Receiver-observed complete" means: clean start, no discontinuity, and END
   whose index equals the receiver's expectation. It is a statement about the
   receiver only; the Sink never learns it.
 - An empty run is a single END with segment 0, index 0, sequence 0.
+
+## Receiver notice
+
+Added in 0.1.0-rc2. Optional for both ends, and compatible with peers that
+do not know it.
+
+When a receiver ends the session because of what it received, it may send
+one message back to the sender on the same SRT connection, so that the
+sender learns why instead of only seeing the connection close. A notice is
+not an RWSR record.
+
+| Offset | Size | Field | Value |
+|---|---|---|---|
+| 0 | 4 | magic | ASCII `RWSN` |
+| 4 | 1 | version | 1 |
+| 5 | 1 | reason | 1 configuration (format or rate differs), 2 protocol, 3 continuity (a strict receiver saw a loss), 4 queue overflow at the receiver |
+| 6 | 2 | detail length | big-endian, 0 to 200 |
+| 8 | n | detail | printable ASCII, for people; not to be parsed |
+
+- The message length is exactly 8 plus the detail length. Anything else is
+  not a notice.
+- A sender that understands notices treats one as a terminal failure of the
+  session with the given reason. It does not reconnect.
+- A sender that does not read from its connection (0.1.0-rc1) never sees a
+  notice. A receiver of 0.1.0-rc1 never sends one.
+- After sending a notice the receiver keeps the connection open for one
+  latency plus 150 ms, at most its stop timeout, because SRT releases the
+  message to the sender only after the latency. It reads nothing in that
+  time.
+- The notice is one live message. It can be lost, and a run that ends
+  within about two latencies of its start can complete before it arrives.
+  A sender that received no notice knows nothing about the receiver.
+- The sender never sends anything but records. A receiver that gets a
+  notice treats it like any other malformed record.
+
+Implementation: `lib/peer_notice.*`.
 
 ## Capture time
 

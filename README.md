@@ -5,7 +5,8 @@ impaired IP network using the [Robotweax SRT](https://github.com/Robotweax/srt)
 public C API, with bounded buffering, reported discontinuities and predictable
 shutdown.
 
-**Status: release candidate 0.1.0-rc1.** The module has two blocks,
+**Status: release candidate 0.1.0-rc2, prepared and not yet tagged; 0.1.0-rc1
+is published.** The module has two blocks,
 `srt_sink` and `srt_source`, that carry f32 or cf32 sample streams between
 two GNU Radio flowgraphs, with record, discontinuity and capture-time tags,
 strict and segmented continuity modes, AES-CTR, status reporting, Companion
@@ -30,11 +31,11 @@ project has used it. Field readiness is not claimed.** Read
 - Tags, gaps and time: [docs/continuity-and-time.md](docs/continuity-and-time.md)
 - Examples: [examples/](examples/)
 - Wire protocol: [docs/protocol-v1.md](docs/protocol-v1.md)
-- Measurement protocol and results: [docs/benchmarking.md](docs/benchmarking.md), [docs/results-m4.md](docs/results-m4.md), [docs/results-m5.md](docs/results-m5.md)
+- Measurement protocol and results: [docs/benchmarking.md](docs/benchmarking.md), [docs/results-m4.md](docs/results-m4.md), [docs/results-m5.md](docs/results-m5.md), [docs/results-rc2.md](docs/results-rc2.md)
 - Release status and how to release: [docs/release-checklist.md](docs/release-checklist.md)
 - Findings and decisions, and where they change the plan: [docs/decisions.md](docs/decisions.md)
 - Pinned dependencies: [dependencies.lock.json](dependencies.lock.json)
-- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/), [docs/evidence/m2/](docs/evidence/m2/), [docs/evidence/m3/](docs/evidence/m3/), [docs/evidence/m4/](docs/evidence/m4/), [docs/evidence/m5/](docs/evidence/m5/)
+- Evidence summaries: [docs/evidence/m0/](docs/evidence/m0/), [docs/evidence/m1/](docs/evidence/m1/), [docs/evidence/m2/](docs/evidence/m2/), [docs/evidence/m3/](docs/evidence/m3/), [docs/evidence/m4/](docs/evidence/m4/), [docs/evidence/m5/](docs/evidence/m5/), [docs/evidence/rc2/](docs/evidence/rc2/)
 
 ## Qualified platform
 

@@ -1,0 +1,614 @@
+{
+ "table": [
+  {
+   "profile": "N0",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "srt",
+   "runs": 3,
+   "verdicts": {
+    "pass": 3,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 3
+   },
+   "on_time_fraction": {
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 3
+   },
+   "usable_on_time_fraction": {
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 3
+   },
+   "age_p50_ms": {
+    "median": 253.3930349999864,
+    "min": 253.30165100000158,
+    "max": 253.3955879999994,
+    "n": 3
+   },
+   "age_p95_ms": {
+    "median": 253.9472969999988,
+    "min": 253.89956600000005,
+    "max": 253.95845399999234,
+    "n": 3
+   },
+   "age_p99_ms": {
+    "median": 254.1156570000021,
+    "min": 254.08946299999843,
+    "max": 254.13735400000587,
+    "n": 3
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 4.057,
+    "min": 4.026,
+    "max": 4.43,
+    "n": 3
+   },
+   "cpu_seconds_receiver": {
+    "median": 3.148,
+    "min": 3.123,
+    "max": 3.44,
+    "n": 3
+   }
+  },
+  {
+   "profile": "N2",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "srt",
+   "runs": 3,
+   "verdicts": {
+    "pass": 3,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9999498181818182,
+    "min": 0.9999247272727273,
+    "max": 0.9999749090909091,
+    "n": 3
+   },
+   "on_time_fraction": {
+    "median": 0.9999498181818182,
+    "min": 0.9999247272727273,
+    "max": 0.9999749090909091,
+    "n": 3
+   },
+   "usable_on_time_fraction": {
+    "median": 0.999627595195978,
+    "min": 0.9991620891909505,
+    "max": 0.999813797597989,
+    "n": 3
+   },
+   "age_p50_ms": {
+    "median": 299.9709520000033,
+    "min": 296.1680000000051,
+    "max": 302.06697200000053,
+    "n": 3
+   },
+   "age_p95_ms": {
+    "median": 300.684699999998,
+    "min": 296.9271079999962,
+    "max": 302.8075780000072,
+    "n": 3
+   },
+   "age_p99_ms": {
+    "median": 300.9417270000049,
+    "min": 297.1869349999979,
+    "max": 303.0805529999998,
+    "n": 3
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 3.842,
+    "min": 3.793,
+    "max": 4.222,
+    "n": 3
+   },
+   "cpu_seconds_receiver": {
+    "median": 3.098,
+    "min": 3.093,
+    "max": 3.377,
+    "n": 3
+   }
+  },
+  {
+   "profile": "N4",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "srt",
+   "runs": 6,
+   "verdicts": {
+    "pass": 6,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9243258181818181,
+    "min": 0.8364574545454545,
+    "max": 1.0,
+    "n": 6
+   },
+   "on_time_fraction": {
+    "median": 0.8356733636363636,
+    "min": 0.8355290909090909,
+    "max": 0.8477358181818182,
+    "n": 6
+   },
+   "usable_on_time_fraction": {
+    "median": 0.8355367284237967,
+    "min": 0.8353970766222885,
+    "max": 0.8476864351550135,
+    "n": 6
+   },
+   "age_p50_ms": {
+    "median": 278.61171599999943,
+    "min": 274.1455470000001,
+    "max": 283.29583699999785,
+    "n": 6
+   },
+   "age_p95_ms": {
+    "median": 2376.643048500002,
+    "min": 296.8454059999931,
+    "max": 4456.829275000004,
+    "n": 6
+   },
+   "age_p99_ms": {
+    "median": 3099.9718415000025,
+    "min": 298.6495319999958,
+    "max": 5901.6672770000005,
+    "n": 6
+   },
+   "recovery_s": {
+    "median": 9.117094838,
+    "min": 7.789870046,
+    "max": 9.133411629,
+    "n": 6
+   },
+   "cpu_seconds_sender": {
+    "median": 3.8155,
+    "min": 3.783,
+    "max": 4.208,
+    "n": 6
+   },
+   "cpu_seconds_receiver": {
+    "median": 3.056,
+    "min": 2.872,
+    "max": 3.269,
+    "n": 6
+   }
+  }
+ ],
+ "runs": [
+  {
+   "run": "N0_srt_r100000_l250_rep0_late150",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "max_lateness_ms": 150,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 253.3930349999864,
+     "p95": 253.9472969999988,
+     "p99": 254.1156570000021,
+     "max": 255.75590699999884,
+     "min": 252.6661269999895
+    },
+    "sender_cpu_seconds": 4.057,
+    "receiver_cpu_seconds": 3.148
+   }
+  },
+  {
+   "run": "N0_srt_r100000_l250_rep1_late150",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "max_lateness_ms": 150,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 253.3955879999994,
+     "p95": 253.95845399999234,
+     "p99": 254.13735400000587,
+     "max": 283.37233900000865,
+     "min": 252.64788299999782
+    },
+    "sender_cpu_seconds": 4.026,
+    "receiver_cpu_seconds": 3.123
+   }
+  },
+  {
+   "run": "N0_srt_r100000_l250_rep2_late150",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "max_lateness_ms": 150,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 253.30165100000158,
+     "p95": 253.89956600000005,
+     "p99": 254.08946299999843,
+     "max": 259.78417199999967,
+     "min": 252.5585940000019
+    },
+    "sender_cpu_seconds": 4.43,
+    "receiver_cpu_seconds": 3.44
+   }
+  },
+  {
+   "run": "N2_srt_r100000_l250_rep0_late150",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "max_lateness_ms": 150,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9999247272727273,
+    "on_time_fraction": 0.9999247272727273,
+    "usable_on_time_fraction": 0.9991620891909505,
+    "missing_samples": 828,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 296.1680000000051,
+     "p95": 296.9271079999962,
+     "p99": 297.1869349999979,
+     "max": 304.2181380000111,
+     "min": 294.76247400000284
+    },
+    "sender_cpu_seconds": 3.842,
+    "receiver_cpu_seconds": 3.098
+   }
+  },
+  {
+   "run": "N2_srt_r100000_l250_rep1_late150",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "max_lateness_ms": 150,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9999749090909091,
+    "on_time_fraction": 0.9999749090909091,
+    "usable_on_time_fraction": 0.999813797597989,
+    "missing_samples": 276,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 299.9709520000033,
+     "p95": 300.684699999998,
+     "p99": 300.9417270000049,
+     "max": 304.5762459999969,
+     "min": 298.53416700000525
+    },
+    "sender_cpu_seconds": 3.793,
+    "receiver_cpu_seconds": 3.093
+   }
+  },
+  {
+   "run": "N2_srt_r100000_l250_rep2_late150",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "max_lateness_ms": 150,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9999498181818182,
+    "on_time_fraction": 0.9999498181818182,
+    "usable_on_time_fraction": 0.999627595195978,
+    "missing_samples": 552,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 302.06697200000053,
+     "p95": 302.8075780000072,
+     "p99": 303.0805529999998,
+     "max": 307.8834220000008,
+     "min": 300.57501400000183
+    },
+    "sender_cpu_seconds": 4.222,
+    "receiver_cpu_seconds": 3.377
+   }
+  },
+  {
+   "run": "N4_srt_r100000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N4",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "max_lateness_ms": 0,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 0.8357674545454545,
+    "usable_on_time_fraction": 0.8355832790242994,
+    "missing_samples": 0,
+    "recovery_s": 9.112584338,
+    "age_ms": {
+     "p50": 281.28616899999906,
+     "p95": 4449.872858000002,
+     "p99": 5894.617526000002,
+     "max": 6255.7216929999995,
+     "min": 274.55539300000237
+    },
+    "sender_cpu_seconds": 3.823,
+    "receiver_cpu_seconds": 3.105
+   }
+  },
+  {
+   "run": "N4_srt_r100000_l250_rep0_late150",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N4",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "max_lateness_ms": 150,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.8486516363636364,
+    "on_time_fraction": 0.8477358181818182,
+    "usable_on_time_fraction": 0.8476864351550135,
+    "missing_samples": 1664832,
+    "recovery_s": 7.789870046,
+    "age_ms": {
+     "p50": 274.1455470000001,
+     "p95": 296.8454059999931,
+     "p99": 298.6495319999958,
+     "max": 439.2404860000024,
+     "min": 272.78305199999886
+    },
+    "sender_cpu_seconds": 3.783,
+    "receiver_cpu_seconds": 3.007
+   }
+  },
+  {
+   "run": "N4_srt_r100000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N4",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "max_lateness_ms": 0,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 0.8356294545454546,
+    "usable_on_time_fraction": 0.8354901778232939,
+    "missing_samples": 0,
+    "recovery_s": 9.120428755,
+    "age_ms": {
+     "p50": 282.91554400000314,
+     "p95": 4455.468440999997,
+     "p99": 5901.010067999996,
+     "max": 6262.603068000004,
+     "min": 276.0908500000005
+    },
+    "sender_cpu_seconds": 3.808,
+    "receiver_cpu_seconds": 2.98
+   }
+  },
+  {
+   "run": "N4_srt_r100000_l250_rep1_late150",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N4",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "max_lateness_ms": 150,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.8367083636363636,
+    "on_time_fraction": 0.8357172727272727,
+    "usable_on_time_fraction": 0.8355832790242994,
+    "missing_samples": 1796208,
+    "recovery_s": 9.113760921,
+    "age_ms": {
+     "p50": 275.9372629999998,
+     "p95": 303.41323900000134,
+     "p99": 305.32615700000315,
+     "max": 442.1113190000033,
+     "min": 274.25234700000146
+    },
+    "sender_cpu_seconds": 3.791,
+    "receiver_cpu_seconds": 2.872
+   }
+  },
+  {
+   "run": "N4_srt_r100000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N4",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "max_lateness_ms": 0,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 0.8355792727272727,
+    "usable_on_time_fraction": 0.8354901778232939,
+    "missing_samples": 0,
+    "recovery_s": 9.12806388,
+    "age_ms": {
+     "p50": 283.29583699999785,
+     "p95": 4456.829275000004,
+     "p99": 5901.6672770000005,
+     "max": 6263.519569000004,
+     "min": 276.2531000000017
+    },
+    "sender_cpu_seconds": 4.208,
+    "receiver_cpu_seconds": 3.269
+   }
+  },
+  {
+   "run": "N4_srt_r100000_l250_rep2_late150",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N4",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "max_lateness_ms": 150,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.8364574545454545,
+    "on_time_fraction": 0.8355290909090909,
+    "usable_on_time_fraction": 0.8353970766222885,
+    "missing_samples": 1798968,
+    "recovery_s": 9.133411629,
+    "age_ms": {
+     "p50": 274.576259999998,
+     "p95": 301.9858249999961,
+     "p99": 303.92311699999846,
+     "max": 441.2098199999964,
+     "min": 273.0427570000029
+    },
+    "sender_cpu_seconds": 4.141,
+    "receiver_cpu_seconds": 3.129
+   }
+  }
+ ]
+}
