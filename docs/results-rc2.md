@@ -80,7 +80,15 @@ The Sink now sends the END message three times, 10 ms apart.
   delivered or reported. Three runs at 1 % loss do not show that the
   repeats help; the relay test does that.
 
-Summaries of all runs: [evidence/rc2/](evidence/rc2/).
+Summaries of all runs: [evidence/rc2/](evidence/rc2/). The generated
+`netem/summary.md` puts the N4 runs with and without the bound into one
+row; the table above and the per-run entries of `summary.json` keep them
+apart.
+
+The same build passes all four CI jobs on the hosted x86-64 runner (run
+43401399656 on commit `701fcb1`): gate 11 of 11, netem harness check,
+source package with the install guide in a fresh container, and the blocks
+across N0 to N2.
 
 ## The receiver tells the sender why it ended a run
 
