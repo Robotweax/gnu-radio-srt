@@ -40,9 +40,9 @@ none of them happens automatically.
 
 State on 2026-11-13: steps 1 to 3 are done for 0.1.0-rc1. Commit `e10c51d`
 is tagged `v0.1.0-rc1` and published as a GitHub pre-release with the
-package from CI run 43381133959. 0.1.0-rc2 is prepared in the tree (version,
-documents, package) and not tagged: steps 1 to 3 are open for it. Steps 4
-and 5 are open.
+package from CI run 43381133959. The commit that carries this text is the one tagged
+`v0.1.0-rc2`; attaching its package as a pre-release (the rest of step 3)
+is open. Steps 4 and 5 are open.
 
 1. Choose the commit. Its CI run must pass all jobs: `gate`, `netem-smoke`,
    `release-check`, `blocks-netem`.

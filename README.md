@@ -5,8 +5,8 @@ impaired IP network using the [Robotweax SRT](https://github.com/Robotweax/srt)
 public C API, with bounded buffering, reported discontinuities and predictable
 shutdown.
 
-**Status: release candidate 0.1.0-rc2, prepared and not yet tagged; 0.1.0-rc1
-is published.** The module has two blocks,
+**Status: release candidate 0.1.0-rc2. 0.1.0-rc1 is published as a
+pre-release.** The module has two blocks,
 `srt_sink` and `srt_source`, that carry f32 or cf32 sample streams between
 two GNU Radio flowgraphs, with record, discontinuity and capture-time tags,
 strict and segmented continuity modes, AES-CTR, status reporting, Companion
