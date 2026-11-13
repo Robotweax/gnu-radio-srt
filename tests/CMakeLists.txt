@@ -37,7 +37,8 @@ add_executable(rwsrt_unit_tests
     unit/test_continuity.cc
     unit/test_queue.cc
     unit/test_assembler.cc
-    unit/test_session_state.cc)
+    unit/test_session_state.cc
+    unit/test_peer_notice.cc)
 target_link_libraries(rwsrt_unit_tests PRIVATE rwsrt_core Boost::boost)
 target_compile_definitions(rwsrt_unit_tests PRIVATE
     RWSRT_FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/fixtures/rwsr_v1")

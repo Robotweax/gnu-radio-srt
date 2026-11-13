@@ -12,7 +12,7 @@
 /* BINDTOOL_GEN_AUTOMATIC(0)                                                       */
 /* BINDTOOL_USE_PYGCCXML(0)                                                        */
 /* BINDTOOL_HEADER_FILE(config.h)                                        */
-/* BINDTOOL_HEADER_FILE_HASH(6511bae4e040060a57e3c2a6de62f13c)                     */
+/* BINDTOOL_HEADER_FILE_HASH(0e6bbf1dee75a67278470e54c8f0331e)                     */
 /***********************************************************************************/
 
 #include <pybind11/complex.h>
@@ -59,6 +59,7 @@ void bind_config(py::module& m)
         .def_readwrite("reconnect_total_timeout_ms",
                        &transport_config::reconnect_total_timeout_ms)
         .def_readwrite("stop_timeout_ms", &transport_config::stop_timeout_ms)
+        .def_readwrite("max_lateness_ms", &transport_config::max_lateness_ms)
         .def_readwrite("security", &transport_config::security)
         .def_readwrite("passphrase_env", &transport_config::passphrase_env)
         .def_readwrite("status_interval_ms", &transport_config::status_interval_ms);

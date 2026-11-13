@@ -291,6 +291,73 @@ class qa_robustness(gr_unittest.TestCase):
             evidence("lost_final_record", policy=policy, missing=missing,
                      packets_dropped=counters["dropped_sample"])
 
+    # ------------------------------------------- late delivery, peer notice
+
+    def test_lateness_bound_discards_what_a_stalling_path_delivers_late(self):
+        """A path that holds packets and then delivers them all loses
+        nothing, so SRT hands over samples that are far too old. With
+        max_lateness_ms the Source discards them and tags the gap."""
+        n = 4 * RATE
+        data = test_signal("cf32", n)
+        results = {}
+        for bound in (0, 100):
+            proxy, ts, ss, tr, sr = proxied_configs("--stall", "1.0:0.8", key=None, policy=SEG,
+                                                    transport=dict(max_lateness_ms=bound))
+            rx, tx = Receiver(tr, sr, "cf32"), Sender(ts, ss, "cf32", data)
+            start_pair(rx, tx)
+            self.assertIsNotNone(wait_done(tx.tb, 30))
+            self.assertIsNotNone(wait_done(rx.tb, 30))
+            counters = proxy.close()
+            self.assertGreater(counters["stalled"], 100)
+            r = self.accounted(tx, rx, n)
+            c = r["session"]["counters"]
+            self.assertEqual(r["config"]["max_lateness_ms"], bound)
+            self.assertGreater(c["max_lateness_seen_ms"], 300.0)
+            self.assertEqual(r["session"]["failure"], "none")
+            if bound == 0:
+                self.assertEqual(c["late_samples_dropped"], 0)
+                self.assertEqual(rx.data(), data)  # everything, some of it very late
+            else:
+                dropped = c["late_samples_dropped"]
+                self.assertGreater(dropped, 0.3 * RATE)
+                self.assertLess(dropped, 0.9 * RATE)
+                self.assertEqual(r["reported_missing_samples"], dropped)
+                gaps = [t for t in rx.tags("rwsrt.discontinuity") if t[1].get("missing_known")]
+                self.assertEqual(len(gaps), 1)  # one contiguous stretch was late
+                self.assertEqual(gaps[0][1]["missing_samples"], dropped)
+                got = rx.data()
+                at = gaps[0][0]
+                self.assertEqual(got[:at], data[:at])
+                self.assertEqual(got[at:], data[at + dropped:])  # nothing invented, nothing shifted
+            results["bound_%d" % bound] = dict(late_samples_dropped=c["late_samples_dropped"],
+                                               max_lateness_seen_ms=c["max_lateness_seen_ms"])
+        evidence("lateness_bound", **results)
+
+    def test_sink_is_told_when_a_strict_source_ends_the_run(self):
+        """A strict Source that sees a loss ends the run. The Sink used to
+        see only a closed connection; now the Source says why."""
+        n = 4 * RATE
+        data = test_signal("cf32", n)
+        for sink_policy in (STRICT, SEG):
+            proxy, ts, ss, tr, sr = proxied_configs("--drop-sample", RATE // 2, key=None,
+                                                    sink_policy=sink_policy, source_policy=STRICT,
+                                                    transport=FAST)
+            rx, tx = Receiver(tr, sr, "cf32"), Sender(ts, ss, "cf32", data)
+            start_pair(rx, tx)
+            self.assertIsNotNone(wait_done(rx.tb, 30))
+            self.assertIsNotNone(wait_done(tx.tb, 30))
+            proxy.close()
+            s, r = tx.status(), rx.status()
+            self.assertEqual(r["session"]["failure"], "continuity")
+            self.assertEqual(r["session"]["counters"]["peer_notices_sent"], 1)
+            self.assertEqual(s["session"]["failure"], "continuity")
+            self.assertTrue(s["session"]["failure_detail"].startswith("reported by the peer: "),
+                            s["session"]["failure_detail"])
+            self.assertEqual(s["session"]["counters"]["peer_notices_received"], 1)
+            self.assertFalse(s["session"]["completed"])
+            self.assertEqual(s["session"]["counters"]["end_sent"], 0)
+            self.assertLess(s["input_samples_consumed"], n)  # it stopped; it did not send on
+
     # ---------------------------------------------------------- peer vanishes
 
     def test_vanished_peer_is_detected_within_the_idle_timeout(self):

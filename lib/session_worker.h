@@ -54,7 +54,13 @@ struct session_counters {
     std::uint64_t records_received = 0;
     std::uint64_t bytes_received = 0;
     std::uint64_t malformed_records = 0;
+    std::uint64_t late_records_dropped = 0; //!< receiver: later than max_lateness
+    std::uint64_t late_samples_dropped = 0;
+    std::int64_t max_lateness_us = 0;       //!< receiver: largest lateness seen on this connection set
     std::uint64_t end_sent = 0;
+    std::uint64_t end_repeats_sent = 0;
+    std::uint64_t peer_notices_sent = 0;     //!< receiver: told the sender why it ended
+    std::uint64_t peer_notices_received = 0; //!< sender //!< extra transmissions of the END message
     std::uint64_t max_wait_slice_us = 0;
 };
 
@@ -124,6 +130,9 @@ private:
     bool establish(srt_endpoint& ep, retry_schedule& retry, bool reconnecting);
     void serve_send(srt_endpoint& ep);
     void serve_receive(srt_endpoint& ep, continuity_ledger& ledger);
+    void repeat_end(srt_endpoint& ep, const queue_entry& end);
+    void notify_peer(srt_endpoint& ep);
+    bool read_peer_notice(srt_endpoint& ep);
     void drain_send(srt_endpoint& ep);
     bool cancelled() const noexcept { return d_cancel.load(std::memory_order_relaxed); }
     bool apply_external_failure();

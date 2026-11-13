@@ -72,6 +72,7 @@ rwsrt::transport_config to_internal(const transport_config& t)
     out.retry.maximum = std::chrono::milliseconds(t.reconnect_max_ms);
     out.retry.total_budget = std::chrono::milliseconds(t.reconnect_total_timeout_ms);
     out.stop_timeout = std::chrono::milliseconds(t.stop_timeout_ms);
+    out.max_lateness = std::chrono::milliseconds(t.max_lateness_ms);
     if (t.status_interval_ms < 10)
         throw std::invalid_argument("transport configuration: status_interval_ms must be at least 10");
     if (t.security == security_mode::ctr) {
@@ -119,6 +120,7 @@ rwsrt::status_doc describe(const transport_config& t, const stream_config& s)
         .set_str("stream_id", t.stream_id)
         .set_int("latency_ms", t.latency_ms)
         .set_int("peer_idle_timeout_ms", t.peer_idle_timeout_ms)
+        .set_int("max_lateness_ms", t.max_lateness_ms)
         .set_str("security_mode", t.security == security_mode::ctr ? "ctr" : "none")
         .set_str("sample_format", s.format == sample_format::f32 ? "f32" : "cf32")
         .set_uint("sample_rate_num", s.sample_rate_num)

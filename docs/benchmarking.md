@@ -201,3 +201,43 @@ corrected afterwards, and one follow-up plan was run:
 
 Follow-up plan (`--plan followup`), one run each: N3 over TCP again, N4b
 over all three transports, and N2 over UDP to check the corrected CPU use.
+
+### After 0.1.0-rc1: plan `rc2` (written 2026-11-13, before its runs)
+
+The Source gained an optional bound, `max_lateness_ms`: a record that SRT
+hands over later than that after its scheduled delivery time is discarded
+and reported as a gap. It answers the limitation that N4 exposed. The
+software also now sends END three times and lets a receiver tell the
+sender why it ended a run; neither changes what this protocol measures.
+No existing definition, gate, profile or plan was changed.
+
+Plan `rc2`, SRT only (the baselines have no such bound), cf32 at 100 kS/s,
+latency 250 ms, 120 s per run with 10 s warm-up, three repetitions:
+
+| Cell | Purpose |
+|---|---|
+| N4, no bound | Reference: repeats the M4 observation with this build |
+| N4, bound 150 ms | Does the bound limit the age of what is delivered |
+| N2, bound 150 ms | Cost of the bound on a lossy path that keeps up |
+| N0, bound 150 ms | Cost of the bound on a clean path |
+
+Criteria, fixed before the runs. They are evaluated from `metrics.json`
+and the receiver's final status; the existing gates still apply to every
+run as before.
+
+1. **N4 with the bound:** the oldest delivered sample in the measurement
+   window is at most 525 ms old (latency 250 + bound 150 + path delay and
+   jitter 25 + 100 margin for scheduling on the shared host).
+2. **N4 with the bound:** every sample is delivered or reported: missing
+   samples equal the samples discarded as late plus those SRT itself did
+   not deliver, and no break of unknown size occurs.
+3. **N0 with the bound:** no record is discarded as late.
+4. **N2 with the bound:** at most 0.01 % of the samples are discarded as
+   late.
+5. **N4 without the bound** is expected to show ages of seconds again. If
+   it does not, the comparison says nothing and that is reported.
+
+What a pass would and would not mean: the bound limits age in this
+emulated case of a deep queue. It does not make more samples arrive on
+time; what was late is lost either way. It says nothing about a real
+network.

@@ -7,6 +7,8 @@
 
 #include "session_worker.h"
 
+#include "peer_notice.h"
+
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
@@ -18,6 +20,9 @@ namespace {
 
 constexpr int wait_slice_ms = 20;          // plan section 9; see decisions D6
 constexpr auto stats_interval = std::chrono::milliseconds(200);
+constexpr int end_repeats = 2;             // extra transmissions of END; see repeat_end()
+constexpr auto end_repeat_spacing = std::chrono::milliseconds(10);
+constexpr auto notice_margin = std::chrono::milliseconds(150);
 constexpr int receive_batch = 64;          // messages per slice before re-checking cancel
 
 } // namespace
@@ -67,7 +72,13 @@ status_doc describe(const session_snapshot& s)
         .set_uint("records_received", c.records_received)
         .set_uint("bytes_received", c.bytes_received)
         .set_uint("malformed_records", c.malformed_records)
+        .set_uint("late_records_dropped", c.late_records_dropped)
+        .set_uint("late_samples_dropped", c.late_samples_dropped)
+        .set_num("max_lateness_seen_ms", static_cast<double>(c.max_lateness_us) / 1000.0)
         .set_uint("end_sent", c.end_sent)
+        .set_uint("end_repeats_sent", c.end_repeats_sent)
+        .set_uint("peer_notices_sent", c.peer_notices_sent)
+        .set_uint("peer_notices_received", c.peer_notices_received)
         .set_num("max_wait_slice_ms", static_cast<double>(c.max_wait_slice_us) / 1000.0);
     d.child("continuity")
         .set_uint("records_accepted", s.continuity.records_accepted)
@@ -379,6 +390,11 @@ void session_worker::drain_send(srt_endpoint& ep)
                                           std::chrono::milliseconds(50));
     bool acknowledged = false;
     while (!cancelled() && clock::now() < limit) {
+        // The receiver may have refused the stream while the last records
+        // were on their way: then the run did not complete.
+        const unsigned w = ep.wait(0, true, false);
+        if ((w & wait_readable) && read_peer_notice(ep))
+            return;
         const int pending = ep.unacknowledged_packets();
         if (pending == 0) {
             acknowledged = true;
@@ -394,6 +410,26 @@ void session_worker::drain_send(srt_endpoint& ep)
     publish(&ep);
 }
 
+// END is the last packet of the connection. In SRT live mode a lost packet
+// is noticed only when a later one arrives, so a lost END would never be
+// asked for again. The same message is therefore sent again: each
+// transmission exposes the loss of the one before it, and each is a complete
+// END by itself. A receiver acts on the first END it gets and reads nothing
+// after it, so the repeats are never seen by the application.
+void session_worker::repeat_end(srt_endpoint& ep, const queue_entry& end)
+{
+    for (int i = 0; i < end_repeats; ++i) {
+        pause(end_repeat_spacing);
+        if (cancelled())
+            return;
+        // Best effort: a full buffer or a broken connection ends the repeats.
+        if (ep.send(end.message.data(), end.message.size()) != io_result::ok)
+            return;
+        std::lock_guard<std::mutex> guard(d_mutex);
+        ++d_status.counters.end_repeats_sent;
+    }
+}
+
 void session_worker::serve_send(srt_endpoint& ep)
 {
     queue_entry pending;
@@ -405,6 +441,7 @@ void session_worker::serve_send(srt_endpoint& ep)
     }
     auto last_stats = clock::now();
     auto last_break_check = clock::now();
+    bool refused = false; // the receiver ended the session and said why
     for (;;) {
         if (cancelled() || apply_external_failure())
             return;
@@ -421,7 +458,12 @@ void session_worker::serve_send(srt_endpoint& ep)
         // explicit check runs at most once per slice interval.
         if (!have_pending || clock::now() - last_break_check >= std::chrono::milliseconds(wait_slice_ms)) {
             last_break_check = clock::now();
-            if (ep.wait(0, false, false) & wait_broken)
+            const unsigned w = ep.wait(0, true, false);
+            if ((w & wait_readable) && read_peer_notice(ep)) {
+                refused = true;
+                break;
+            }
+            if (w & wait_broken)
                 break;
         }
         if (have_pending) {
@@ -441,6 +483,7 @@ void session_worker::serve_send(srt_endpoint& ep)
                 }
                 have_pending = false;
                 if (is_end) {
+                    repeat_end(ep, pending);
                     drain_send(ep);
                     return;
                 }
@@ -482,12 +525,22 @@ void session_worker::serve_send(srt_endpoint& ep)
     // Connection lost. A record taken out of the queue but not accepted by
     // SRT is not silently lost: it is accounted here. It is not re-queued,
     // because after an outage it would no longer be current.
+    // A notice may still be buffered if the break was noticed first.
+    if (!refused)
+        refused = read_peer_notice(ep);
     std::lock_guard<std::mutex> guard(d_mutex);
     if (have_pending && pending.header.kind == record_kind::data) {
         ++d_status.counters.stale_records_dropped;
         d_status.counters.stale_samples_dropped += pending.header.sample_count;
     } else if (have_pending) {
         d_held_end = std::move(pending);
+    }
+    if (refused) {
+        // The receiver ended the session and said why: terminal, no retry.
+        ++d_status.counters.connection_losses;
+        d_status.link = ep.stats();
+        publish(&ep);
+        return;
     }
     ++d_status.counters.connection_losses;
     d_status.link = ep.stats();
@@ -497,14 +550,83 @@ void session_worker::serve_send(srt_endpoint& ep)
     publish(&ep);
 }
 
+// Receiver, after a terminal failure caused by what it received: tell the
+// sender why, on the same connection, before closing. Without this the
+// sender sees only a closed connection (strict) or retries until its budget
+// ends (segmented). Best effort and bounded: the notice is one live message
+// like any other and may be lost.
+void session_worker::notify_peer(srt_endpoint& ep)
+{
+    peer_notice notice;
+    {
+        std::lock_guard<std::mutex> guard(d_mutex);
+        if (!notice_for(d_fsm.failure(), d_status.failure_detail, notice))
+            return;
+    }
+    const std::vector<std::uint8_t> message = encode(notice);
+    if (ep.send(message.data(), message.size()) != io_result::ok)
+        return;
+    {
+        std::lock_guard<std::mutex> guard(d_mutex);
+        ++d_status.counters.peer_notices_sent;
+    }
+    // SRT hands the notice to the sender's application one latency after
+    // it was sent, and closing now would discard it (linger is off). So the
+    // connection stays open for that long, bounded by the stop timeout.
+    // Nothing is read meanwhile. A sender that got the notice closes, which
+    // ends the wait early. A stop request does not: the owner of this worker
+    // stops it as soon as it sees the failure, which is exactly now. The
+    // hold is short and stays inside the stop timeout.
+    const auto hold = std::min<std::chrono::milliseconds>(
+        std::chrono::milliseconds(d_transport.latency_ms) + notice_margin,
+        std::max<std::chrono::milliseconds>(d_transport.stop_timeout - notice_margin,
+                                            std::chrono::milliseconds(50)));
+    const auto limit = clock::now() + hold;
+    while (clock::now() < limit) {
+        if (ep.wait(wait_slice_ms, false, false) & wait_broken)
+            break;
+    }
+}
+
+// Sender: reads what the receiver sent back, without waiting. The only
+// thing a receiver ever sends is a notice that it ended the session and
+// why. True if the session failed because of one.
+bool session_worker::read_peer_notice(srt_endpoint& ep)
+{
+    // SRT's message API refuses a buffer smaller than the payload size of
+    // the connection, whatever the size of the message.
+    std::vector<std::uint8_t> buffer(std::max<std::size_t>(d_stream.record_limit_bytes, 1500));
+    for (int i = 0; i < 4; ++i) {
+        std::size_t size = 0;
+        if (ep.receive(buffer.data(), buffer.size(), size) != io_result::ok)
+            return false;
+        peer_notice notice;
+        if (!decode(std::span<const std::uint8_t>(buffer.data(), size), notice))
+            continue; // not a notice; a sender expects nothing else
+        {
+            std::lock_guard<std::mutex> guard(d_mutex);
+            ++d_status.counters.peer_notices_received;
+        }
+        fatal(to_session_failure(notice.reason), "reported by the peer: " + notice.detail);
+        return true;
+    }
+    return false;
+}
+
 void session_worker::serve_receive(srt_endpoint& ep, continuity_ledger& ledger)
 {
     std::vector<std::uint8_t> buffer(std::max<std::size_t>(d_stream.record_limit_bytes, 1500));
     auto last_stats = clock::now();
+    const std::int64_t max_lateness_us =
+        std::chrono::duration_cast<std::chrono::microseconds>(d_transport.max_lateness).count();
     bool end_pushed = false;
     for (;;) {
-        if (cancelled() || apply_external_failure())
+        if (cancelled())
             return;
+        if (apply_external_failure()) {
+            notify_peer(ep); // e.g. the block itself found a continuity loss
+            return;
+        }
         if (end_pushed) {
             // The stream ended. Nothing more is read; the session completes
             // when the consumer has taken END out of the queue.
@@ -525,7 +647,8 @@ void session_worker::serve_receive(srt_endpoint& ep, continuity_ledger& ledger)
         // Buffered messages are read before a break is acted on.
         for (int i = 0; i < receive_batch; ++i) {
             std::size_t size = 0;
-            const io_result r = ep.receive(buffer.data(), buffer.size(), size);
+            std::int64_t late_us = 0;
+            const io_result r = ep.receive(buffer.data(), buffer.size(), size, &late_us);
             if (r == io_result::would_block)
                 break;
             if (r == io_result::lost) {
@@ -546,7 +669,25 @@ void session_worker::serve_receive(srt_endpoint& ep, continuity_ledger& ledger)
                 }
                 fatal(session_failure::protocol,
                       std::string("malformed record: ") + to_string(we));
+                notify_peer(ep);
                 return;
+            }
+            // A path that queues instead of dropping delivers everything,
+            // seconds late. With a bound configured, such a record is
+            // treated as lost: the ledger never sees it, so the next record
+            // that is on time reports the gap with its exact size. END is
+            // never discarded.
+            {
+                std::lock_guard<std::mutex> guard(d_mutex);
+                d_status.counters.max_lateness_us =
+                    std::max(d_status.counters.max_lateness_us, late_us);
+            }
+            if (max_lateness_us > 0 && late_us > max_lateness_us &&
+                rec.header.kind == record_kind::data) {
+                std::lock_guard<std::mutex> guard(d_mutex);
+                ++d_status.counters.late_records_dropped;
+                d_status.counters.late_samples_dropped += rec.header.sample_count;
+                continue;
             }
             const ledger_result lr = ledger.on_record(rec.header);
             {
@@ -563,6 +704,7 @@ void session_worker::serve_receive(srt_endpoint& ep, continuity_ledger& ledger)
                               ? session_failure::protocol
                               : session_failure::continuity;
                 fatal(f, lr.detail);
+                notify_peer(ep);
                 return;
             }
             queue_entry e;
@@ -572,11 +714,13 @@ void session_worker::serve_receive(srt_endpoint& ep, continuity_ledger& ledger)
             const push_status ps = d_queue.push(std::move(e), clock::now());
             if (ps == push_status::overflow || ps == push_status::too_large) {
                 fatal(session_failure::queue_overflow, "receive queue full");
+                notify_peer(ep);
                 return;
             }
             if (ps == push_status::after_end) {
                 // A new run arrived while the previous END is still unread.
                 fatal(session_failure::protocol, "record received after an unconsumed END");
+                notify_peer(ep);
                 return;
             }
             if (lr.is_end) {

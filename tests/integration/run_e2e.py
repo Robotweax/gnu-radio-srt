@@ -304,6 +304,34 @@ def rate_mismatch_is_a_terminal_configuration_error(suite):
     return summary(tx, rx)
 
 
+def sender_is_told_why_the_receiver_refused(suite):
+    """Without the receiver notice a refused sender saw only a closed
+    connection (strict) or retried until its budget ended (segmented)."""
+    out = None
+    for policy, extra in (("strict", {}), ("segmented", {})):  # segmented: reconnect allowed
+        for mismatch in (dict(rate="48000"), dict(format="f32")):
+            port = free_udp_port()
+            rx = suite.receiver(None, role="listener", port=port, timeout_ms=20000, **mismatch)
+            time.sleep(0.2)
+            started = time.monotonic()
+            tx = suite.sender(None, role="caller", port=port, samples=2000000, policy=policy, **extra)
+            tx.finish()
+            took = time.monotonic() - started
+            rx.finish()
+            s = tx.json["session"]
+            what = "%s, %s" % (policy, mismatch)
+            check(rx.json["session"]["failure"] == "configuration", what + ": receiver " + rx.json["session"]["failure"])
+            check(rx.json["session"]["counters"]["peer_notices_sent"] == 1, what + ": no notice sent")
+            check(s["failure"] == "configuration", what + ": sender failure " + s["failure"])
+            check(s["failure_detail"].startswith("reported by the peer: ") and
+                  "differs from configuration" in s["failure_detail"], what + ": detail " + s["failure_detail"])
+            check(s["counters"]["peer_notices_received"] == 1, what + ": notice not counted")
+            check(not s["completed"] and s["counters"]["end_sent"] == 0, what + ": sender completed")
+            check(took < 5.0, what + ": sender took %.1fs to give up" % took)
+            out = summary(tx, rx)
+    return out
+
+
 def format_mismatch_is_a_terminal_configuration_error(suite):
     port = free_udp_port()
     rx = suite.receiver(None, role="listener", port=port, format="f32", timeout_ms=20000)
@@ -583,6 +611,71 @@ def strict_sender_fails_when_receiver_is_killed(suite):
     return out
 
 
+def lateness_bound_discards_what_a_queueing_path_delivers_late(suite):
+    """A path that holds packets and then delivers all of them loses nothing,
+    so SRT drops nothing and hands over samples that are far too old. With
+    max_lateness the receiver discards those and reports the gap."""
+    n, rate = 800000, 200000  # 4 s
+    out = {}
+    for bound in (0, 100):
+        port = free_udp_port()
+        proxy = FaultProxy(port, "--stall", "1.0:0.8")
+        extra = {"max_lateness_ms": bound} if bound else {}
+        rx = suite.receiver(None, role="listener", port=port, rate=str(rate), policy="segmented",
+                            timeout_ms=40000, **extra)
+        time.sleep(0.2)
+        tx = suite.sender(None, role="caller", port=proxy.port, rate=str(rate), samples=n, policy="segmented")
+        tx.finish()
+        rx.finish()
+        counters = proxy.close()
+        r, c = rx.json, rx.json["session"]["counters"]
+        check(counters["stalled"] > 100, "nothing was stalled: %d" % counters["stalled"])
+        check(tx.json["session"]["counters"]["samples_send_accepted"] == n, "sender did not send everything")
+        check(r["samples_altered"] == 0, "samples altered")
+        check(c["max_lateness_seen_ms"] > 300, "lateness seen: %.0f ms" % c["max_lateness_seen_ms"])
+        if bound == 0:
+            # Unbounded: everything arrives, some of it very late.
+            check(c["late_samples_dropped"] == 0, "dropped without a bound")
+            check(r["samples_received"] == n and r["missing_known_samples"] == 0,
+                  "received %d, missing %d" % (r["samples_received"], r["missing_known_samples"]))
+        else:
+            # Bounded: late records are discarded, counted, and reported as
+            # one gap of exactly that size; nothing else is lost.
+            dropped = c["late_samples_dropped"]
+            check(0.3 * rate < dropped < 0.9 * rate, "late samples dropped: %d" % dropped)
+            check(r["missing_known_samples"] == dropped, "missing %d, dropped %d" % (
+                r["missing_known_samples"], dropped))
+            check(r["samples_received"] + dropped == n, "received %d + dropped %d != %d" % (
+                r["samples_received"], dropped, n))
+            check(r["session"]["failure"] == "none" and r["end_seen"], "receiver failed or saw no END")
+        out = summary(tx, rx)
+    return out
+
+
+def lost_first_end_transmission_is_recovered(suite):
+    """END is the last packet; SRT live mode cannot notice that it is lost.
+    The sender transmits it three times, so losing one or two is harmless."""
+    results = []
+    for lose in (1, 2):
+        port = free_udp_port()
+        proxy = FaultProxy(port, "--drop-end-first", str(lose))
+        rx = suite.receiver(None, role="listener", port=port, rate="200000", timeout_ms=40000, **FAST)
+        time.sleep(0.2)
+        tx = suite.sender(None, role="caller", port=proxy.port, rate="200000", samples=100000, **FAST)
+        tx.finish()
+        rx.finish()
+        counters = proxy.close()
+        r = rx.json
+        check(counters["dropped_end"] == lose, "END packets dropped: %d" % counters["dropped_end"])
+        check(r["samples_received"] == 100000 and r["samples_altered"] == 0, "data incomplete")
+        check(r["end_seen"] and r["session"]["end"] == "complete", "END not observed: %s" % r["session"]["end"])
+        check(not r["session"]["termination_unknown"] and rx.code == 0, "receiver did not complete")
+        check(tx.json["session"]["counters"]["end_sent"] == 1, "END not counted exactly once")
+        check(tx.json["session"]["counters"]["end_repeats_sent"] == 2, "END not repeated twice")
+        results.append(summary(tx, rx))
+    return results[-1]
+
+
 def lost_end_is_not_completion(suite):
     port = free_udp_port()
     proxy = FaultProxy(port, "--drop-end")
@@ -655,6 +748,7 @@ CASES = [
     no_peer_listener_fails_at_startup_deadline,
     rate_mismatch_is_a_terminal_configuration_error,
     format_mismatch_is_a_terminal_configuration_error,
+    sender_is_told_why_the_receiver_refused,
     stream_id_mismatch_is_rejected,
     mid_run_join_segmented_and_strict,
     cancellation_is_not_completion,
@@ -665,6 +759,8 @@ CASES = [
     outage_reconnects_within_one_run,
     receiver_killed_then_replaced,
     strict_sender_fails_when_receiver_is_killed,
+    lateness_bound_discards_what_a_queueing_path_delivers_late,
+    lost_first_end_transmission_is_recovered,
     lost_end_is_not_completion,
     baseline_transports_carry_the_same_records,
     baseline_receivers_fail_without_a_peer,

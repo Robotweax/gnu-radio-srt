@@ -137,15 +137,19 @@ class qa_lifecycle(gr_unittest.TestCase):
         self.assertEqual(tx.status()["session"]["failure"], "credentials")
         self.assertEqual(rx.data(), [])
 
-    def test_format_and_rate_mismatch_are_terminal_on_the_source(self):
-        for stream in (dict(sample_rate_num=48000), None):
+    def test_format_and_rate_mismatch_are_terminal_on_both_ends(self):
+        for stream, sink_policy, reconnect in ((dict(sample_rate_num=48000), SEG, False),
+                                               (None, SEG, True), (None, STRICT, False)):
             port = free_udp_port()
             fmt_rx = "cf32" if stream else "f32"
-            ts, ss, _, _ = configs(port, fmt="cf32", key=None, policy=SEG,
-                                   transport=dict(reconnect=False))
+            ts, ss, _, _ = configs(port, fmt="cf32", key=None, policy=sink_policy,
+                                   transport=dict(reconnect=reconnect))
             _, _, tr, sr = configs(port, fmt=fmt_rx, key=None, source_stream=stream)
             rx = Receiver(tr, sr, fmt_rx)
-            tx = Sender(ts, ss, "cf32", test_signal("cf32", 100000))
+            # Two seconds of signal: the notice reaches the Sink about two
+            # latencies after the first record left, and a run that is over
+            # by then has already completed.
+            tx = Sender(ts, ss, "cf32", test_signal("cf32", 2 * RATE))
             rx.tb.start()
             time.sleep(0.2)
             tx.tb.start()
@@ -155,6 +159,12 @@ class qa_lifecycle(gr_unittest.TestCase):
             self.assertEqual(rx.data(), [])  # never reinterpreted
             self.assertIn("differs from configuration", r["session"]["failure_detail"])
             self.assertIsNotNone(wait_done(tx.tb, 15))
+            # The Source told the Sink why. Without that a strict Sink saw
+            # "connection_lost" and a reconnecting one retried to its budget.
+            s = tx.status()
+            self.assertEqual(s["session"]["failure"], "configuration")
+            self.assertEqual(s["session"]["failure_detail"],
+                             "reported by the peer: " + r["session"]["failure_detail"])
 
     def test_restart_creates_a_new_run(self):
         port = free_udp_port()

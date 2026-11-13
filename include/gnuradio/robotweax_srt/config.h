@@ -43,6 +43,7 @@ struct ROBOTWEAX_SRT_API transport_config {
     int reconnect_max_ms = 4000;            //!< delay cap, with +-20 % jitter
     int reconnect_total_timeout_ms = 60000; //!< budget after a connection failed
     int stop_timeout_ms = 1000;
+    int max_lateness_ms = 0;                //!< Source: discard records delivered later than this after their scheduled time; 0 keeps everything
     security_mode security = security_mode::ctr; //!< never downgraded automatically
     std::string passphrase_env;             //!< NAME of the environment variable, not the secret
     int status_interval_ms = 1000;

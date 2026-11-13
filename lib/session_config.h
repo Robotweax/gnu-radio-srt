@@ -49,6 +49,9 @@ struct transport_config {
     bool reconnect = true;                    //!< effective in segmented mode only
     retry_config retry;
     std::chrono::milliseconds stop_timeout{ 1000 };
+    //! Receiver: a DATA record that SRT delivers later than this after its
+    //! scheduled delivery time is discarded and reported as a gap. Zero: off.
+    std::chrono::milliseconds max_lateness{ 0 };
     security_mode security = security_mode::ctr;
     std::string passphrase;                   //!< resolved by the caller; never logged
     int key_length = 16;                      //!< AES key bytes: 16, 24 or 32

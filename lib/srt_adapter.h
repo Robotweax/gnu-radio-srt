@@ -94,7 +94,12 @@ public:
 
     io_result send(const std::uint8_t* data, std::size_t size);
     //! One whole message into \p buffer (capacity must cover the record limit).
-    io_result receive(std::uint8_t* buffer, std::size_t capacity, std::size_t& size);
+    //! \p late_us, if given: how long after its scheduled delivery time SRT
+    //! handed the message over, in microseconds; zero or negative when on
+    //! time. Both times are on SRT's own clock on this host, so no clock of
+    //! the sender is involved.
+    io_result receive(std::uint8_t* buffer, std::size_t capacity, std::size_t& size,
+                      std::int64_t* late_us = nullptr);
     //! Packets handed to SRT that the peer has not acknowledged; -1 unknown.
     int unacknowledged_packets();
 

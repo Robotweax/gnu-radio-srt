@@ -62,6 +62,8 @@ std::string validate(const transport_config& t)
         return "startup_timeout_ms must be positive";
     if (t.stop_timeout.count() < 100)
         return "stop_timeout_ms must be at least 100";
+    if (t.max_lateness.count() < 0 || t.max_lateness.count() > 3600000)
+        return "max_lateness_ms must be 0 (off) to 3600000";
     if (t.retry.initial.count() < 1 || t.retry.maximum < t.retry.initial)
         return "reconnect delays must satisfy 1 <= initial <= max";
     if (t.retry.jitter < 0.0 || t.retry.jitter > 1.0)

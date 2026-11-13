@@ -68,6 +68,15 @@ def plan_runs(name, seconds, reps):
         add("N3", 100000, 250, 1, ("tcp",))
         add("N4b", 100000, 250, 0)
         add("N2", 100000, 250, 5, ("udp",))
+    elif name == "rc2":
+        # After 0.1.0-rc1: the optional lateness bound of the Source
+        # (max_lateness_ms), on the profile where M4 found unbounded age
+        # (N4), with and without it, and on N0 and N2 to see what it costs
+        # where the path keeps up. SRT only: the baselines have no such bound.
+        for rep in range(reps):
+            for profile, late in (("N4", 0), ("N4", 150), ("N2", 150), ("N0", 150)):
+                runs.append(dict(profile=profile, transport="srt", rate=100000, latency_ms=250,
+                                 rep=rep, seconds=seconds, max_lateness_ms=late))
     elif name == "smoke":
         for profile in ("N0", "N2", "N5"):
             add(profile, 100000, 250, 0)
@@ -184,6 +193,8 @@ def reduce_timing(path, t0_ns, cfg, warmup_s, restore_ns):
 
 def run_one(cfg, slot, out_root, bins, warmup_s):
     name = "%s_%s_r%d_l%d_rep%d" % (cfg["profile"], cfg["transport"], cfg["rate"], cfg["latency_ms"], cfg["rep"])
+    if cfg.get("max_lateness_ms"):
+        name += "_late%d" % cfg["max_lateness_ms"]
     out = os.path.join(out_root, name)
     os.makedirs(out, exist_ok=True)
     profile = PROFILES["profiles"][cfg["profile"]]
@@ -214,7 +225,9 @@ def run_one(cfg, slot, out_root, bins, warmup_s):
         rx = subprocess.Popen(["ip", "netns", "exec", r, os.path.join(bins, "rwsrt_ref_receiver"),
                                "--role=listener", "--bind=" + rx_ip, "--events",
                                "--timeout-ms=%d" % ((cfg["seconds"] + 40) * 1000),
-                               "--timing-log=" + timing] + common,
+                               "--timing-log=" + timing] + common +
+                              (["--max-lateness-ms=%d" % cfg["max_lateness_ms"]]
+                               if cfg.get("max_lateness_ms") else []),
                               stdout=open(os.path.join(out, "receiver.jsonl"), "w"), stderr=rx_err)
         time.sleep(0.5)
         t_start = time.monotonic()

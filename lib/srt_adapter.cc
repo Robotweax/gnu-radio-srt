@@ -400,9 +400,12 @@ io_result srt_endpoint::send(const std::uint8_t* data, std::size_t size)
     return io_result::error;
 }
 
-io_result srt_endpoint::receive(std::uint8_t* buffer, std::size_t capacity, std::size_t& size)
+io_result srt_endpoint::receive(std::uint8_t* buffer, std::size_t capacity, std::size_t& size,
+                                std::int64_t* late_us)
 {
     size = 0;
+    if (late_us)
+        *late_us = 0;
     if (!connected())
         return io_result::lost;
     SRT_MSGCTRL mc;
@@ -411,6 +414,10 @@ io_result srt_endpoint::receive(std::uint8_t* buffer, std::size_t capacity, std:
                                static_cast<int>(capacity), &mc);
     if (n >= 0) {
         size = static_cast<std::size_t>(n);
+        // srctime is the message's scheduled delivery time (sender time
+        // mapped to this host plus the latency) on srt_time_now()'s clock.
+        if (late_us && mc.srctime > 0)
+            *late_us = srt_time_now() - mc.srctime;
         return io_result::ok;
     }
     const int code = srt_getlasterror(nullptr);

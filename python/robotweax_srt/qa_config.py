@@ -49,6 +49,7 @@ class qa_config(gr_unittest.TestCase):
             dict(passphrase_env=""),                      # CTR without a variable name
             dict(security="none"),                        # plaintext with a variable name set
             dict(reconnect_initial_ms=0), dict(stop_timeout_ms=1), dict(startup_timeout_ms=0),
+            dict(max_lateness_ms=-1),
         ]
         bad_stream = [
             dict(sample_rate_num=0), dict(sample_rate_den=0), dict(record_limit_bytes=1457),
@@ -92,6 +93,7 @@ class qa_config(gr_unittest.TestCase):
             self.assertEqual(st["config"]["security_mode"], "ctr")
             self.assertEqual(st["config"]["sample_rate_num"], 200000)
             self.assertEqual(st["srt_runtime_leases"], 0)
+            self.assertEqual(st["config"]["max_lateness_ms"], 0)  # off unless asked for
             self.assertEqual(st["versions"]["robotweax_srt"], "0.3.2")
             self.assertRegex(st["versions"]["module"], r"^0\.1\.\d+(-rc\d+)?$")
             self.assertTrue(st["versions"]["gnuradio"].startswith("3.10"))

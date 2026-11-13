@@ -14,6 +14,10 @@ Faults (times in seconds since the first relayed packet):
   --blackhole-after T        drop everything from T on (peer vanished)
   --loss P [--seed N]        drop each packet independently with probability P
   --drop-end                 drop SRT data packets carrying an RWSR END record
+  --drop-end-first N         drop only the first N such packets
+  --stall START:DURATION     hold sender-to-receiver packets that arrive in the
+                             interval and release them, in order, at its end:
+                             a path that queues instead of dropping
   --drop-sample N            drop SRT data packets whose RWSR DATA record
                              contains sample index N of segment 0
 The last two read the RWSR header and therefore need plaintext streams.
@@ -70,13 +74,15 @@ def main():
     ap.add_argument("--loss", type=float, default=0.0)
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--drop-end", action="store_true")
+    ap.add_argument("--drop-end-first", type=int, default=0)
     ap.add_argument("--drop-sample", type=int)
+    ap.add_argument("--stall", type=interval)
     ap.add_argument("--stats-file")
     args = ap.parse_args()
 
     counters = dict(forward=0, reverse=0, dropped_outage=0, dropped_blackhole=0, dropped_loss=0,
                     dropped_end=0, dropped_sample=0, data_records_seen=0, end_records_seen=0,
-                    send_errors=0)
+                    send_errors=0, stalled=0)
     rng = random.Random(args.seed)
     stop = {"flag": False}
     signal.signal(signal.SIGTERM, lambda *_: stop.update(flag=True))
@@ -103,13 +109,13 @@ def main():
             return "dropped_blackhole"
         if any(a <= t < b for a, b in args.outage):
             return "dropped_outage"
-        if args.drop_end or args.drop_sample is not None:
+        if args.drop_end or args.drop_end_first or args.drop_sample is not None:
             rec = rwsr_record(datagram)
             if rec is not None:
                 kind, segment, first, count = rec
                 if kind == 2:
                     counters["end_records_seen"] += 1
-                    if args.drop_end:
+                    if args.drop_end or counters["dropped_end"] < args.drop_end_first:
                         return "dropped_end"
                 elif kind == 1:
                     counters["data_records_seen"] += 1
@@ -120,8 +126,18 @@ def main():
             return "dropped_loss"
         return None
 
+    held = []  # forward datagrams waiting for the end of the stall
+
     while not stop["flag"]:
-        for key, _ in selector.select(timeout=0.05):
+        if held and time.monotonic() - t0 >= args.stall[1]:
+            for datagram in held:  # in arrival order, before anything newer
+                try:
+                    back.send(datagram)
+                    counters["forward"] += 1
+                except (BlockingIOError, ConnectionRefusedError, OSError):
+                    counters["send_errors"] += 1
+            held = []
+        for key, _ in selector.select(timeout=0.005 if held else 0.05):
             sock = key.fileobj
             while True:
                 try:
@@ -138,6 +154,12 @@ def main():
                 why = verdict(datagram, now)
                 if why:
                     counters[why] += 1
+                    continue
+                if (key.data == "front" and args.stall and
+                        (held or args.stall[0] <= now - t0 < args.stall[1])):
+                    # Also while the release is pending, so that order is kept.
+                    held.append(datagram)
+                    counters["stalled"] += 1
                     continue
                 try:
                     if key.data == "front":

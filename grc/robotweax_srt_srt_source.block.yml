@@ -15,7 +15,8 @@ templates:
             reconnect=${reconnect}, reconnect_initial_ms=${reconnect_initial_ms},
             reconnect_max_ms=${reconnect_max_ms},
             reconnect_total_timeout_ms=${reconnect_total_timeout_ms},
-            stop_timeout_ms=${stop_timeout_ms}, security='${security}',
+            stop_timeout_ms=${stop_timeout_ms}, max_lateness_ms=${max_lateness_ms},
+            security='${security}',
             passphrase_env=${ passphrase_env if security == 'ctr' else "''" },
             status_interval_ms=${status_interval_ms}),
         robotweax_srt.make_stream_config(
@@ -169,6 +170,11 @@ parameters:
   label: Stop timeout (ms)
   dtype: int
   default: '1000'
+  hide: part
+- id: max_lateness_ms
+  label: Max lateness (ms, 0 = off)
+  dtype: int
+  default: '0'
   hide: part
 - id: status_interval_ms
   label: Status interval (ms)
