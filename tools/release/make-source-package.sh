@@ -5,11 +5,12 @@
 #   tools/release/make-source-package.sh [--worktree] [output-dir]
 #
 # The package is `git archive` of one commit. Its content, the tar stream,
-# is the same wherever it is built; SHA256SUMS records that hash as
-# NAME.tar. The compressed file can differ between gzip implementations
-# (seen: macOS against Ubuntu), so compare the .tar line across machines
-# and the .tar.gz line only for one given file. By default that commit is HEAD and the working tree must be
-# clean. --worktree packages the tracked and staged state of the working tree
+# is the same wherever it is built; CONTENT_SHA256 records its hash. The
+# compressed file can differ between gzip implementations (seen: macOS
+# against Ubuntu), so compare CONTENT_SHA256 across machines. SHA256SUMS
+# holds the hash of the one .tar.gz next to it and nothing else, so that
+# `sha256sum -c SHA256SUMS` works for whoever downloads the two files.
+# By default that commit is HEAD and the working tree must be clean. --worktree packages the tracked and staged state of the working tree
 # instead, for testing before a commit; such a package is not a release.
 set -eu
 here=$(cd "$(dirname "$0")/../.." && pwd)
@@ -38,8 +39,10 @@ mkdir -p "$out"
 sha() { if command -v sha256sum > /dev/null; then sha256sum "$@"; else shasum -a 256 "$@"; fi; }
 git -C "$here" archive --format=tar --prefix="$name/" "$ref" > "$out/$name.tar"
 gzip -n -9 -c "$out/$name.tar" > "$out/$name.tar.gz"
-(cd "$out" && sha "$name.tar.gz" "$name.tar" > SHA256SUMS && rm "$name.tar")
+(cd "$out" && sha "$name.tar.gz" > SHA256SUMS &&
+    sha "$name.tar" | cut -d' ' -f1 > CONTENT_SHA256 && rm "$name.tar")
 printf '%s\n' "$commit" > "$out/SOURCE_COMMIT"
 [ "$worktree" = 1 ] && echo "worktree state, not a release" >> "$out/SOURCE_COMMIT"
 echo "$out/$name.tar.gz"
 cat "$out/SHA256SUMS"
+echo "content $(cat "$out/CONTENT_SHA256")"

@@ -2,7 +2,9 @@
 
 Records what milestone M0 established on the pinned platform, the decisions
 taken, and where they amend [project-plan.md](project-plan.md) (v1.0). The
-plan file is kept as received; this file wins where the two differ.
+plan file is kept as received, except that its nine relative links into
+the Robotweax SRT checkout were replaced with URLs at the pinned commit on
+2026-11-13; this file wins where the two differ.
 
 Numbers are measurements from one host inside a container. They show that a
 mechanism works and roughly how it behaves. They are not performance claims.
@@ -914,7 +916,7 @@ external-user reproduction"):
 | Documentation | done: install guide, limitations, compatibility statement, changelog, release checklist; block reference extended |
 | Packaging | done: source package from one commit, reproducible, with checksum (D46) |
 | Clean install | done: the install guide is executed in a fresh container, locally and in CI (D47) |
-| v0.1 release candidate | prepared as commit and package `0.1.0-rc1`. **Not tagged, not published**: owner decision |
+| v0.1 release candidate | prepared as commit and package `0.1.0-rc1`. Tagged `v0.1.0-rc1` and published as a pre-release on 2026-11-13 (D51) |
 | External-user reproduction | **not done**: no person outside the project. An AI agent stood in (D48) |
 | Hardware or acquisition adapter trial | **not done**: no hardware |
 
@@ -931,15 +933,16 @@ in [release-checklist.md](release-checklist.md).
   tar content of one commit is identical everywhere: commit `8972505` gave
   the same hash on the macOS host and on the hosted Ubuntu runner. The
   compressed files differed, because the two gzip programs differ.
-  `SHA256SUMS` therefore lists both hashes; the content hash is the one to
-  compare between machines. `tools/release/make-source-package.sh`
+  The content hash, in `CONTENT_SHA256`, is the one to compare between
+  machines; `SHA256SUMS` belongs to the one compressed file next to it. `tools/release/make-source-package.sh`
   refuses a dirty tree unless told to package the working tree for a test,
   and then marks the result as not a release.
 - No binary package. The plan allows them only for qualified platform
   combinations; one source build path is enough for a first candidate and
   avoids the distribution obligations of D12.
-- A release candidate is a commit and a package. No tag was created. No
-  workflow in this repository reacts to tags.
+- A release candidate is a commit and a package first; tagging is a
+  separate owner decision (D51). A tag push starts the ordinary CI run and
+  nothing else.
 
 ## D47. The install guide is the test
 
@@ -1013,6 +1016,34 @@ it is kept.
   the package in a fresh container with 10 of 10 module tests, and the
   blocks across N0 to N2 (60 s each, 3 of 3).
 
+## D51. Tag and pre-release of 0.1.0-rc1
+
+On the owner's request, on 2026-11-13: `m5/developer-release` was merged
+into `main` by fast-forward; commit `e10c51d` was tagged `v0.1.0-rc1`
+(annotated) and published as a GitHub pre-release. The attached package is
+the one built and installed from by CI run 43381133959 on `main`; before
+upload its checksum was verified and its tar content compared with
+`git archive` of the tag (identical). The repository was private at that
+time.
+
+Commits on `main` after the tag still build a package named `0.1.0-rc1`
+until the version is changed. Only the package attached to the pre-release
+is the release candidate; `SOURCE_COMMIT` and `CONTENT_SHA256` tell them
+apart.
+
+Two errors in the tagged tree, corrected afterwards on `main`:
+
+- The checklist said no workflow reacts to tags. `gate.yml` runs on every
+  push, tag pushes included.
+- `SHA256SUMS` of the tagged tree lists a second line for the uncompressed
+  tar, which is not shipped, so `sha256sum -c` reports a missing file
+  unless given `--ignore-missing`. The release notes say so. From the next
+  package on, the content hash is in its own file.
+
+Also after the tag, to prepare the repository for publication:
+`CONTRIBUTING.md` and `SECURITY.md` were added, and the plan's relative
+links into the SRT checkout were replaced with URLs at the pinned commit.
+
 ## Open items after M5
 
 1. Two-host experiment with independent clocks, and a clock-offset
@@ -1027,7 +1058,6 @@ it is kept.
    a wrong passphrase (D48).
 8. Repetitions for the secondary cells of M4 (1 MS/s, burst loss).
 9. The strict Sink's sender-drop path (D33) was never triggered.
-10. Tag and publication of 0.1.0-rc1, and whether 0.1.0 is released with
-    the items above open: owner decisions.
+10. Whether 0.1.0 is released with the items above open: owner decision.
 11. No first user: academic project for now (owner, 2026-11-12).
 

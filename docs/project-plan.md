@@ -631,16 +631,18 @@ These sources establish integration mechanisms and current implementation bounda
 - [UDP Source Companion definition](https://github.com/gnuradio/gnuradio/blob/main/gr-network/grc/network_udp_source.block.yml) — stream types, sequence headers, and block metadata.
 - [Network module build](https://github.com/gnuradio/gnuradio/blob/main/gr-network/CMakeLists.txt) — runtime, bindings, and Companion packaging reference.
 
-### Robotweax SRT, paths relative to this plan in the existing checkout
+### Robotweax SRT, at the commit this module is pinned to
 
-- [README](../../README.md) — public API, package target, release/ABI distinctions.
-- [Integration guide](../integration.md) — startup/cleanup, option configuration, Caller/Listener; some version labels are older than the README.
-- [Socket options](../socket-options.md) — option types, byte/packet conventions, payload limits, and mutability.
-- [Live timing](../live-timing.md) — `srctime`, SRT monotonic time, TSBPD, and clock domains.
-- [Known limitations](../limitations.md) — Live tail-loss behavior, encryption boundaries, support scope.
-- [File mode](../file-mode.md) — distinct reliability and close/drain contract for future archive work.
-- [Control profile](../control-profile.md) — Robotweax-specific extension; not part of the v0.1 transport profile.
-- [Epoll readiness](../epoll-readiness.md) — current readiness/lifecycle implementation notes.
-- [LICENSE](../../LICENSE) — Robotweax dependency licensing.
+- [README](https://github.com/Robotweax/srt/blob/e45d0edd346e5c427d85e4c3b1ac605c81a23397/README.md) — public API, package target, release/ABI distinctions.
+- [Integration guide](https://github.com/Robotweax/srt/blob/e45d0edd346e5c427d85e4c3b1ac605c81a23397/docs/integration.md) — startup/cleanup, option configuration, Caller/Listener; some version labels are older than the README.
+- [Socket options](https://github.com/Robotweax/srt/blob/e45d0edd346e5c427d85e4c3b1ac605c81a23397/docs/socket-options.md) — option types, byte/packet conventions, payload limits, and mutability.
+- [Live timing](https://github.com/Robotweax/srt/blob/e45d0edd346e5c427d85e4c3b1ac605c81a23397/docs/live-timing.md) — `srctime`, SRT monotonic time, TSBPD, and clock domains.
+- [Known limitations](https://github.com/Robotweax/srt/blob/e45d0edd346e5c427d85e4c3b1ac605c81a23397/docs/limitations.md) — Live tail-loss behavior, encryption boundaries, support scope.
+- [File mode](https://github.com/Robotweax/srt/blob/e45d0edd346e5c427d85e4c3b1ac605c81a23397/docs/file-mode.md) — distinct reliability and close/drain contract for future archive work.
+- [Control profile](https://github.com/Robotweax/srt/blob/e45d0edd346e5c427d85e4c3b1ac605c81a23397/docs/control-profile.md) — Robotweax-specific extension; not part of the v0.1 transport profile.
+- [Epoll readiness](https://github.com/Robotweax/srt/blob/e45d0edd346e5c427d85e4c3b1ac605c81a23397/docs/epoll-readiness.md) — current readiness/lifecycle implementation notes.
+- [LICENSE](https://github.com/Robotweax/srt/blob/e45d0edd346e5c427d85e4c3b1ac605c81a23397/LICENSE) — Robotweax dependency licensing.
+
+*Editorial note, 2026-11-13: this plan was written inside the Robotweax SRT checkout, and the nine references above were relative paths there. As the plan's own next sentence asks, they were replaced with URLs at the pinned commit (v0.3.2) when the repository was prepared for publication. Nothing else in this file was changed.*
 
 When moving this plan into a new repository, replace these relative references with immutable commit URLs or copied, versioned source notes. Re-check dependency behavior at M0 rather than treating this planning snapshot as a release certification.

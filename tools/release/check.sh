@@ -5,7 +5,7 @@
 #
 #   tools/release/check.sh [--worktree] [output-dir]
 #
-# Leaves in the output directory: the package, SHA256SUMS, SOURCE_COMMIT,
+# Leaves in the output directory: the package, SHA256SUMS, CONTENT_SHA256, SOURCE_COMMIT,
 # clean-install.log, linked-libraries.tsv, versions.json and
 # release-check.json. Exits nonzero if a step fails. This does not replace
 # the gate (tools/dev/gate.sh); a release needs both.
@@ -28,8 +28,8 @@ def read(name):
 log = read("clean-install.log") or ""
 doc = {
     "package": sys.argv[3],
-    "sha256_tar_gz": ((read("SHA256SUMS") or "\n").splitlines()[0]).split(" ")[0],
-    "sha256_tar_content": ((read("SHA256SUMS") or "\n\n").splitlines()[1:2] or [""])[0].split(" ")[0],
+    "sha256_tar_gz": (read("SHA256SUMS") or "").split(" ")[0],
+    "sha256_tar_content": read("CONTENT_SHA256"),
     "source_commit": (read("SOURCE_COMMIT") or "").splitlines(),
     "platform": read("clean-install-platform.txt"),
     "install_guide_blocks_executed": log.count("== install guide block"),

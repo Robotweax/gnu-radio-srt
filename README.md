@@ -24,6 +24,7 @@ project has used it. Field readiness is not claimed.** Read
 - Known limitations: [docs/limitations.md](docs/limitations.md)
 - Compatibility: [docs/compatibility.md](docs/compatibility.md)
 - Changes: [CHANGELOG.md](CHANGELOG.md)
+- Contributing and security reports: [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md)
 - Specification: [docs/project-plan.md](docs/project-plan.md)
 - Using the blocks: [docs/block-reference.md](docs/block-reference.md)
 - Tags, gaps and time: [docs/continuity-and-time.md](docs/continuity-and-time.md)

@@ -35,18 +35,24 @@ Also required by the plan before field readiness may be claimed, and open:
 
 ## From candidate to release
 
-A release candidate is a commit, not a tag. The owner decides each step
-below; none of them happens automatically.
+A release candidate is first a commit. The owner decides each step below;
+none of them happens automatically.
+
+State on 2026-11-13: steps 1 to 3 are done for 0.1.0-rc1. Commit `e10c51d`
+is tagged `v0.1.0-rc1` and published as a GitHub pre-release with the
+package from CI run 43381133959. Steps 4 and 5 are open.
 
 1. Choose the commit. Its CI run must pass all jobs: `gate`, `netem-smoke`,
    `release-check`, `blocks-netem`.
 2. Take the package from that run's `release-check-x86_64` artifact, or
    build it: `tools/release/check.sh`. The same commit gives the same
-   content: compare the `.tar` line of `SHA256SUMS`. The `.tar.gz` line can
+   content everywhere: compare `CONTENT_SHA256`. The compressed file can
    differ between machines with different gzip programs, so publish one
-   file, the one from CI, with its own checksum.
+   file, the one from CI, with the `SHA256SUMS` built next to it.
 3. To publish the candidate: tag the commit `v0.1.0-rc1` and attach the
-   package and `SHA256SUMS`. No workflow in this repository reacts to tags.
+   package and `SHA256SUMS`. Pushing a tag starts the ordinary CI run, like
+   any push; nothing else reacts to tags, and nothing is signed or published
+   automatically.
 4. Give the package and [install.md](install.md) to someone who has not
    seen the project. Record what they could not do. This closes item 10.
 5. For the final release: set `RWSRT_RELEASE_VERSION` in `CMakeLists.txt` to

@@ -4,7 +4,7 @@ Versions follow `MAJOR.MINOR.PATCH`. Before 1.0 any minor release may change
 the block API. The wire protocol has its own version; see
 [docs/compatibility.md](docs/compatibility.md).
 
-## 0.1.0-rc1 (release candidate, not tagged)
+## 0.1.0-rc1 (release candidate, tagged 2026-11-13)
 
 First release candidate. Nothing was released before it.
 
