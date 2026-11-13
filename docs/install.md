@@ -19,6 +19,17 @@ the Ubuntu archive and to GitHub, and the file
 `gr-robotweax-srt-0.1.0-rc1.tar.gz` in the directory where you run the
 commands.
 
+The package is attached to the release on GitHub:
+
+```text
+https://github.com/Robotweax/gnu-radio-srt/releases/tag/v0.1.0-rc1
+```
+
+Download `gr-robotweax-srt-0.1.0-rc1.tar.gz` and `SHA256SUMS` from there and
+check the file with `sha256sum -c --ignore-missing SHA256SUMS`. Do not use
+GitHub's automatic "Source code" archives: their directory name differs
+from the one used below.
+
 ## 1. System packages
 
 ```sh

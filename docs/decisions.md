@@ -1040,6 +1040,11 @@ Two errors in the tagged tree, corrected afterwards on `main`:
   unless given `--ignore-missing`. The release notes say so. From the next
   package on, the content hash is in its own file.
 
+The repository was made public on 2026-11-13 on the owner's decision,
+after the CI run on `main` passed (run 43386184481 on `0ccddbb`). Private
+vulnerability reporting is enabled. The release page and the package were
+then fetched without credentials; the package's checksum matched.
+
 Also after the tag, to prepare the repository for publication:
 `CONTRIBUTING.md` and `SECURITY.md` were added, and the plan's relative
 links into the SRT checkout were replaced with URLs at the pinned commit.
