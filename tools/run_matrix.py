@@ -10,7 +10,7 @@ validation; only the transport differs.
 
 Run inside a privileged, disposable container (tools/dev/netem.sh does that):
 
-  run_matrix.py --bin DIR --out DIR --plan primary|secondary|smoke [--parallel N]
+  run_matrix.py --bin DIR --out DIR --plan primary|secondary|secondary-rep|smoke [--parallel N]
 
 Definitions of metrics and gates: docs/benchmarking.md and tools/qual_common.py.
 Nothing here asserts an outcome; tools/validate_results.py reads the evidence.
@@ -77,6 +77,14 @@ def plan_runs(name, seconds, reps):
             for profile, late in (("N4", 0), ("N4", 150), ("N2", 150), ("N0", 150)):
                 runs.append(dict(profile=profile, transport="srt", rate=100000, latency_ms=250,
                                  rep=rep, seconds=seconds, max_lateness_ms=late))
+    elif name == "secondary-rep":
+        # Repetitions of two secondary groups that had one run per cell:
+        # burst loss (N3) at 100 kS/s and 1 MS/s on N0 to N2. Declared in
+        # docs/benchmarking.md before the runs.
+        for rep in range(reps):
+            add("N3", 100000, 250, rep)
+            for profile in ("N0", "N1", "N2"):
+                add(profile, 1000000, 250, rep)
     elif name == "smoke":
         for profile in ("N0", "N2", "N5"):
             add(profile, 100000, 250, 0)

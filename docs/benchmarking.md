@@ -241,3 +241,43 @@ What a pass would and would not mean: the bound limits age in this
 emulated case of a deep queue. It does not make more samples arrive on
 time; what was late is lost either way. It says nothing about a real
 network.
+
+### Plan `secondary-rep` (written 2026-11-14, before its runs)
+
+Two groups of the secondary plan had one run per cell and results that
+looked like a difference between the transports: burst loss (N3) at
+100 kS/s, and 1 MS/s on N0 to N2. One run is not a comparison. This plan
+repeats them so that they can be read like the primary plan. No existing
+definition, gate, deadline, profile or plan was changed. The build is the
+one tagged `v0.1.0-rc2`, with `max_lateness_ms` off.
+
+Plan `secondary-rep`: all three transports, requested latency 250 ms,
+120 s per run with 10 s warm-up, five repetitions, transport order
+rotating with the repetition, four runs at a time:
+
+| Cell | Runs |
+|---|---|
+| N3 at 100 kS/s | 15 |
+| N0, N1, N2 at 1 MS/s | 45 |
+
+Criteria, fixed before the runs. They use the metrics and gates defined
+above.
+
+1. **Burst loss.** A benefit of SRT on N3 is stated only if its usable
+   on-time fraction is higher than that of both baselines in all five
+   repetitions. Otherwise none is stated.
+2. **1 MS/s, loss.** The same rule, separately for N1 and for N2.
+3. **1 MS/s, envelope.** 1 MS/s on N0 to N2 is added to the supported
+   envelope of this evidence only if all 15 SRT runs pass every gate that
+   applies to them, including zero missing samples on N0 and p99 age
+   within effective latency + 150 ms. If any fails, 1 MS/s stays
+   exploratory and the failure is reported.
+4. TCP and UDP carry only the integrity and accounting gates, as before.
+   A baseline run that fails a gate is kept and reported; it does not
+   decide criteria 1 to 3 in SRT's favour by being absent: a repetition
+   with a missing baseline figure counts as not higher.
+
+What a pass would and would not mean: a repeated difference in this
+emulation on one machine. Four runs at 1 MS/s share the host; load
+averages are recorded. It says nothing about a real network or about
+rates above 1 MS/s.
