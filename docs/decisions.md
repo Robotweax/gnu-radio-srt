@@ -1188,8 +1188,9 @@ run, 2026-11-14). Results: [results-two-host-1.md](results-two-host-1.md).
 
 ## Open items after rc1 work
 
-1. Two-host experiment with independent clocks, and a clock-offset
-   procedure for it.
+1. Between two machines, after the first run (D57): the GNU Radio blocks
+   with encryption, 1 MS/s, a strict stream, the opposite direction, a path
+   with real loss, a long run.
 2. Acquisition hardware and an adapter that supplies capture times and
    overrun reports.
 3. A dedicated host, and the full matrix on x86-64.
