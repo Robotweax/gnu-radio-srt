@@ -208,6 +208,12 @@ every missing sample reported.
 and 500 ms latency; burst loss; asymmetric loss; recovery 0.37 s after a
 5 s outage.
 
+*Added 2026-11-14:* burst loss and 1 MS/s were repeated five times each,
+see [results-secondary-rep.md](results-secondary-rep.md). Burst loss at
+100 kS/s is confirmed. 1 MS/s failed one of 15 SRT runs (a 76 ms pause of
+the receiver on the shared host ended a strict run, reported) and stays
+outside the supported envelope.
+
 **Known not to hold:** timeliness when a bottleneck queues for seconds
 instead of dropping.
 

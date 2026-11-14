@@ -1,0 +1,33 @@
+{
+ "records_logged": 477185,
+ "window": {
+  "first_sample": 10000000,
+  "end_sample": 120000000,
+  "offered_samples": 110000000
+ },
+ "deadline_ms": 400,
+ "delivered_samples": 55851459,
+ "missing_samples": 54148541,
+ "delivered_fraction": 0.5077405363636364,
+ "age_ms": {
+  "p50": 252.47763200000009,
+  "p95": 253.05319599999348,
+  "p99": 253.63023699999758,
+  "max": 311.5926120000004,
+  "min": 251.6115290000016
+ },
+ "on_time_samples": 55851459,
+ "on_time_fraction": 0.5077405363636364,
+ "analysis_windows": 107421,
+ "usable_on_time_samples": 55851008,
+ "usable_on_time_fraction": 0.5077405721413876,
+ "recovery_s": null,
+ "sender_cpu_seconds": 6.002,
+ "sender_max_rss_kib": 485476,
+ "receiver_cpu_seconds": 3.073,
+ "receiver_max_rss_kib": 485476,
+ "queue_high_water_records": {
+  "sender": 948,
+  "receiver": 543
+ }
+}

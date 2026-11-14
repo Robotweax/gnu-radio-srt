@@ -13,7 +13,10 @@ Read this before relying on the module for a measurement.
   sources. No SDR front end, no hardware timestamps, no overrun reports.
 - **A dedicated machine.** Timing figures come from a shared, virtualised
   host.
-- **Rates above 1 MS/s**, and `f32` under impairment.
+- **Rates above 1 MS/s**, and `f32` under impairment. 1 MS/s itself is
+  not a supported rate: it failed one of 15 emulated runs, when a 76 ms
+  pause of the receiving process ended a strict run
+  ([results-secondary-rep.md](results-secondary-rep.md)).
 - **An independent user.** Nobody outside the project has installed or used
   it. The install guide is executed in a fresh container by a script, which
   checks the commands and not whether a person understands them.

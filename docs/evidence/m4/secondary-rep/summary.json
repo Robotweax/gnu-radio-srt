@@ -1,0 +1,2797 @@
+{
+ "table": [
+  {
+   "profile": "N0",
+   "rate": 1000000,
+   "latency_ms": 250,
+   "transport": "srt",
+   "runs": 5,
+   "verdicts": {
+    "pass": 4,
+    "fail": 1,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 1.0,
+    "min": 0.5077405363636364,
+    "max": 1.0,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 1.0,
+    "min": 0.5077405363636364,
+    "max": 1.0,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 1.0,
+    "min": 0.5077405721413876,
+    "max": 1.0,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 252.39208200000576,
+    "min": 252.28178900000057,
+    "max": 252.47763200000009,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 252.9426560000138,
+    "min": 252.82417200000782,
+    "max": 253.10193699999945,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 253.11926500000118,
+    "min": 252.93785399999615,
+    "max": 253.63023699999758,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 9.56,
+    "min": 6.002,
+    "max": 10.56,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 5.493,
+    "min": 3.073,
+    "max": 6.144,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N0",
+   "rate": 1000000,
+   "latency_ms": 250,
+   "transport": "tcp",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 0.8268289999978151,
+    "min": 0.7837509999953909,
+    "max": 0.8700359999929788,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 1.3950600000025588,
+    "min": 1.303342999999586,
+    "max": 1.4294450000015786,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 1.5417969999998604,
+    "min": 1.4036479999995208,
+    "max": 1.690388000002713,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 4.563,
+    "min": 4.387,
+    "max": 9.146,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 3.553,
+    "min": 3.49,
+    "max": 7.138,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N0",
+   "rate": 1000000,
+   "latency_ms": 250,
+   "transport": "udp",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 251.94550799999888,
+    "min": 251.71795000000566,
+    "max": 252.07367199999862,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 252.5231219999987,
+    "min": 252.23964900000283,
+    "max": 252.59072899999592,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 252.68452599999728,
+    "min": 252.33473400000366,
+    "max": 252.69007100000454,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 4.375,
+    "min": 4.017,
+    "max": 8.058,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 4.485,
+    "min": 4.3,
+    "max": 8.095,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N1",
+   "rate": 1000000,
+   "latency_ms": 250,
+   "transport": "srt",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 1.0,
+    "min": 0.9994969272727273,
+    "max": 1.0,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 1.0,
+    "min": 0.9994116181818182,
+    "max": 1.0,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 1.0,
+    "min": 0.9993855949953919,
+    "max": 1.0,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 277.7831670000014,
+    "min": 274.7671459999983,
+    "max": 278.01602000000275,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 278.4095870000019,
+    "min": 275.40242299999227,
+    "max": 278.67127600000094,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 278.8203000000012,
+    "min": 275.59271499999886,
+    "max": 278.9050900000002,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 8.357,
+    "min": 7.413,
+    "max": 12.684,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 5.396,
+    "min": 5.025,
+    "max": 5.59,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N1",
+   "rate": 1000000,
+   "latency_ms": 250,
+   "transport": "tcp",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.20341074545454546,
+    "min": 0.1956453818181818,
+    "max": 0.2317712909090909,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 2402.228635000003,
+    "min": 2132.318636,
+    "max": 2490.2232770000046,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 3293.7307930000097,
+    "min": 3116.0616089999967,
+    "max": 3971.476520999997,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 3872.3265939999983,
+    "min": 3377.953269999998,
+    "max": 5042.912121000001,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 1.2,
+    "min": 0.961,
+    "max": 1.261,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 1.458,
+    "min": 1.341,
+    "max": 1.757,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N1",
+   "rate": 1000000,
+   "latency_ms": 250,
+   "transport": "udp",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9990490545454546,
+    "min": 0.9989675090909091,
+    "max": 0.9990716363636364,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 0.9990490545454546,
+    "min": 0.9989675090909091,
+    "max": 0.9990716363636364,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 0.9919475707729402,
+    "min": 0.99144487576917,
+    "max": 0.9921616816078793,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 275.7006160000019,
+    "min": 267.02055400000245,
+    "max": 276.3359750000018,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 276.4494999999879,
+    "min": 267.79688700000406,
+    "max": 277.0842730000004,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 276.6000849999982,
+    "min": 267.9927699999971,
+    "max": 277.23049699999683,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 3.438,
+    "min": 3.277,
+    "max": 3.847,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 10.018,
+    "min": 9.017,
+    "max": 10.747,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N2",
+   "rate": 1000000,
+   "latency_ms": 250,
+   "transport": "srt",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9999661272727273,
+    "min": 0.9999510727272727,
+    "max": 0.9999786727272727,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 0.9999661272727273,
+    "min": 0.9999510727272727,
+    "max": 0.9999786727272727,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 0.999711415831169,
+    "min": 0.9995810874968581,
+    "max": 0.9998045074985338,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 299.23030199999994,
+    "min": 295.8777839999966,
+    "max": 302.9241140000013,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 299.9316649999964,
+    "min": 296.60047900000063,
+    "max": 303.6413969999994,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 300.1730799999932,
+    "min": 296.84742499999993,
+    "max": 303.8770519999962,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 8.351,
+    "min": 7.873,
+    "max": 8.702,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 5.384,
+    "min": 5.007,
+    "max": 5.549,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N2",
+   "rate": 1000000,
+   "latency_ms": 250,
+   "transport": "tcp",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.03160827272727273,
+    "min": 0.029020145454545454,
+    "max": 0.03562810909090909,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 16266.618055,
+    "min": 14038.170917999989,
+    "max": 16779.166329,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 19853.648973999996,
+    "min": 17850.684358,
+    "max": 20694.341683000006,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 20093.676556,
+    "min": 18577.54894,
+    "max": 21040.406771,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 1.041,
+    "min": 0.904,
+    "max": 1.532,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 0.352,
+    "min": 0.27,
+    "max": 0.543,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N2",
+   "rate": 1000000,
+   "latency_ms": 250,
+   "transport": "udp",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9900338909090909,
+    "min": 0.9898758181818181,
+    "max": 0.9901944727272727,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 0.9900338909090909,
+    "min": 0.9898758181818181,
+    "max": 0.9901944727272727,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 0.9190288677260499,
+    "min": 0.9177628210498878,
+    "max": 0.9205555710708334,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 294.8161820000023,
+    "min": 284.13518100000147,
+    "max": 300.37727100000484,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 295.59686400000646,
+    "min": 284.89192199999525,
+    "max": 301.13005399999383,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 295.78338000000076,
+    "min": 285.0285999999978,
+    "max": 301.2649670000028,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 3.374,
+    "min": 3.179,
+    "max": 3.626,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 10.067,
+    "min": 9.098,
+    "max": 10.47,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N3",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "srt",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9971270909090909,
+    "min": 0.9968134545454546,
+    "max": 0.9976038181818182,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 0.9971270909090909,
+    "min": 0.9968134545454546,
+    "max": 0.9976038181818182,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 0.9896657666883902,
+    "min": 0.9885485522763243,
+    "max": 0.9905967786984452,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 299.3334220000106,
+    "min": 296.4491940000007,
+    "max": 302.77755199999956,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 300.8802369999976,
+    "min": 298.1983239999972,
+    "max": 304.3723879999998,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 301.6501530000023,
+    "min": 298.86307400000806,
+    "max": 305.1025030000019,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 5.515,
+    "min": 3.615,
+    "max": 8.599,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 4.205,
+    "min": 2.843,
+    "max": 6.663,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N3",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "tcp",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.03744818181818182,
+    "min": 0.004767272727272728,
+    "max": 0.057779636363636366,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 4192.347424,
+    "min": 2073.685007,
+    "max": 66877.77826400001,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 82660.15881,
+    "min": 32755.428641000006,
+    "max": 111449.149347,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 83828.125768,
+    "min": 33299.916182999994,
+    "max": 111469.534556,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 0.998,
+    "min": 0.72,
+    "max": 1.706,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 0.217,
+    "min": 0.126,
+    "max": 0.345,
+    "n": 5
+   }
+  },
+  {
+   "profile": "N3",
+   "rate": 100000,
+   "latency_ms": 250,
+   "transport": "udp",
+   "runs": 5,
+   "verdicts": {
+    "pass": 5,
+    "fail": 0,
+    "inconclusive": 0
+   },
+   "delivered_fraction": {
+    "median": 0.9360307272727273,
+    "min": 0.9342869090909091,
+    "max": 0.9398445454545454,
+    "n": 5
+   },
+   "on_time_fraction": {
+    "median": 0.9360307272727273,
+    "min": 0.9342869090909091,
+    "max": 0.9398445454545454,
+    "n": 5
+   },
+   "usable_on_time_fraction": {
+    "median": 0.8470347267479751,
+    "min": 0.8425658690997114,
+    "max": 0.8573689600595847,
+    "n": 5
+   },
+   "age_p50_ms": {
+    "median": 302.2328019999986,
+    "min": 287.31418799999665,
+    "max": 303.29369799999404,
+    "n": 5
+   },
+   "age_p95_ms": {
+    "median": 302.9546730000002,
+    "min": 288.0737730000037,
+    "max": 304.00508600000467,
+    "n": 5
+   },
+   "age_p99_ms": {
+    "median": 303.1338289999985,
+    "min": 288.4211309999955,
+    "max": 304.1841859999986,
+    "n": 5
+   },
+   "recovery_s": null,
+   "cpu_seconds_sender": {
+    "median": 2.815,
+    "min": 1.869,
+    "max": 4.558,
+    "n": 5
+   },
+   "cpu_seconds_receiver": {
+    "median": 2.963,
+    "min": 1.995,
+    "max": 4.699,
+    "n": 5
+   }
+  }
+ ],
+ "runs": [
+  {
+   "run": "N0_srt_r1000000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 252.38704900000084,
+     "p95": 252.92434299999877,
+     "p99": 253.04638400000113,
+     "max": 266.8645059999999,
+     "min": 251.56905000000552
+    },
+    "sender_cpu_seconds": 9.947,
+    "receiver_cpu_seconds": 5.728
+   }
+  },
+  {
+   "run": "N0_srt_r1000000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 252.47631700000056,
+     "p95": 253.10193699999945,
+     "p99": 253.29675999999745,
+     "max": 255.4827179999993,
+     "min": 251.54927699999826
+    },
+    "sender_cpu_seconds": 8.706,
+    "receiver_cpu_seconds": 5.493
+   }
+  },
+  {
+   "run": "N0_srt_r1000000_l250_rep2",
+   "overall": "fail",
+   "failed_gates": [
+    "n0_complete_and_exact"
+   ],
+   "inconclusive_gates": [
+    "samples_accounted"
+   ],
+   "reasons": {
+    "samples_accounted": "END not observed: queue_overflow",
+    "n0_complete_and_exact": "missing 54148541, end none"
+   },
+   "config": {
+    "profile": "N0",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 0.5077405363636364,
+    "on_time_fraction": 0.5077405363636364,
+    "usable_on_time_fraction": 0.5077405721413876,
+    "missing_samples": 54148541,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 252.47763200000009,
+     "p95": 253.05319599999348,
+     "p99": 253.63023699999758,
+     "max": 311.5926120000004,
+     "min": 251.6115290000016
+    },
+    "sender_cpu_seconds": 6.002,
+    "receiver_cpu_seconds": 3.073
+   }
+  },
+  {
+   "run": "N0_srt_r1000000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 252.28178900000057,
+     "p95": 252.82417200000782,
+     "p99": 252.93785399999615,
+     "max": 255.2678390000001,
+     "min": 251.43126100000518
+    },
+    "sender_cpu_seconds": 9.56,
+    "receiver_cpu_seconds": 5.471
+   }
+  },
+  {
+   "run": "N0_srt_r1000000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 252.39208200000576,
+     "p95": 252.9426560000138,
+     "p99": 253.11926500000118,
+     "max": 258.27159799999936,
+     "min": 251.5725470000034
+    },
+    "sender_cpu_seconds": 10.56,
+    "receiver_cpu_seconds": 6.144
+   }
+  },
+  {
+   "run": "N0_tcp_r1000000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 0.7837509999953909,
+     "p95": 1.303342999999586,
+     "p99": 1.4036479999995208,
+     "max": 6.4909760000009555,
+     "min": 0.18370199999480974
+    },
+    "sender_cpu_seconds": 4.387,
+    "receiver_cpu_seconds": 3.49
+   }
+  },
+  {
+   "run": "N0_tcp_r1000000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 0.8268289999978151,
+     "p95": 1.4139240000004065,
+     "p99": 1.56478000000061,
+     "max": 3.459010999999009,
+     "min": 0.18401199999789242
+    },
+    "sender_cpu_seconds": 4.563,
+    "receiver_cpu_seconds": 3.509
+   }
+  },
+  {
+   "run": "N0_tcp_r1000000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 0.8483129999949597,
+     "p95": 1.3950600000025588,
+     "p99": 1.5417969999998604,
+     "max": 9.92167199999858,
+     "min": 0.18761799999629147
+    },
+    "sender_cpu_seconds": 7.286,
+    "receiver_cpu_seconds": 5.64
+   }
+  },
+  {
+   "run": "N0_tcp_r1000000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 0.7840889999934006,
+     "p95": 1.303994000001694,
+     "p99": 1.4037349999998696,
+     "max": 5.153006000007736,
+     "min": 0.18273499999486376
+    },
+    "sender_cpu_seconds": 4.42,
+    "receiver_cpu_seconds": 3.553
+   }
+  },
+  {
+   "run": "N0_tcp_r1000000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 0.8700359999929788,
+     "p95": 1.4294450000015786,
+     "p99": 1.690388000002713,
+     "max": 28.781159000005573,
+     "min": 0.1862600000022212
+    },
+    "sender_cpu_seconds": 9.146,
+    "receiver_cpu_seconds": 7.138
+   }
+  },
+  {
+   "run": "N0_udp_r1000000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 252.07367199999862,
+     "p95": 252.59072899999592,
+     "p99": 252.68452599999728,
+     "max": 257.8674749999991,
+     "min": 251.50523799999792
+    },
+    "sender_cpu_seconds": 4.092,
+    "receiver_cpu_seconds": 4.3
+   }
+  },
+  {
+   "run": "N0_udp_r1000000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 251.94550799999888,
+     "p95": 252.5231219999987,
+     "p99": 252.69007100000454,
+     "max": 279.2167390000104,
+     "min": 251.3347039999935
+    },
+    "sender_cpu_seconds": 7.358,
+    "receiver_cpu_seconds": 7.497
+   }
+  },
+  {
+   "run": "N0_udp_r1000000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 251.7731219999987,
+     "p95": 252.29915599999367,
+     "p99": 252.43105300000025,
+     "max": 369.709861000003,
+     "min": 251.19433800000115
+    },
+    "sender_cpu_seconds": 4.375,
+    "receiver_cpu_seconds": 4.485
+   }
+  },
+  {
+   "run": "N0_udp_r1000000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 251.71795000000566,
+     "p95": 252.23964900000283,
+     "p99": 252.33473400000366,
+     "max": 255.55355500000587,
+     "min": 251.14316999999573
+    },
+    "sender_cpu_seconds": 4.017,
+    "receiver_cpu_seconds": 4.378
+   }
+  },
+  {
+   "run": "N0_udp_r1000000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N0",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "strict"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 251.99507099999755,
+     "p95": 252.53394599999592,
+     "p99": 252.68740100000286,
+     "max": 271.93545400000585,
+     "min": 251.3993300000002
+    },
+    "sender_cpu_seconds": 8.058,
+    "receiver_cpu_seconds": 8.095
+   }
+  },
+  {
+   "run": "N1_srt_r1000000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 274.7671459999983,
+     "p95": 275.40242299999227,
+     "p99": 275.59271499999886,
+     "max": 281.44139300000097,
+     "min": 273.4996900000042
+    },
+    "sender_cpu_seconds": 8.292,
+    "receiver_cpu_seconds": 5.358
+   }
+  },
+  {
+   "run": "N1_srt_r1000000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 277.96344600000157,
+     "p95": 278.67127600000094,
+     "p99": 278.90223100000003,
+     "max": 279.6869630000001,
+     "min": 276.5684820000024
+    },
+    "sender_cpu_seconds": 7.413,
+    "receiver_cpu_seconds": 5.025
+   }
+  },
+  {
+   "run": "N1_srt_r1000000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9994969272727273,
+    "on_time_fraction": 0.9994116181818182,
+    "usable_on_time_fraction": 0.9993855949953919,
+    "missing_samples": 55338,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 274.90227400000003,
+     "p95": 276.47113100000024,
+     "p99": 278.9050900000002,
+     "max": 409.2158390000004,
+     "min": 273.69875700000557
+    },
+    "sender_cpu_seconds": 12.684,
+    "receiver_cpu_seconds": 5.56
+   }
+  },
+  {
+   "run": "N1_srt_r1000000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 277.7831670000014,
+     "p95": 278.4095870000019,
+     "p99": 278.59996199999296,
+     "max": 281.97692500000994,
+     "min": 276.58945899999526
+    },
+    "sender_cpu_seconds": 8.357,
+    "receiver_cpu_seconds": 5.396
+   }
+  },
+  {
+   "run": "N1_srt_r1000000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 1.0,
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0,
+    "missing_samples": 0,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 278.01602000000275,
+     "p95": 278.63692699999956,
+     "p99": 278.8203000000012,
+     "max": 281.60067999999956,
+     "min": 276.791287
+    },
+    "sender_cpu_seconds": 8.756,
+    "receiver_cpu_seconds": 5.59
+   }
+  },
+  {
+   "run": "N1_tcp_r1000000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.20341074545454546,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 87624818,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 2490.2232770000046,
+     "p95": 3293.7307930000097,
+     "p99": 3519.5629640000116,
+     "max": 3640.2305049999995,
+     "min": 1557.2159510000056
+    },
+    "sender_cpu_seconds": 0.961,
+    "receiver_cpu_seconds": 1.341
+   }
+  },
+  {
+   "run": "N1_tcp_r1000000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.2317712909090909,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 84505158,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 2132.318636,
+     "p95": 3116.0616089999967,
+     "p99": 3377.953269999998,
+     "max": 3636.2173949999997,
+     "min": 1276.1029260000068
+    },
+    "sender_cpu_seconds": 0.975,
+    "receiver_cpu_seconds": 1.458
+   }
+  },
+  {
+   "run": "N1_tcp_r1000000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.1998475,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 88016775,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 2402.228635000003,
+     "p95": 3971.476520999997,
+     "p99": 5042.912121000001,
+     "max": 5360.162121000001,
+     "min": 1468.9155539999992
+    },
+    "sender_cpu_seconds": 1.261,
+    "receiver_cpu_seconds": 1.449
+   }
+  },
+  {
+   "run": "N1_tcp_r1000000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.21846654545454544,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 85968680,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 2322.2445759999973,
+     "p95": 3280.8681579999975,
+     "p99": 3872.3265939999983,
+     "max": 4148.794258000009,
+     "min": 1354.561665000001
+    },
+    "sender_cpu_seconds": 1.2,
+    "receiver_cpu_seconds": 1.757
+   }
+  },
+  {
+   "run": "N1_tcp_r1000000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.1956453818181818,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 88479008,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 2407.0292869999976,
+     "p95": 3804.3498469999977,
+     "p99": 4886.842225,
+     "max": 5039.253141999998,
+     "min": 1697.9122690000004
+    },
+    "sender_cpu_seconds": 1.215,
+    "receiver_cpu_seconds": 1.535
+   }
+  },
+  {
+   "run": "N1_udp_r1000000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9989675090909091,
+    "on_time_fraction": 0.9989675090909091,
+    "usable_on_time_fraction": 0.9914914216028523,
+    "missing_samples": 113574,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 276.3359750000018,
+     "p95": 277.0842730000004,
+     "p99": 277.23049699999683,
+     "max": 278.9151920000004,
+     "min": 276.0674599999911
+    },
+    "sender_cpu_seconds": 3.368,
+    "receiver_cpu_seconds": 9.713
+   }
+  },
+  {
+   "run": "N1_udp_r1000000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9990616,
+    "on_time_fraction": 0.9990616,
+    "usable_on_time_fraction": 0.9920592807737779,
+    "missing_samples": 103224,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 267.02055400000245,
+     "p95": 267.79688700000406,
+     "p99": 267.9927699999971,
+     "max": 269.2970939999941,
+     "min": 266.71044899999106
+    },
+    "sender_cpu_seconds": 3.277,
+    "receiver_cpu_seconds": 9.017
+   }
+  },
+  {
+   "run": "N1_udp_r1000000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9990490545454546,
+    "on_time_fraction": 0.9990490545454546,
+    "usable_on_time_fraction": 0.9919475707729402,
+    "missing_samples": 104604,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 275.76151799999934,
+     "p95": 276.5082770000008,
+     "p99": 276.6541540000035,
+     "max": 279.81322699999873,
+     "min": 275.49383300000045
+    },
+    "sender_cpu_seconds": 3.484,
+    "receiver_cpu_seconds": 10.078
+   }
+  },
+  {
+   "run": "N1_udp_r1000000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9990716363636364,
+    "on_time_fraction": 0.9990716363636364,
+    "usable_on_time_fraction": 0.9921616816078793,
+    "missing_samples": 102120,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 269.04496199999994,
+     "p95": 269.79147300000477,
+     "p99": 269.9369790000055,
+     "max": 272.6579239999992,
+     "min": 268.7764060000045
+    },
+    "sender_cpu_seconds": 3.438,
+    "receiver_cpu_seconds": 10.018
+   }
+  },
+  {
+   "run": "N1_udp_r1000000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N1",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9989825636363636,
+    "on_time_fraction": 0.9989825636363636,
+    "usable_on_time_fraction": 0.99144487576917,
+    "missing_samples": 111918,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 275.7006160000019,
+     "p95": 276.4494999999879,
+     "p99": 276.6000849999982,
+     "max": 281.3071369999998,
+     "min": 275.430296999999
+    },
+    "sender_cpu_seconds": 3.847,
+    "receiver_cpu_seconds": 10.747
+   }
+  },
+  {
+   "run": "N2_srt_r1000000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9999786727272727,
+    "on_time_fraction": 0.9999786727272727,
+    "usable_on_time_fraction": 0.9998045074985338,
+    "missing_samples": 2346,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 302.9241140000013,
+     "p95": 303.6150809999963,
+     "p99": 303.85013200000685,
+     "max": 304.4418489999953,
+     "min": 296.1862549999987
+    },
+    "sender_cpu_seconds": 7.955,
+    "receiver_cpu_seconds": 5.007
+   }
+  },
+  {
+   "run": "N2_srt_r1000000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9999510727272727,
+    "on_time_fraction": 0.9999510727272727,
+    "usable_on_time_fraction": 0.9995810874968581,
+    "missing_samples": 5382,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 295.8777839999966,
+     "p95": 296.60047900000063,
+     "p99": 296.84742499999993,
+     "max": 298.51305299999876,
+     "min": 294.4228299999959
+    },
+    "sender_cpu_seconds": 7.873,
+    "receiver_cpu_seconds": 5.102
+   }
+  },
+  {
+   "run": "N2_srt_r1000000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9999661272727273,
+    "on_time_fraction": 0.9999661272727273,
+    "usable_on_time_fraction": 0.999711415831169,
+    "missing_samples": 3726,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 299.23030199999994,
+     "p95": 299.9316649999964,
+     "p99": 300.1730799999932,
+     "max": 304.94484399999783,
+     "min": 297.87049200000183
+    },
+    "sender_cpu_seconds": 8.597,
+    "receiver_cpu_seconds": 5.465
+   }
+  },
+  {
+   "run": "N2_srt_r1000000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9999623636363636,
+    "on_time_fraction": 0.9999623636363636,
+    "usable_on_time_fraction": 0.999674179164223,
+    "missing_samples": 4140,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 296.5014139999985,
+     "p95": 297.19486499999766,
+     "p99": 297.43993500000215,
+     "max": 300.0763950000037,
+     "min": 294.9898249999969
+    },
+    "sender_cpu_seconds": 8.702,
+    "receiver_cpu_seconds": 5.549
+   }
+  },
+  {
+   "run": "N2_srt_r1000000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "srt",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9999711454545455,
+    "on_time_fraction": 0.9999711454545455,
+    "usable_on_time_fraction": 0.9997579616648514,
+    "missing_samples": 3174,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 302.9239549999911,
+     "p95": 303.6413969999994,
+     "p99": 303.8770519999962,
+     "max": 305.5802340000009,
+     "min": 301.3841730000004
+    },
+    "sender_cpu_seconds": 8.351,
+    "receiver_cpu_seconds": 5.384
+   }
+  },
+  {
+   "run": "N2_tcp_r1000000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.030450327272727274,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 106650464,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 16757.557903,
+     "p95": 20694.341683000006,
+     "p99": 21040.406771,
+     "max": 21412.560855,
+     "min": 12040.168294999996
+    },
+    "sender_cpu_seconds": 1.401,
+    "receiver_cpu_seconds": 0.515
+   }
+  },
+  {
+   "run": "N2_tcp_r1000000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.029020145454545454,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 106807784,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 16779.166329,
+     "p95": 19853.648973999996,
+     "p99": 20093.676556,
+     "max": 20439.321641000002,
+     "min": 13151.796651000004
+    },
+    "sender_cpu_seconds": 0.904,
+    "receiver_cpu_seconds": 0.27
+   }
+  },
+  {
+   "run": "N2_tcp_r1000000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.03160827272727273,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 106523090,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 16266.618055,
+     "p95": 20315.79017899999,
+     "p99": 20705.805663,
+     "max": 20859.688704999993,
+     "min": 8671.430319000006
+    },
+    "sender_cpu_seconds": 1.041,
+    "receiver_cpu_seconds": 0.352
+   }
+  },
+  {
+   "run": "N2_tcp_r1000000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.03562810909090909,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 106080908,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 14038.170917999989,
+     "p95": 18263.423387000003,
+     "p99": 18579.55472700001,
+     "max": 18743.4838,
+     "min": 10917.061106999994
+    },
+    "sender_cpu_seconds": 1.532,
+    "receiver_cpu_seconds": 0.543
+   }
+  },
+  {
+   "run": "N2_tcp_r1000000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "tcp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.03167601818181818,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 106515638,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 15285.046099999992,
+     "p95": 17850.684358,
+     "p99": 18577.54894,
+     "max": 18748.391773999996,
+     "min": 13577.169075999998
+    },
+    "sender_cpu_seconds": 0.996,
+    "receiver_cpu_seconds": 0.34
+   }
+  },
+  {
+   "run": "N2_udp_r1000000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9901944727272727,
+    "on_time_fraction": 0.9901944727272727,
+    "usable_on_time_fraction": 0.9205555710708334,
+    "missing_samples": 1078608,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 300.13079900000594,
+     "p95": 300.88679999999295,
+     "p99": 301.021259000001,
+     "max": 304.4719760000007,
+     "min": 299.8436490000022
+    },
+    "sender_cpu_seconds": 3.215,
+    "receiver_cpu_seconds": 9.532
+   }
+  },
+  {
+   "run": "N2_udp_r1000000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9900338909090909,
+    "on_time_fraction": 0.9900338909090909,
+    "usable_on_time_fraction": 0.9190009402258403,
+    "missing_samples": 1096272,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 294.8161820000023,
+     "p95": 295.59686400000646,
+     "p99": 295.78338000000076,
+     "max": 298.1603279999981,
+     "min": 294.5008839999973
+    },
+    "sender_cpu_seconds": 3.179,
+    "receiver_cpu_seconds": 9.098
+   }
+  },
+  {
+   "run": "N2_udp_r1000000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9901028909090909,
+    "on_time_fraction": 0.9901028909090909,
+    "usable_on_time_fraction": 0.9200714944005363,
+    "missing_samples": 1088682,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 286.8275080000021,
+     "p95": 287.5826150000066,
+     "p99": 287.7172150000006,
+     "max": 297.8712039999955,
+     "min": 286.5394129999913
+    },
+    "sender_cpu_seconds": 3.563,
+    "receiver_cpu_seconds": 10.427
+   }
+  },
+  {
+   "run": "N2_udp_r1000000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9899937454545454,
+    "on_time_fraction": 0.9899937454545454,
+    "usable_on_time_fraction": 0.9190288677260499,
+    "missing_samples": 1100688,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 284.13518100000147,
+     "p95": 284.89192199999525,
+     "p99": 285.0285999999978,
+     "max": 289.18955000001006,
+     "min": 283.84341199998744
+    },
+    "sender_cpu_seconds": 3.626,
+    "receiver_cpu_seconds": 10.47
+   }
+  },
+  {
+   "run": "N2_udp_r1000000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N2",
+    "transport": "udp",
+    "rate": 1000000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 120000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9898758181818181,
+    "on_time_fraction": 0.9898758181818181,
+    "usable_on_time_fraction": 0.9177628210498878,
+    "missing_samples": 1113660,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 300.37727100000484,
+     "p95": 301.13005399999383,
+     "p99": 301.2649670000028,
+     "max": 318.0608380000049,
+     "min": 300.09032099999604
+    },
+    "sender_cpu_seconds": 3.374,
+    "receiver_cpu_seconds": 10.067
+   }
+  },
+  {
+   "run": "N3_srt_r100000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9971270909090909,
+    "on_time_fraction": 0.9971270909090909,
+    "usable_on_time_fraction": 0.9885485522763243,
+    "missing_samples": 31602,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 299.3334220000106,
+     "p95": 300.8802369999976,
+     "p99": 301.6501530000023,
+     "max": 306.5519559999957,
+     "min": 297.3958270000003
+    },
+    "sender_cpu_seconds": 3.652,
+    "receiver_cpu_seconds": 2.865
+   }
+  },
+  {
+   "run": "N3_srt_r100000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9974658181818182,
+    "on_time_fraction": 0.9974658181818182,
+    "usable_on_time_fraction": 0.9905967786984452,
+    "missing_samples": 27876,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 302.77755199999956,
+     "p95": 304.37216799998714,
+     "p99": 305.00517400000535,
+     "max": 329.62492900001234,
+     "min": 300.592175999991
+    },
+    "sender_cpu_seconds": 8.599,
+    "receiver_cpu_seconds": 6.663
+   }
+  },
+  {
+   "run": "N3_srt_r100000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9971145454545455,
+    "on_time_fraction": 0.9971145454545455,
+    "usable_on_time_fraction": 0.9896657666883902,
+    "missing_samples": 31740,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 302.6403549999959,
+     "p95": 304.3723879999998,
+     "p99": 305.1025030000019,
+     "max": 308.4591989999899,
+     "min": 291.8970050000007
+    },
+    "sender_cpu_seconds": 5.515,
+    "receiver_cpu_seconds": 4.205
+   }
+  },
+  {
+   "run": "N3_srt_r100000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9976038181818182,
+    "on_time_fraction": 0.9976038181818182,
+    "usable_on_time_fraction": 0.9899450702914068,
+    "missing_samples": 26358,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 296.4491940000007,
+     "p95": 298.1983239999972,
+     "p99": 298.86307400000806,
+     "max": 304.3622170000017,
+     "min": 294.4382359999945
+    },
+    "sender_cpu_seconds": 3.615,
+    "receiver_cpu_seconds": 2.843
+   }
+  },
+  {
+   "run": "N3_srt_r100000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "srt",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9968134545454546,
+    "on_time_fraction": 0.9968134545454546,
+    "usable_on_time_fraction": 0.9886416534773299,
+    "missing_samples": 35052,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 298.0315810000029,
+     "p95": 299.4976709999901,
+     "p99": 300.1262950000091,
+     "max": 319.2233500000002,
+     "min": 296.02882500000123
+    },
+    "sender_cpu_seconds": 8.393,
+    "receiver_cpu_seconds": 6.648
+   }
+  },
+  {
+   "run": "N3_tcp_r100000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [
+    "samples_accounted"
+   ],
+   "reasons": {
+    "samples_accounted": "END not observed: none"
+   },
+   "config": {
+    "profile": "N3",
+    "transport": "tcp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.057779636363636366,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 10364424,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 2325.7524520000006,
+     "p95": 42648.188324,
+     "p99": 42783.320533000006,
+     "max": 42877.380491,
+     "min": 1347.015034000011
+    },
+    "sender_cpu_seconds": 0.771,
+    "receiver_cpu_seconds": 0.217
+   }
+  },
+  {
+   "run": "N3_tcp_r100000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [
+    "samples_accounted"
+   ],
+   "reasons": {
+    "samples_accounted": "END not observed: connection_lost"
+   },
+   "config": {
+    "profile": "N3",
+    "transport": "tcp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.055162363636363634,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 10393214,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 4192.347424,
+     "p95": 32755.428641000006,
+     "p99": 33299.916182999994,
+     "max": 33542.092141,
+     "min": 637.6205279999995
+    },
+    "sender_cpu_seconds": 1.486,
+    "receiver_cpu_seconds": 0.345
+   }
+  },
+  {
+   "run": "N3_tcp_r100000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [
+    "samples_accounted"
+   ],
+   "reasons": {
+    "samples_accounted": "END not observed: connection_lost"
+   },
+   "config": {
+    "profile": "N3",
+    "transport": "tcp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.03744818181818182,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 10588070,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 2073.685007,
+     "p95": 82660.15881,
+     "p99": 83828.125768,
+     "max": 84001.63810099999,
+     "min": 1233.6231740000003
+    },
+    "sender_cpu_seconds": 0.998,
+    "receiver_cpu_seconds": 0.171
+   }
+  },
+  {
+   "run": "N3_tcp_r100000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "tcp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.00885709090909091,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 10902572,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 18771.954306,
+     "p95": 89510.686636,
+     "p99": 89842.75097000001,
+     "max": 89852.404553,
+     "min": 9823.149558000005
+    },
+    "sender_cpu_seconds": 0.72,
+    "receiver_cpu_seconds": 0.126
+   }
+  },
+  {
+   "run": "N3_tcp_r100000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "tcp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.004767272727272728,
+    "on_time_fraction": 0.0,
+    "usable_on_time_fraction": 0.0,
+    "missing_samples": 10947560,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 66877.77826400001,
+     "p95": 111449.149347,
+     "p99": 111469.534556,
+     "max": 111471.585806,
+     "min": 5845.047930999994
+    },
+    "sender_cpu_seconds": 1.706,
+    "receiver_cpu_seconds": 0.29
+   }
+  },
+  {
+   "run": "N3_udp_r100000_l250_rep0",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "udp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 0,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.935554,
+    "on_time_fraction": 0.935554,
+    "usable_on_time_fraction": 0.8470347267479751,
+    "missing_samples": 708906,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 291.08286199999566,
+     "p95": 291.77525000000605,
+     "p99": 291.9527970000054,
+     "max": 297.1225239999985,
+     "min": 290.5840040000039
+    },
+    "sender_cpu_seconds": 1.932,
+    "receiver_cpu_seconds": 2.115
+   }
+  },
+  {
+   "run": "N3_udp_r100000_l250_rep1",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "udp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 1,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9360307272727273,
+    "on_time_fraction": 0.9360307272727273,
+    "usable_on_time_fraction": 0.8445209943208267,
+    "missing_samples": 703662,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 287.31418799999665,
+     "p95": 288.0737730000037,
+     "p99": 288.4211309999955,
+     "max": 300.6181229999929,
+     "min": 286.7253000000019
+    },
+    "sender_cpu_seconds": 4.558,
+    "receiver_cpu_seconds": 4.699
+   }
+  },
+  {
+   "run": "N3_udp_r100000_l250_rep2",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "udp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 2,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9398445454545454,
+    "on_time_fraction": 0.9398445454545454,
+    "usable_on_time_fraction": 0.8573689600595847,
+    "missing_samples": 661710,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 302.2328019999986,
+     "p95": 302.9546730000002,
+     "p99": 303.1338289999985,
+     "max": 307.87932900000305,
+     "min": 301.6977009999973
+    },
+    "sender_cpu_seconds": 2.89,
+    "receiver_cpu_seconds": 3.076
+   }
+  },
+  {
+   "run": "N3_udp_r100000_l250_rep3",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "udp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 3,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9366329090909091,
+    "on_time_fraction": 0.9366329090909091,
+    "usable_on_time_fraction": 0.8518759892002606,
+    "missing_samples": 697038,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 302.9386530000047,
+     "p95": 303.64651199999935,
+     "p99": 303.80487199999334,
+     "max": 306.3636439999973,
+     "min": 302.4213860000018
+    },
+    "sender_cpu_seconds": 1.869,
+    "receiver_cpu_seconds": 1.995
+   }
+  },
+  {
+   "run": "N3_udp_r100000_l250_rep4",
+   "overall": "pass",
+   "failed_gates": [],
+   "inconclusive_gates": [],
+   "reasons": {},
+   "config": {
+    "profile": "N3",
+    "transport": "udp",
+    "rate": 100000,
+    "latency_ms": 250,
+    "rep": 4,
+    "seconds": 120,
+    "samples": 12000000,
+    "format": "cf32",
+    "policy": "segmented"
+   },
+   "metrics": {
+    "delivered_fraction": 0.9342869090909091,
+    "on_time_fraction": 0.9342869090909091,
+    "usable_on_time_fraction": 0.8425658690997114,
+    "missing_samples": 722844,
+    "recovery_s": null,
+    "age_ms": {
+     "p50": 303.29369799999404,
+     "p95": 304.00508600000467,
+     "p99": 304.1841859999986,
+     "max": 347.77795499999775,
+     "min": 302.76643599999807
+    },
+    "sender_cpu_seconds": 2.815,
+    "receiver_cpu_seconds": 2.963
+   }
+  }
+ ]
+}

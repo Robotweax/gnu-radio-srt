@@ -1,0 +1,35 @@
+{
+ "gates": {
+  "evidence_present": {
+   "result": "pass",
+   "mandatory": true,
+   "reason": ""
+  },
+  "processes_ended": {
+   "result": "pass",
+   "mandatory": true,
+   "reason": ""
+  },
+  "no_altered_samples": {
+   "result": "pass",
+   "mandatory": true,
+   "reason": "0 altered"
+  },
+  "samples_accounted": {
+   "result": "inconclusive",
+   "mandatory": true,
+   "reason": "END not observed: queue_overflow"
+  },
+  "n0_complete_and_exact": {
+   "result": "fail",
+   "mandatory": true,
+   "reason": "missing 54148541, end none"
+  },
+  "p99_age_within_budget": {
+   "result": "pass",
+   "mandatory": false,
+   "reason": "p99 253.6 ms, budget 400 ms (effective latency 250 + 150)"
+  }
+ },
+ "overall": "fail"
+}

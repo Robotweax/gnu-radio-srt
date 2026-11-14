@@ -1145,6 +1145,26 @@ with 0.1.0-rc1 and overload a user-visible field).
   message is never both a record and a notice.
 - `tools/run_matrix.py --plan rc2`.
 
+## D56. Burst loss confirmed; 1 MS/s stays exploratory
+
+Plan `secondary-rep` (declared before its runs, 2026-11-14): five
+repetitions of N3 at 100 kS/s and of N0 to N2 at 1 MS/s, all transports.
+Results: [results-secondary-rep.md](results-secondary-rep.md).
+
+- SRT's usable on-time fraction was above both baselines in all five
+  repetitions on N3 at 100 kS/s and on N1 and N2 at 1 MS/s.
+- One of 15 SRT runs at 1 MS/s failed: on the clean path the receiving
+  process was not scheduled for 76 ms, a record outlived the 100 ms queue
+  age, and the strict run ended, reported at both ends. The UDP run beside
+  it was disturbed at the same moment, which points to the shared host and
+  does not prove it. The criterion was fixed in advance: 1 MS/s is not
+  added to the supported envelope.
+- Not changed: `queue_max_age_ms` and queue defaults. Whether a larger
+  value suits 1 MS/s needs a host of its own (open item 3).
+- 0.1.0-rc2 was tagged (`c25c678`) and published as a pre-release on
+  2026-11-14 on the owner's word, with the package from CI run
+  43516353024.
+
 ## Open items after rc1 work
 
 1. Two-host experiment with independent clocks, and a clock-offset
@@ -1155,8 +1175,9 @@ with 0.1.0-rc1 and overload a user-visible field).
 4. An independent person reproducing the examples from the documentation.
 5. A default for `max_lateness_ms`: needs more than one emulated case.
 6. A Listener does not see a Caller with a wrong passphrase.
-7. Repetitions for the secondary cells of M4 (1 MS/s, burst loss).
+7. 1 MS/s on a host of its own, with the queue age that a strict stream
+   needs there (D56). The other secondary cells of M4 (100 ms and 500 ms
+   latency, N5, N6) still have one run each.
 8. The strict Sink's sender-drop path (D33) was never triggered.
-9. Tagging 0.1.0-rc2, and whether 0.1.0 is released with the items above
-   open: owner decisions.
+9. Whether 0.1.0 is released with the items above open: owner decision.
 10. No first user: academic project for now (owner, 2026-11-12).

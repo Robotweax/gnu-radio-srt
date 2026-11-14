@@ -1,0 +1,41 @@
+{
+ "name": "N0_srt_r1000000_l250_rep2",
+ "config": {
+  "profile": "N0",
+  "transport": "srt",
+  "rate": 1000000,
+  "latency_ms": 250,
+  "rep": 2,
+  "seconds": 120,
+  "samples": 120000000,
+  "format": "cf32",
+  "policy": "strict"
+ },
+ "profile": {
+  "name": "clean",
+  "forward": {},
+  "reverse": {}
+ },
+ "warmup_s": 10,
+ "offered_wire_bits_per_second": 72677760,
+ "slot": 1,
+ "hung": false,
+ "started_unix": 1794639349.487317,
+ "loadavg_start": [
+  0.99267578125,
+  0.89306640625,
+  0.5048828125
+ ],
+ "clock": "CLOCK_MONOTONIC shared by sender, receiver and runner (same host)",
+ "secrets": "none: all transports run in plaintext",
+ "exit": {
+  "sender": 2,
+  "receiver": 2
+ },
+ "loadavg_end": [
+  0.70654296875,
+  0.8359375,
+  0.51171875
+ ],
+ "duration_s": 67.7
+}
