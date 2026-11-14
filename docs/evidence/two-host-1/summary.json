@@ -1,0 +1,645 @@
+{
+ "plan": "two-host-1",
+ "date_utc": "2026-11-14",
+ "cases_utc": "09:49:53 to 10:05:25",
+ "note": "Figures derived by the private harness's validator from the raw records of one run. Addresses, run identifiers and the sealed archive are kept by the maintainer and are not published.",
+ "setup": {
+  "sender_region": "Frankfurt",
+  "receiver_region": "Berlin",
+  "machines": "2 vCPU, 4 GiB, Ubuntu 24.04 x86-64, shared hosts",
+  "toolchain": "g++ 13.3.0, cmake 3.28.3, OpenSSL 3.0.13",
+  "robotweax_srt_commit": "e45d0edd346e5c427d85e4c3b1ac605c81a23397",
+  "module_commit": "c25c678bdc07425b07c539c112b3ffe37e9c3196",
+  "module_archive_sha256": "bbbe05e1cd0af16e0022becfaba4aeb7ac1714aeff39de41dbdb37b14e644210",
+  "identical_on_both_machines": {
+   "sender_sha256": "eeb1073797ed81fb88a2d9580de6d76eb5c2f13430529b2d4fd8595b3167240f",
+   "receiver_sha256": "b3e45fdbb1d58f970c86956ba53f6b2f074db73f617d48c8d5ef40d1dfad7089",
+   "library_sha256": "1e4970bf7d13ed53176d282f877455e9478c6c2d10ece67aa5713c86278f0c54"
+  }
+ },
+ "harness_verdict": {
+  "evidence_status": "VALID",
+  "complete": true,
+  "status": "PASS",
+  "cleanup": "recovery_passed"
+ },
+ "cases": [
+  {
+   "case": "wan-1",
+   "netem": null,
+   "status": "PASS",
+   "checks": {
+    "no_altered_samples": true,
+    "processes_completed": true,
+    "samples_accounted": true
+   },
+   "clock": {
+    "drift_ms": 0.114,
+    "exchanges": {
+     "after": 64,
+     "before": 64
+    },
+    "round_trip_ms": {
+     "after": 10.16,
+     "before": 9.641
+    },
+    "uncertainty_ms": 5.137
+   },
+   "metrics": {
+    "age_ms": {
+     "max": 276.39332649999415,
+     "min": 257.00187449999794,
+     "p50": 257.9525055000049,
+     "p95": 258.67619350000314,
+     "p99": 258.92814350000117
+    },
+    "analysis_windows": 10741,
+    "deadline_ms": 400,
+    "delivered_fraction": 1.0,
+    "delivered_samples": 11000000,
+    "missing_samples": 0,
+    "offered_samples": 11000000,
+    "on_time_fraction": 1.0,
+    "on_time_samples": 11000000,
+    "usable_on_time_fraction": 1.0,
+    "usable_on_time_windows": 10741
+   },
+   "metrics_at_clock_bound": {
+    "age_ms": {
+     "max": 281.5306969999947,
+     "min": 262.1392449999985,
+     "p50": 263.08987600000546,
+     "p95": 263.8135640000037,
+     "p99": 264.0655140000017
+    },
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0
+   },
+   "receiver": {
+    "discontinuities": 0,
+    "end_index": 12000000,
+    "end_seen": true,
+    "first_index": 0,
+    "missing_known_samples": 0,
+    "queue_drop_breaks": 0,
+    "reasons": "",
+    "samples_altered": 0,
+    "samples_received": 12000000,
+    "timed_out": false,
+    "unknown_breaks": 0
+   },
+   "sender_samples_produced": 12000000,
+   "srt": {
+    "effective_latency_ms": 250,
+    "receiver_link": {
+     "packets_received": 86960,
+     "packets_sent": 0,
+     "receive_dropped": 0,
+     "receive_loss": 0,
+     "retransmitted": 0,
+     "rtt_ms": 11.746,
+     "send_dropped": 0,
+     "send_loss": 0,
+     "undecrypted": 0,
+     "valid": true
+    },
+    "sender_link": {
+     "packets_received": 0,
+     "packets_sent": 86960,
+     "receive_dropped": 0,
+     "receive_loss": 0,
+     "retransmitted": 0,
+     "rtt_ms": 11.471,
+     "send_dropped": 0,
+     "send_loss": 0,
+     "undecrypted": 0,
+     "valid": true
+    }
+   },
+   "cpu_seconds": {
+    "sender": 5.894,
+    "receiver": 6.203
+   },
+   "netem_readback": {
+    "receiver": {},
+    "sender": {}
+   },
+   "udp_error_deltas": {
+    "receiver": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 0,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    },
+    "sender": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 1,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    }
+   }
+  },
+  {
+   "case": "loss-1",
+   "netem": {
+    "delay_ms": 20,
+    "jitter_ms": 0,
+    "loss_percent": 1,
+    "queue_packets": 1000
+   },
+   "status": "PASS",
+   "checks": {
+    "no_altered_samples": true,
+    "processes_completed": true,
+    "samples_accounted": true
+   },
+   "clock": {
+    "drift_ms": 0.973,
+    "exchanges": {
+     "after": 64,
+     "before": 64
+    },
+    "round_trip_ms": {
+     "after": 9.64,
+     "before": 9.863
+    },
+    "uncertainty_ms": 5.418
+   },
+   "metrics": {
+    "age_ms": {
+     "max": 291.36951400000544,
+     "min": 276.5199219999995,
+     "p50": 277.71425199999794,
+     "p95": 278.534891000003,
+     "p99": 278.8006199999945
+    },
+    "analysis_windows": 10741,
+    "deadline_ms": 400,
+    "delivered_fraction": 1.0,
+    "delivered_samples": 11000000,
+    "missing_samples": 0,
+    "offered_samples": 11000000,
+    "on_time_fraction": 1.0,
+    "on_time_samples": 11000000,
+    "usable_on_time_fraction": 1.0,
+    "usable_on_time_windows": 10741
+   },
+   "metrics_at_clock_bound": {
+    "age_ms": {
+     "max": 296.7872309999948,
+     "min": 281.93763899999976,
+     "p50": 283.13196900000185,
+     "p95": 283.9526080000069,
+     "p99": 284.2183369999984
+    },
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0
+   },
+   "receiver": {
+    "discontinuities": 1,
+    "end_index": 12000000,
+    "end_seen": true,
+    "first_index": 552,
+    "missing_known_samples": 0,
+    "queue_drop_breaks": 0,
+    "reasons": "initial_join",
+    "samples_altered": 0,
+    "samples_received": 11999448,
+    "timed_out": false,
+    "unknown_breaks": 1
+   },
+   "sender_samples_produced": 12000000,
+   "srt": {
+    "effective_latency_ms": 250,
+    "receiver_link": {
+     "packets_received": 86956,
+     "packets_sent": 0,
+     "receive_dropped": 0,
+     "receive_loss": 908,
+     "retransmitted": 0,
+     "rtt_ms": 51.813,
+     "send_dropped": 0,
+     "send_loss": 0,
+     "undecrypted": 0,
+     "valid": true
+    },
+    "sender_link": {
+     "packets_received": 0,
+     "packets_sent": 87869,
+     "receive_dropped": 0,
+     "receive_loss": 0,
+     "retransmitted": 913,
+     "rtt_ms": 51.585,
+     "send_dropped": 0,
+     "send_loss": 913,
+     "undecrypted": 0,
+     "valid": true
+    }
+   },
+   "cpu_seconds": {
+    "sender": 5.94,
+    "receiver": 6.037
+   },
+   "netem_readback": {
+    "receiver": {
+     "netem_packets": 12338,
+     "netem_drops": 116
+    },
+    "sender": {
+     "netem_packets": 98293,
+     "netem_drops": 1029
+    }
+   },
+   "udp_error_deltas": {
+    "receiver": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 0,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    },
+    "sender": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 5,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    }
+   }
+  },
+  {
+   "case": "wan-2",
+   "netem": null,
+   "status": "PASS",
+   "checks": {
+    "no_altered_samples": true,
+    "processes_completed": true,
+    "samples_accounted": true
+   },
+   "clock": {
+    "drift_ms": 0.458,
+    "exchanges": {
+     "after": 64,
+     "before": 64
+    },
+    "round_trip_ms": {
+     "after": 10.07,
+     "before": 9.84
+    },
+    "uncertainty_ms": 5.264
+   },
+   "metrics": {
+    "age_ms": {
+     "max": 267.05326100000093,
+     "min": 256.6383980000028,
+     "p50": 257.3696249999921,
+     "p95": 257.9157250000062,
+     "p99": 258.0634779999964
+    },
+    "analysis_windows": 10741,
+    "deadline_ms": 400,
+    "delivered_fraction": 1.0,
+    "delivered_samples": 11000000,
+    "missing_samples": 0,
+    "offered_samples": 11000000,
+    "on_time_fraction": 1.0,
+    "on_time_samples": 11000000,
+    "usable_on_time_fraction": 1.0,
+    "usable_on_time_windows": 10741
+   },
+   "metrics_at_clock_bound": {
+    "age_ms": {
+     "max": 272.31755699999485,
+     "min": 261.90269400000034,
+     "p50": 262.633920999986,
+     "p95": 263.1800210000001,
+     "p99": 263.3277739999903
+    },
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0
+   },
+   "receiver": {
+    "discontinuities": 0,
+    "end_index": 12000000,
+    "end_seen": true,
+    "first_index": 0,
+    "missing_known_samples": 0,
+    "queue_drop_breaks": 0,
+    "reasons": "",
+    "samples_altered": 0,
+    "samples_received": 12000000,
+    "timed_out": false,
+    "unknown_breaks": 0
+   },
+   "sender_samples_produced": 12000000,
+   "srt": {
+    "effective_latency_ms": 250,
+    "receiver_link": {
+     "packets_received": 86960,
+     "packets_sent": 0,
+     "receive_dropped": 0,
+     "receive_loss": 0,
+     "retransmitted": 0,
+     "rtt_ms": 12.094,
+     "send_dropped": 0,
+     "send_loss": 0,
+     "undecrypted": 0,
+     "valid": true
+    },
+    "sender_link": {
+     "packets_received": 0,
+     "packets_sent": 86960,
+     "receive_dropped": 0,
+     "receive_loss": 0,
+     "retransmitted": 0,
+     "rtt_ms": 11.951,
+     "send_dropped": 0,
+     "send_loss": 0,
+     "undecrypted": 0,
+     "valid": true
+    }
+   },
+   "cpu_seconds": {
+    "sender": 6.207,
+    "receiver": 6.169
+   },
+   "netem_readback": {
+    "receiver": {},
+    "sender": {}
+   },
+   "udp_error_deltas": {
+    "receiver": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 0,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    },
+    "sender": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 1,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    }
+   }
+  },
+  {
+   "case": "loss-2",
+   "netem": {
+    "delay_ms": 20,
+    "jitter_ms": 0,
+    "loss_percent": 1,
+    "queue_packets": 1000
+   },
+   "status": "PASS",
+   "checks": {
+    "no_altered_samples": true,
+    "processes_completed": true,
+    "samples_accounted": true
+   },
+   "clock": {
+    "drift_ms": 1.126,
+    "exchanges": {
+     "after": 64,
+     "before": 64
+    },
+    "round_trip_ms": {
+     "after": 9.833,
+     "before": 10.218
+    },
+    "uncertainty_ms": 5.672
+   },
+   "metrics": {
+    "age_ms": {
+     "max": 286.9698092500039,
+     "min": 276.47643125000104,
+     "p50": 277.4849442499981,
+     "p95": 278.1841722500103,
+     "p99": 278.3804372500017
+    },
+    "analysis_windows": 10741,
+    "deadline_ms": 400,
+    "delivered_fraction": 1.0,
+    "delivered_samples": 11000000,
+    "missing_samples": 0,
+    "offered_samples": 11000000,
+    "on_time_fraction": 1.0,
+    "on_time_samples": 11000000,
+    "usable_on_time_fraction": 1.0,
+    "usable_on_time_windows": 10741
+   },
+   "metrics_at_clock_bound": {
+    "age_ms": {
+     "max": 292.6417799999981,
+     "min": 282.1484020000007,
+     "p50": 283.1569149999996,
+     "p95": 283.85614299999725,
+     "p99": 284.05240799998865
+    },
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0
+   },
+   "receiver": {
+    "discontinuities": 1,
+    "end_index": 12000000,
+    "end_seen": true,
+    "first_index": 690,
+    "missing_known_samples": 0,
+    "queue_drop_breaks": 0,
+    "reasons": "initial_join",
+    "samples_altered": 0,
+    "samples_received": 11999310,
+    "timed_out": false,
+    "unknown_breaks": 1
+   },
+   "sender_samples_produced": 12000000,
+   "srt": {
+    "effective_latency_ms": 250,
+    "receiver_link": {
+     "packets_received": 86955,
+     "packets_sent": 0,
+     "receive_dropped": 0,
+     "receive_loss": 879,
+     "retransmitted": 0,
+     "rtt_ms": 51.988,
+     "send_dropped": 0,
+     "send_loss": 0,
+     "undecrypted": 0,
+     "valid": true
+    },
+    "sender_link": {
+     "packets_received": 0,
+     "packets_sent": 87842,
+     "receive_dropped": 0,
+     "receive_loss": 0,
+     "retransmitted": 887,
+     "rtt_ms": 52.013,
+     "send_dropped": 0,
+     "send_loss": 887,
+     "undecrypted": 0,
+     "valid": true
+    }
+   },
+   "cpu_seconds": {
+    "sender": 5.333,
+    "receiver": 6.008
+   },
+   "netem_readback": {
+    "receiver": {
+     "netem_packets": 12322,
+     "netem_drops": 108
+    },
+    "sender": {
+     "netem_packets": 98313,
+     "netem_drops": 992
+    }
+   },
+   "udp_error_deltas": {
+    "receiver": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 0,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    },
+    "sender": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 5,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    }
+   }
+  },
+  {
+   "case": "wan-3",
+   "netem": null,
+   "status": "PASS",
+   "checks": {
+    "no_altered_samples": true,
+    "processes_completed": true,
+    "samples_accounted": true
+   },
+   "clock": {
+    "drift_ms": -0.255,
+    "exchanges": {
+     "after": 64,
+     "before": 64
+    },
+    "round_trip_ms": {
+     "after": 10.104,
+     "before": 9.595
+    },
+    "uncertainty_ms": 5.18
+   },
+   "metrics": {
+    "age_ms": {
+     "max": 270.2372037499954,
+     "min": 257.10086474999844,
+     "p50": 258.17443075000483,
+     "p95": 258.82567274999747,
+     "p99": 259.0184537499954
+    },
+    "analysis_windows": 10741,
+    "deadline_ms": 400,
+    "delivered_fraction": 1.0,
+    "delivered_samples": 11000000,
+    "missing_samples": 0,
+    "offered_samples": 11000000,
+    "on_time_fraction": 1.0,
+    "on_time_samples": 11000000,
+    "usable_on_time_fraction": 1.0,
+    "usable_on_time_windows": 10741
+   },
+   "metrics_at_clock_bound": {
+    "age_ms": {
+     "max": 275.4169699999984,
+     "min": 262.28063100000145,
+     "p50": 263.35419700000057,
+     "p95": 264.0054390000005,
+     "p99": 264.1982199999984
+    },
+    "on_time_fraction": 1.0,
+    "usable_on_time_fraction": 1.0
+   },
+   "receiver": {
+    "discontinuities": 0,
+    "end_index": 12000000,
+    "end_seen": true,
+    "first_index": 0,
+    "missing_known_samples": 0,
+    "queue_drop_breaks": 0,
+    "reasons": "",
+    "samples_altered": 0,
+    "samples_received": 12000000,
+    "timed_out": false,
+    "unknown_breaks": 0
+   },
+   "sender_samples_produced": 12000000,
+   "srt": {
+    "effective_latency_ms": 250,
+    "receiver_link": {
+     "packets_received": 86960,
+     "packets_sent": 0,
+     "receive_dropped": 0,
+     "receive_loss": 0,
+     "retransmitted": 0,
+     "rtt_ms": 11.636,
+     "send_dropped": 0,
+     "send_loss": 0,
+     "undecrypted": 0,
+     "valid": true
+    },
+    "sender_link": {
+     "packets_received": 0,
+     "packets_sent": 86960,
+     "receive_dropped": 0,
+     "receive_loss": 0,
+     "retransmitted": 0,
+     "rtt_ms": 11.718,
+     "send_dropped": 0,
+     "send_loss": 0,
+     "undecrypted": 0,
+     "valid": true
+    }
+   },
+   "cpu_seconds": {
+    "sender": 5.963,
+    "receiver": 6.216
+   },
+   "netem_readback": {
+    "receiver": {},
+    "sender": {}
+   },
+   "udp_error_deltas": {
+    "receiver": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 0,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    },
+    "sender": {
+     "IgnoredMulti": 0,
+     "InCsumErrors": 0,
+     "InErrors": 0,
+     "NoPorts": 1,
+     "RcvbufErrors": 0,
+     "SndbufErrors": 0
+    }
+   }
+  }
+ ]
+}

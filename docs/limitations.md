@@ -7,8 +7,11 @@ Read this before relying on the module for a measurement.
 - **A real network.** All network results come from Linux netem in network
   namespaces on one machine. netem reorders packets more than a real path
   with the same jitter figure.
-- **Two hosts.** Sender and receiver always shared one machine and one
-  clock. There is no procedure yet for relating two clocks.
+- **Two hosts, beyond one run.** One run of the reference peers between two
+  cloud machines on one path met its criteria
+  ([results-two-host-1.md](results-two-host-1.md)). The GNU Radio blocks,
+  encryption, 1 MS/s, a path with real loss and a long run were not run
+  between two machines.
 - **Acquisition hardware.** The Sink was fed by synthetic, throttled
   sources. No SDR front end, no hardware timestamps, no overrun reports.
 - **A dedicated machine.** Timing figures come from a shared, virtualised

@@ -1165,6 +1165,27 @@ Results: [results-secondary-rep.md](results-secondary-rep.md).
   2026-11-14 on the owner's word, with the package from CI run
   43516353024.
 
+## D57. First run between two machines
+
+Plan `two-host-1` (declared in [benchmarking.md](benchmarking.md) before the
+run, 2026-11-14). Results: [results-two-host-1.md](results-two-host-1.md).
+
+- The owner decided that the cloud test environment stays private: the
+  harness lives in his private lab repository and only derived results are
+  published here. This repository therefore holds no provisioning code and
+  cannot reproduce the run by itself; the plan, the pins and the derived
+  figures are what it records.
+- One run, sender in Frankfurt and receiver in Berlin, the reference peers
+  from the published rc2 source. All five criteria were met: complete and on
+  time in all five cases, 1 % added loss repaired in time, clock bound 5.1 to
+  5.7 ms.
+- Clock procedure: two-way UDP exchanges before and after each case; offset
+  from the exchange with the shortest round trip, error at most half that
+  round trip plus half the change between the two measurements; ages are
+  judged at that bound.
+- It does not widen the supported envelope (one path, one configuration, no
+  blocks, no encryption).
+
 ## Open items after rc1 work
 
 1. Two-host experiment with independent clocks, and a clock-offset
