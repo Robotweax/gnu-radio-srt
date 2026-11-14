@@ -281,3 +281,69 @@ What a pass would and would not mean: a repeated difference in this
 emulation on one machine. Four runs at 1 MS/s share the host; load
 averages are recorded. It says nothing about a real network or about
 rates above 1 MS/s.
+
+### Plan `two-host-1` (written 2026-11-14, before its run)
+
+Everything above ran on one machine with one clock. This plan is the first
+run between two machines over a real path. No existing definition, gate,
+deadline, profile or plan is changed.
+
+**Setup.** Two cloud virtual machines of one provider in two German regions
+(sender in Frankfurt, receiver in Berlin), Ubuntu 24.04 x86-64, 2 vCPU and
+4 GiB each, public IPv4, shared hosts. A private test harness of the
+maintainer creates them, builds on both and removes them; it is not part of
+this repository. Both machines build Robotweax SRT `e45d0edd` (0.3.2) and the
+reference sender and receiver from the published 0.1.0-rc2 source (commit
+`c25c678`, content hash `bbbe05e1…4210`), and the two builds must be
+identical. The GNU Radio blocks are not part of this run.
+
+**Cases**, in this order, one run each, 120 s, cf32 at 100 kS/s, latency
+250 ms, segmented continuity, plaintext, `max_lateness_ms` off:
+
+| Case | Path |
+|---|---|
+| `wan-1`, `wan-2`, `wan-3` | the path between the two regions as it is |
+| `loss-1`, `loss-2` | the same path plus netem on both machines' egress towards the other: 20 ms delay, 1 % random loss |
+
+Order: `wan-1`, `loss-1`, `wan-2`, `loss-2`, `wan-3`.
+
+**Clocks.** The two machines' monotonic clocks are unrelated. Before and
+after every case, outside netem, 64 two-way UDP exchanges are recorded. The
+offset comes from the exchange with the shortest round trip; its error is at
+most half that round trip, plus half the difference between the two
+measurements of a case. Ages below are taken **at that bound**: every sample
+is counted as old as the clock error allows.
+
+**Metrics** are those defined above (10 s warm-up, deadline 400 ms, windows
+of 1024 samples), computed by the harness's validator from the receiver's
+per-record log.
+
+**Criteria**, fixed before the run:
+
+1. **Complete.** The harness reports valid evidence and all five cases ran.
+   If not, the result is reported as incomplete and criteria 2 to 5 are not
+   evaluated for the missing part.
+2. **Integrity and accounting,** every case: no altered sample; first index
+   + received + reported missing = sent, with END observed.
+3. **Clock.** The clock bound of every case is at most 20 ms. For a case
+   above that, ages are reported as not measurable and criteria 4 and 5 are
+   not evaluated for it.
+4. **Real path,** each of the three `wan` cases: at least 99.5 % of the
+   windows complete and on time, and p99 age at most 400 ms.
+5. **Real path with added loss,** each of the two `loss` cases: the same two
+   limits.
+
+Where the limits come from: in emulation the supported envelope gave at
+least 99.898 % of the windows and a p99 age of at most 304 ms on paths up to
+40 ms delay and 1 % loss. 99.5 % and the unchanged 400 ms deadline leave room
+for shared hosts: one pause of 100 ms costs about 0.09 % of a run.
+
+**One run.** A failed or incomplete run is reported as it is. It is not
+repeated to obtain a better result; a later run would be a new plan.
+
+What a pass would and would not mean: the behaviour seen in emulation was
+also seen once between two machines on one real path with two clocks. One
+direction, one day, shared virtual machines, the reference peers and not the
+blocks, no encryption, one rate. Netem on top of a real path is still
+emulated loss. It is not field qualification.
+
