@@ -15,8 +15,11 @@ What stands behind it: outages, reconnects, lost records and a vanished peer
 are tested with a scripted fault-injecting relay. The transport was measured
 against UDP and TCP on emulated paths (netem) on one virtualised machine;
 [docs/results-m4.md](docs/results-m4.md) says what that showed and gives the
-supported operating envelope. **It has not been run on a real network,
-between two hosts, or with acquisition hardware, and nobody outside the
+supported operating envelope. One run of the reference sender and receiver
+between two cloud machines met its criteria
+([docs/results-two-host-1.md](docs/results-two-host-1.md)). **The blocks
+themselves have not been run between two hosts, nothing has been run with
+acquisition hardware or on a path with real loss, and nobody outside the
 project has used it. Field readiness is not claimed.** Read
 [docs/limitations.md](docs/limitations.md) first.
 

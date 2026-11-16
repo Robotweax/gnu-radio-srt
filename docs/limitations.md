@@ -4,9 +4,10 @@ Read this before relying on the module for a measurement.
 
 ## What has not been tried
 
-- **A real network.** All network results come from Linux netem in network
-  namespaces on one machine. netem reorders packets more than a real path
-  with the same jitter figure.
+- **A real network with real loss.** Almost all network results come from
+  Linux netem in network namespaces on one machine. netem reorders packets
+  more than a real path with the same jitter figure. The one real path
+  used so far lost nothing, so loss there was emulated as well.
 - **Two hosts, beyond one run.** One run of the reference peers between two
   cloud machines on one path met its criteria
   ([results-two-host-1.md](results-two-host-1.md)). The GNU Radio blocks,
