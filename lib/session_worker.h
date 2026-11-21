@@ -136,6 +136,7 @@ private:
     void drain_send(srt_endpoint& ep);
     bool cancelled() const noexcept { return d_cancel.load(std::memory_order_relaxed); }
     bool apply_external_failure();
+    bool apply_external_failure_locked(); // d_mutex held
     void fatal(session_failure reason, const std::string& detail, int code = 0);
     void publish(srt_endpoint* ep = nullptr);
     void note_slice(clock::time_point started);

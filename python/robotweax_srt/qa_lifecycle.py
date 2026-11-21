@@ -45,6 +45,7 @@ class qa_lifecycle(gr_unittest.TestCase):
         got = rx.data()
         self.assertGreater(len(got), 20000)
         self.assertEqual(got, test_like_null(len(got)))
+        self.assertEqual(r["session"]["state"], "failed")
         self.assertEqual(r["session"]["failure"], "connection_lost")
         self.assertTrue(r["session"]["termination_unknown"])
         self.assertFalse(r["end_emitted"])
@@ -52,6 +53,38 @@ class qa_lifecycle(gr_unittest.TestCase):
         self.assertEqual(r["session"]["end"], "none")
         evidence("user_stop", sink_stop_ms=stop_ms, receiver_ended_after_s=waited,
                  received=len(got), consumed=s["input_samples_consumed"])
+
+    def test_source_stops_before_end(self):
+        for policy in (STRICT, SEG):
+            with self.subTest(policy=policy):
+                ts, ss, tr, sr = configs(free_udp_port(), policy=policy)
+                rx = Receiver(tr, sr, "cf32")
+                tx = Sender(ts, ss, "cf32", None, endless=True)
+                rx.tb.start()
+                try:
+                    time.sleep(0.2)
+                    tx.tb.start()
+                    self.assertTrue(wait_for(
+                        lambda: rx.status()["output_samples_emitted"] > 20000, 10))
+                    before = rx.status()
+                    self.assertEqual(before["session"]["state"], "connected")
+                    self.assertFalse(before["session"]["termination_unknown"])
+
+                    stop_and_time(rx.tb)
+                    after = rx.status()
+                    self.assertFalse(after["running"])
+                    self.assertFalse(after["end_emitted"])
+                    session = after["session"]
+                    self.assertEqual(session["state"], "stopped")
+                    self.assertTrue(session["termination_unknown"])
+                    self.assertFalse(session["completed"])
+                    self.assertEqual(session["failure"], "none")
+                    self.assertEqual(session["end"], "none")
+                finally:
+                    rx.tb.stop()
+                    tx.tb.stop()
+                    rx.tb.wait()
+                    tx.tb.wait()
 
     def test_stop_with_no_peer_is_bounded(self):
         results = []
@@ -283,6 +316,7 @@ class qa_lifecycle(gr_unittest.TestCase):
         self.assertEqual(r["run_id"], tx2.status()["run_id"])
         self.assertFalse(r["session"]["termination_unknown"])  # the second run ended with END
         self.assertTrue(r["end_emitted"])
+        self.assertEqual(r["session"]["state"], "completed")
         evidence("new_run", tag_offset=offset, reasons=brk["reasons"], end=r["session"]["end"])
 
     def test_slow_consumer_segmented_reports_every_dropped_sample(self):
