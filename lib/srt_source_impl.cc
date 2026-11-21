@@ -131,9 +131,9 @@ bool srt_source_impl::stop()
     if (end_emitted)
         (void)d_worker->wait_finished(std::min<std::chrono::milliseconds>(
             d_transport.stop_timeout, std::chrono::milliseconds(200)));
+    d_worker->stop(); // joins after finalizing termination status and counters
     const rwsrt::session_snapshot session = d_worker->snapshot();
     const rwsrt::queue_stats queue = d_queue->stats();
-    d_worker->stop(); // closes its sockets on its own thread, then joins
     {
         std::lock_guard<std::mutex> state(d_state_mutex);
         d_final_session = session;

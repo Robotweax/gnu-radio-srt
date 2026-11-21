@@ -250,6 +250,11 @@ void session_worker::fatal(session_failure reason, const std::string& detail, in
 bool session_worker::apply_external_failure()
 {
     std::lock_guard<std::mutex> guard(d_mutex);
+    return apply_external_failure_locked();
+}
+
+bool session_worker::apply_external_failure_locked()
+{
     if (d_external_failure == session_failure::none)
         return false;
     if (d_fsm.on_fatal(d_external_failure))
@@ -806,18 +811,20 @@ void session_worker::run()
             d_status.continuity = ledger.counters();
             publish(&ep);
         }
-        // Completed or failed sessions keep their state for the status
-        // report until stop(); the sockets are released right away.
+        // Release the sockets immediately while retaining the session status.
         ep.close();
     }
     while (!cancelled())
         pause(std::chrono::milliseconds(wait_slice_ms));
     std::lock_guard<std::mutex> guard(d_mutex);
-    const session_failure failure = d_fsm.failure();
+    // A failure reported by the block may still be pending when it requests stop.
+    (void)apply_external_failure_locked();
+    const session_state outcome = d_fsm.state();
     d_fsm.request_stop();
     d_fsm.on_stopped();
-    publish();
-    d_status.failure = failure;
+    // Keep the published outcome while returning the state machine to stopped.
+    if (outcome != session_state::completed && outcome != session_state::failed)
+        publish();
 }
 
 } // namespace rwsrt
