@@ -18,10 +18,11 @@ SEG = "segmented_live"
 STRICT = "strict_stop"
 
 
-def run(testcase, data, tags, sink_policy=SEG, source_policy=SEG, fmt="cf32", expect_rx_done=True):
+def run(testcase, data, tags, sink_policy=SEG, source_policy=SEG, fmt="cf32",
+        expect_rx_done=True, stream=None):
     port = free_udp_port()
     ts, ss, tr, sr = configs(port, fmt=fmt, key=None, sink_policy=sink_policy,
-                             source_policy=source_policy,
+                             source_policy=source_policy, stream=stream,
                              transport=dict(reconnect_total_timeout_ms=1500, startup_timeout_ms=5000))
     rx = Receiver(tr, sr, fmt)
     tx = Sender(ts, ss, fmt, data, tags)
@@ -132,6 +133,37 @@ class qa_tags(gr_unittest.TestCase):
         tx, rx = run(self, data, tags)
         times = dict(rx.tags("rwsrt.capture_time"))
         self.assertTrue(times and all(o < 300 for o in times))  # none after the gap
+
+    def test_capture_time_on_first_sample_after_a_gap(self):
+        data = test_signal("cf32", 900)
+        offset = 300
+        time_tag = pdict(time_ns=10**12, uncertainty_ns=250)
+        cases = [
+            (pdict(missing_samples=10), "sample_gap", 0, offset + 10),
+            (pdict(unknown=True), "upstream_unknown_gap", 1, 0),
+        ]
+        for gap, reason, segment, index in cases:
+            for capture_time_first in (True, False):
+                with self.subTest(gap=reason, capture_time_first=capture_time_first):
+                    tags = [
+                        make_tag(offset, "rwsrt.capture_time", time_tag),
+                        make_tag(offset, "rwsrt.input_discontinuity", gap),
+                    ]
+                    if not capture_time_first:
+                        tags.reverse()
+                    # Give the finite burst time to wait for the SRT handshake.
+                    tx, rx = run(self, data, tags, stream={"queue_max_age_ms": 1000})
+                    self.assertEqual(rx.data(), data, (tx.status(), rx.status()))
+                    self.assertEqual(
+                        dict(rx.tags("rwsrt.capture_time")).get(offset),
+                        {"time_ns": 10**12, "uncertainty_ns": 250},
+                    )
+                    record = dict(rx.tags("rwsrt.record"))[offset]
+                    self.assertEqual((record["segment_id"], record["first_sample_index"]),
+                                     (segment, index))
+                    self.assertEqual(
+                        dict(rx.tags("rwsrt.discontinuity"))[offset]["reasons"], reason
+                    )
 
     def test_unreadable_discontinuity_is_treated_as_unknown_not_ignored(self):
         data = test_signal("cf32", 600)
