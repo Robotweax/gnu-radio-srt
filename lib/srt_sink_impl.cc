@@ -372,8 +372,13 @@ int srt_sink_impl::general_work(int /*noutput_items*/,
     const std::uint64_t base = nitems_read(0);
     std::vector<gr::tag_t> tags;
     get_tags_in_range(tags, 0, base, base + static_cast<std::uint64_t>(n));
-    std::stable_sort(tags.begin(), tags.end(),
-                     [](const gr::tag_t& a, const gr::tag_t& b) { return a.offset < b.offset; });
+    std::stable_sort(tags.begin(), tags.end(), [](const gr::tag_t& a, const gr::tag_t& b) {
+        if (a.offset != b.offset)
+            return a.offset < b.offset;
+        // Apply gaps before anchoring the capture time of the first sample after them.
+        return pmt::eqv(a.key, blk::key_input_discontinuity) &&
+               !pmt::eqv(b.key, blk::key_input_discontinuity);
+    });
 
     const auto emit = [this](rwsrt::queue_entry&& e) { push_record(std::move(e)); };
     int cursor = 0;
