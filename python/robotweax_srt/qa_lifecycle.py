@@ -338,6 +338,7 @@ class qa_lifecycle(gr_unittest.TestCase):
         self.assertGreater(dropped, 0)
         breaks = rx.tags("rwsrt.discontinuity")
         tagged = sum(b["missing_samples"] for _, b in breaks)
+        self.assertEqual({b["connection_generation"] for _, b in breaks}, {1})
         self.assertTrue(all("receiver_queue_drop" in b["reasons"] and b["missing_known"] for _, b in breaks))
         # Queue-drop metrics and discontinuity reports agree, and nothing is unaccounted.
         self.assertEqual(r["reported_missing_samples"], dropped)

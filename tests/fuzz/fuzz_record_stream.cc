@@ -94,6 +94,7 @@ void fuzz_ledger(reader in, continuity_policy policy)
         e.header = h;
         e.message.assign(header_size + h.sample_count * 8u, 0);
         e.brk = r.brk;
+        e.connection_generation = r.connection_generation;
         const push_status ps = queue.push(std::move(e), now);
         check(ps == push_status::ok || ps == push_status::after_end);
         if (ps == push_status::after_end)

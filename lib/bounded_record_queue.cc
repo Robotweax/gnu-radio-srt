@@ -40,7 +40,6 @@ void bounded_record_queue::evict_front_locked(drop_counters& counters)
                 p.brk.previous = e.brk->previous;
                 p.brk.missing_known = e.brk->missing_known;
                 p.brk.missing_samples = e.brk->missing_samples;
-                p.brk.connection_generation = e.brk->connection_generation;
             } else {
                 p.brk.has_previous = true;
                 p.brk.previous = coordinate{ e.header.run_id, e.header.segment_id,
@@ -52,7 +51,6 @@ void bounded_record_queue::evict_front_locked(drop_counters& counters)
             d_pending_drop->brk.missing_known =
                 d_pending_drop->brk.missing_known && e.brk->missing_known;
             d_pending_drop->brk.missing_samples += e.brk->missing_samples;
-            d_pending_drop->brk.connection_generation = e.brk->connection_generation;
         }
         d_pending_drop->brk.missing_samples += e.header.sample_count;
     }
@@ -127,8 +125,9 @@ pop_status bounded_record_queue::pop_locked(queue_entry& out, clock::time_point 
             merged.reasons |= out.brk->reasons;
             merged.missing_known = merged.missing_known && out.brk->missing_known;
             merged.missing_samples += out.brk->missing_samples;
-            merged.connection_generation = out.brk->connection_generation;
         }
+        // Like the next coordinate, the generation describes the surviving record.
+        merged.connection_generation = out.connection_generation;
         if (!merged.missing_known)
             merged.missing_samples = 0;
         merged.next = coordinate{ out.header.run_id, out.header.segment_id,

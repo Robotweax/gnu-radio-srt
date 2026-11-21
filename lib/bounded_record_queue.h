@@ -40,6 +40,7 @@ struct queue_entry {
     std::vector<std::uint8_t> message; //!< one complete serialized record
     record_header header;
     std::optional<discontinuity> brk;  //!< break that precedes this record
+    std::uint64_t connection_generation = 0; //!< connection on which this record arrived
     std::chrono::steady_clock::time_point enqueued{};
 };
 

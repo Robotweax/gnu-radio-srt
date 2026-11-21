@@ -113,6 +113,79 @@ BOOST_AUTO_TEST_CASE(drop_oldest_accounts_for_every_discarded_sample)
     BOOST_TEST(!e.brk.has_value());
 }
 
+BOOST_AUTO_TEST_CASE(drop_reports_generation_before_and_after_reconnect)
+{
+    bounded_record_queue q(limits(1), overflow_policy::drop_oldest, true);
+    continuity_ledger ledger(continuity_policy::segmented_live, sample_format::cf32, 100000, 1);
+    const auto push = [&](std::uint64_t seq) {
+        queue_entry e = rec(seq, seq);
+        const ledger_result result = ledger.on_record(e.header);
+        BOOST_REQUIRE(result.accepted);
+        e.brk = result.brk;
+        e.connection_generation = result.connection_generation;
+        BOOST_REQUIRE((q.push(std::move(e), t0) == push_status::ok));
+    };
+
+    ledger.on_connection();
+    push(0);
+    push(1);
+    queue_entry e;
+    BOOST_REQUIRE((q.pop(e, t0) == pop_status::record));
+    BOOST_REQUIRE(e.brk.has_value());
+    BOOST_TEST(e.brk->reasons == reason_receiver_queue_drop);
+    BOOST_TEST(e.brk->connection_generation == 1u);
+
+    ledger.on_connection();
+    push(2);
+    BOOST_REQUIRE((q.pop(e, t0) == pop_status::record));
+    BOOST_REQUIRE(e.brk.has_value());
+    BOOST_TEST(e.brk->reasons == reason_reconnect);
+    BOOST_TEST(e.brk->connection_generation == 2u);
+    push(3);
+    push(4);
+    BOOST_REQUIRE((q.pop(e, t0) == pop_status::record));
+    BOOST_REQUIRE(e.brk.has_value());
+    BOOST_TEST(e.brk->reasons == reason_receiver_queue_drop);
+    BOOST_TEST(e.brk->connection_generation == 2u);
+}
+
+BOOST_AUTO_TEST_CASE(drop_merges_reconnect_on_surviving_or_evicted_record)
+{
+    for (bool evict_marker : { false, true }) {
+        bounded_record_queue q(limits(1), overflow_policy::drop_oldest, true);
+        queue_entry before = rec(0, 0);
+        before.connection_generation = 1;
+        BOOST_REQUIRE((q.push(std::move(before), t0) == push_status::ok));
+
+        queue_entry marker = rec(1, 1);
+        marker.connection_generation = 2;
+        marker.brk.emplace();
+        marker.brk->reasons = reason_reconnect;
+        marker.brk->has_previous = true;
+        marker.brk->previous = coordinate{ marker.header.run_id, 0, n };
+        marker.brk->next = marker.brk->previous;
+        marker.brk->connection_generation = 2;
+        BOOST_REQUIRE((q.push(std::move(marker), t0) == push_status::ok));
+
+        const std::uint64_t missing = evict_marker ? 2 * n : n;
+        if (evict_marker) {
+            queue_entry after = rec(2, 2);
+            after.connection_generation = 2;
+            BOOST_REQUIRE((q.push(std::move(after), t0) == push_status::ok));
+        }
+
+        queue_entry e;
+        BOOST_REQUIRE((q.pop(e, t0) == pop_status::record));
+        BOOST_REQUIRE(e.brk.has_value());
+        BOOST_TEST(e.brk->reasons == (reason_receiver_queue_drop | reason_reconnect));
+        BOOST_TEST(e.brk->connection_generation == 2u);
+        BOOST_TEST(e.brk->missing_known);
+        BOOST_TEST(e.brk->missing_samples == missing);
+        BOOST_TEST(e.brk->previous.sample_index == 0u);
+        BOOST_TEST(e.brk->next.sample_index == missing);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(drop_merges_breaks_carried_by_discarded_records)
 {
     bounded_record_queue q(limits(2), overflow_policy::drop_oldest, true);
@@ -226,13 +299,16 @@ BOOST_AUTO_TEST_CASE(end_has_reserved_capacity_and_keeps_order)
     // END never expires; DATA discarded before it is reported on it.
     bounded_record_queue q(limits(2, 1u << 20, 100ms), overflow_policy::drop_oldest, true);
     BOOST_TEST((q.push(rec(0, 0), t0) == push_status::ok));
-    BOOST_TEST((q.push(entry_of(end_header(0, n, 1)), t0) == push_status::ok));
+    queue_entry end = entry_of(end_header(0, n, 1));
+    end.connection_generation = 1;
+    BOOST_TEST((q.push(std::move(end), t0) == push_status::ok));
     queue_entry e;
     BOOST_REQUIRE((q.pop(e, t0 + 1h) == pop_status::record));
     BOOST_TEST((e.header.kind == record_kind::end));
     BOOST_REQUIRE(e.brk.has_value());
     BOOST_TEST(e.brk->reasons == reason_receiver_queue_drop);
     BOOST_TEST(e.brk->missing_samples == n);
+    BOOST_TEST(e.brk->connection_generation == 1u);
 }
 
 BOOST_AUTO_TEST_CASE(close_wakes_waiters_and_drains)
