@@ -1,4 +1,4 @@
-# Known limitations of 0.1.0-rc2
+# Known limitations of 0.1.0-rc3
 
 Read this before relying on the module for a measurement.
 

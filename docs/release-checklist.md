@@ -1,7 +1,8 @@
 # Release checklist for 0.1.0
 
-State of release candidate 0.1.0-rc2 against the plan's definition of done
-(section 15), and the steps that turn a candidate into a release.
+Qualification evidence through release candidate 0.1.0-rc2 against the plan's
+definition of done (section 15), and the steps for preparing and publishing
+the next candidate.
 
 ## Definition of done
 
@@ -42,7 +43,10 @@ State on 2026-11-14: steps 1 to 3 are done for 0.1.0-rc1. Commit `e10c51d`
 is tagged `v0.1.0-rc1` and published as a GitHub pre-release with the
 package from CI run 43381133959. Commit `c25c678` is tagged `v0.1.0-rc2` and
 published as a pre-release on 2026-11-14 with the package from CI run
-43516353024: steps 1 to 3 are done for it too. Steps 4 and 5 are open.
+43516353024: steps 1 to 3 are done for it too. Steps 4 and 5 are open. The 0.1.0-rc3 candidate contains fixes for
+[#1](https://github.com/Robotweax/gnu-radio-srt/issues/1),
+[#2](https://github.com/Robotweax/gnu-radio-srt/issues/2), and
+[#3](https://github.com/Robotweax/gnu-radio-srt/issues/3).
 
 1. Choose the commit. Its CI run must pass all jobs: `gate`, `netem-smoke`,
    `release-check`, `blocks-netem`.
@@ -51,17 +55,17 @@ published as a pre-release on 2026-11-14 with the package from CI run
    content everywhere: compare `CONTENT_SHA256`. The compressed file can
    differ between machines with different gzip programs, so publish one
    file, the one from CI, with the `SHA256SUMS` built next to it.
-3. To publish the candidate: tag the commit `v0.1.0-rc2` and attach the
+3. To publish the candidate: tag the commit `v0.1.0-rc3` and attach the
    package and `SHA256SUMS`. Pushing a tag starts the ordinary CI run, like
    any push; nothing else reacts to tags, and nothing is signed or published
    automatically.
 4. Give the package and [install.md](install.md) to someone who has not
    seen the project. Record what they could not do. This closes item 10.
 5. For the final release: set `RWSRT_RELEASE_VERSION` in `CMakeLists.txt` to
-   `0.1.0`; replace `0.1.0-rc2` in [install.md](install.md), `CHANGELOG.md`,
-   `MANIFEST.md`, `README.md`, [compatibility.md](compatibility.md) and
-   [limitations.md](limitations.md); run the gate and the release check; tag
-   `v0.1.0`.
+   `0.1.0` and update the current release references in [install.md](install.md),
+   `MANIFEST.md`, `README.md`, [compatibility.md](compatibility.md), and
+   [limitations.md](limitations.md). Add a changelog entry, run the gate and
+   release check, and tag `v0.1.0`.
 
 Whether 0.1.0 is released with the open items above, as a developer release
 that says so, or waits for them is the owner's decision.
