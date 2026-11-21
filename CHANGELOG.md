@@ -4,6 +4,24 @@ Versions follow `MAJOR.MINOR.PATCH`. Before 1.0 any minor release may change
 the block API. The wire protocol has its own version; see
 [docs/compatibility.md](docs/compatibility.md).
 
+## 0.1.0-rc3 (release candidate)
+
+The candidate includes three fixes for sample metadata and shutdown reporting.
+The RWSR v1 record format and dependency pins are unchanged.
+
+- The Sink applies a known or unknown discontinuity before setting a capture-time
+  anchor at the same input item. The first sample after the gap retains its
+  supplied timestamp and uncertainty in either tag order.
+  [#1](https://github.com/Robotweax/gnu-radio-srt/issues/1)
+- Stopping an active Source before END now reports `state=stopped` and
+  `termination_unknown=true` in strict and segmented modes. Completed and failed
+  sessions retain their final outcomes.
+  [#2](https://github.com/Robotweax/gnu-radio-srt/issues/2)
+- Receiver queue drops report the connection generation of the surviving DATA
+  or END record. When a drop merges with a reconnect boundary, both reasons
+  and the missing-sample count are preserved.
+  [#3](https://github.com/Robotweax/gnu-radio-srt/issues/3)
+
 ## 0.1.0-rc2 (release candidate)
 
 All three answer findings recorded for 0.1.0-rc1. The record format is

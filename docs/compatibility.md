@@ -1,4 +1,4 @@
-# Compatibility statement for 0.1.0-rc2
+# Compatibility statement for 0.1.0-rc3
 
 ## What this release was built and tested with
 
@@ -26,6 +26,8 @@ network matrix were run on aarch64 only.
 A Sink and a Source of this release interoperate with each other and with
 the reference sender and receiver in `tools/reference_peer/`. Both ends must
 use the same sample format, sample rate, `stream_id` and passphrase.
+
+0.1.0-rc3 uses the same RWSR records and peer notices as 0.1.0-rc2.
 
 0.1.0-rc2 interoperates with 0.1.0-rc1 in both directions:
 the records are unchanged. Two additions are simply absent when the other
