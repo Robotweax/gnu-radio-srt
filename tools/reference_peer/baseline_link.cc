@@ -282,6 +282,7 @@ bool baseline_link::accept_record(const std::uint8_t* data, std::size_t size)
     e.header = rec.header;
     e.message.assign(data, data + size);
     e.brk = lr.brk;
+    e.connection_generation = lr.connection_generation;
     const push_status ps = d_queue.push(std::move(e), clock_type::now());
     if (ps != push_status::ok) {
         set_failure("queue_overflow", "receive queue full");

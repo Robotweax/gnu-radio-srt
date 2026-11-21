@@ -67,6 +67,7 @@ struct ledger_result {
     std::optional<discontinuity> brk;     //!< set for a break, also on failure
     bool is_end = false;
     bool end_complete = false;            //!< receiver-observed completeness
+    std::uint64_t connection_generation = 0; //!< connection of an accepted record
 };
 
 struct ledger_counters {

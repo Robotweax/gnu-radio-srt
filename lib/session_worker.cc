@@ -716,6 +716,7 @@ void session_worker::serve_receive(srt_endpoint& ep, continuity_ledger& ledger)
             e.header = rec.header;
             e.message.assign(buffer.begin(), buffer.begin() + static_cast<std::ptrdiff_t>(size));
             e.brk = lr.brk;
+            e.connection_generation = lr.connection_generation;
             const push_status ps = d_queue.push(std::move(e), clock::now());
             if (ps == push_status::overflow || ps == push_status::too_large) {
                 fatal(session_failure::queue_overflow, "receive queue full");

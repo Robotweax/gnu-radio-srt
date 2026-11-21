@@ -175,6 +175,7 @@ ledger_result continuity_ledger::on_record(const record_header& h) noexcept
 
     ledger_result r;
     r.accepted = true;
+    r.connection_generation = d_generation;
     if (brk.reasons != 0)
         r.brk = brk;
     if (is_end) {
